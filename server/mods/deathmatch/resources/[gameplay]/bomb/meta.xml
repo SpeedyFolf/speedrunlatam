@@ -1,0 +1,9 @@
+<meta>
+    <info name="Bomb" author="botder" type="script" version="1.0.0"></info>
+    <file src="bomb.png"></file>
+    <script src="bomb.lua"></script>
+    <script src="syncronize.lua"></script>
+    <script src="bomb_c.lua" type="client"></script>
+    <script src="collision_c.lua" type="client"></script>
+    <script src="syncronize_c.lua" type="client"></script>
+</meta>

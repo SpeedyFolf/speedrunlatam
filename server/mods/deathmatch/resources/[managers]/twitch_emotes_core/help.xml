@@ -1,0 +1,7 @@
+<help title="Twitch Emotes" popup="yes">PLAYERS / CLIENT:
+Emotes can be turned on or off with /twitchemotes. The emotes may not be displayed correctly if you are playing at a low resolution. The emotes are displayed best on the transparent chat preset (Settings -> Interface -> Load Transparent Preset).
+Animated emotes (GIFs) are unfortunately not (yet?) supported, only static emotes (PNGs) are. Other than that this supports every Twitch emote, even that one.
+
+ADMINS / SERVER:
+Any chat from players gets cancelled and then output manually. If you have any other resources running that also do this (such as play), chat will be output twice.
+</help>

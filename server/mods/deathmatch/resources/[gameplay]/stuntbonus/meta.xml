@@ -1,0 +1,15 @@
+<meta>
+	<min_mta_version server="1.6.0-9.22196"></min_mta_version>
+    <info type="script" name="Vehicle Stunt Bonus" author="Discoordination" version="0.6.0" description="My little vehicle stunts bonus addon that works the same way as one in singleplayer GTA SA."></info>
+    <oop>false</oop>
+
+	<file src="font.ttf"></file>
+
+    <script src="utils_c.lua" type="client"></script>
+    <script src="stunts_c.lua" type="client"></script>
+
+    <script src="stunts_records_s.lua" type="server"></script>
+    <script src="stunts_records_c.lua" type="client" validate="true"></script>
+
+	<config src="help.xml" type="client"></config>
+</meta>

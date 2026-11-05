@@ -1,0 +1,4 @@
+<meta>
+	<info author="HIJACK" version="1.1" type="script"></info>
+	<script src="client.lua" type="client" validate="true"></script>
+</meta>

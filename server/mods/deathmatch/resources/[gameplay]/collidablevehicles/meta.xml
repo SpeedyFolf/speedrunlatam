@@ -1,0 +1,6 @@
+<meta>
+	<min_mta_version server="1.6.0-9.22196"></min_mta_version>
+	<info type="script" name="Collidable Vehicles" author="Community" version="0.6.0" description="Makes static vehicles on a map collidable"></info>
+	<script src="collidableVehicles_s.lua" type="server" validate="false"></script>
+	<script src="collidableVehicles_c.lua" type="client" validate="true"></script>
+</meta>

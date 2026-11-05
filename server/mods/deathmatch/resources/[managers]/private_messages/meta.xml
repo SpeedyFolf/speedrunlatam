@@ -1,0 +1,5 @@
+<meta>
+    <info type="script" version="1.0.0"></info>
+	<script src="server.lua" type="server"></script>
+	<config type="client" src="help.xml"></config>
+</meta>

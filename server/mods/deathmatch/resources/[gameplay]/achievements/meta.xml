@@ -1,0 +1,31 @@
+<meta>
+	<min_mta_version server="1.6.0-9.22196"></min_mta_version>
+	<info type="script" name="Achievements" author="Discoordination" version="0.0.2" description="Achievements"></info>
+	<oop>true</oop>
+
+	<file src="icons/*.png" type="client"></file>
+	<file src="icons/gray/*.png" type="client"></file>
+
+	<file src="shader.fx" type="client"></file>
+
+	<file src="colorpicker/palette.png"></file>
+	<file src="colorpicker/alpha.png"></file>
+	<script src="colorpicker/colorpicker_c.lua" type="client" validate="true"></script>
+
+	<script src="achievements_list.lua" type="shared" validate="true"></script>
+	<script src="utils.lua" type="shared" validate="true"></script>
+
+	<script src="visual_c.lua" type="client" validate="true"></script>
+	<script src="trigger_c.lua" type="client" validate="true"></script>
+
+	<script src="trigger_s.lua" type="server"></script>
+	<script src="database_s.lua" type="server"></script>
+	<script src="bridges_s.lua" type="server"></script>
+
+	<export function="triggerAchievement" type="server"></export>
+	<export function="updateObjective" type="server"></export>
+	<export function="getAchievementData" type="server"></export>
+	<export function="getAchievementByID" type="server"></export>
+
+	<config src="help.xml" type="client"></config>
+</meta>

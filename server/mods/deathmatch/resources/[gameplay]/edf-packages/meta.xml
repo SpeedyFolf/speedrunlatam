@@ -1,0 +1,12 @@
+<meta>
+	<info author="S." version="1.0.0" edf:definition="packages.edf"></info>
+	<file src="radararea.png"></file>
+	<file src="region.png"></file>
+	<file src="pickup_white.png"></file>
+	<file src="pickup_red.png"></file>
+	<file src="pickup_yellow.png"></file>
+	<file src="pickup_blue.png"></file>
+	<file src="pickup_green.png"></file>
+	<file src="pickup_orange.png"></file>
+	<file src="pickup_black.png"></file>
+</meta>

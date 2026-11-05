@@ -1,0 +1,19 @@
+<help title="Global Leaderboards" popup="yes">- This shows various stats:
+- - Stats for each player:
+- - - The number of top 1, top 2, and top 3 times they have.
+- - - The number of places they have on the F5 leaderboard.
+- - - How many maps they have not set a time on.
+- - - The total sum of all of their places (lower = better) and total sum of all of their times.
+- - - - If a player is not ranked on a map, their time for that map will be registered as whatever the timelimit for that map is, and their rank will be the number of players ranked for that map, plus one.
+- - - - Players are ranked based on the total sum of their times.
+- - - The community sum of best is also shown.
+- - - Double click on a player name to add a new tab, that shows all of their ranks and times for each map, plus a delta between their time and the top time.
+- - - - A tab for your own self is helpfully added automatically.
+- - - Double click on a map name to view the full leaderboards (not just top 11) for that map.
+- The resource is in ALPHA: We have decided to release the resource in this state, so that players may enjoy one form of functionality without having to wait for another to be developed.
+- - The resource does not automatically update yet, so it will show information as it was the last time the resource was started.
+- - A search feature is also to be added later.
+- Due to the top times backend being a complete mess, the list is long and includes many duplicate names due to color tag variants, clan tag variants, impersonators, etc. We will need to brainstorm on how to conglomerate such times under one label per person so that the list will become tidier.
+- You can toggle the window with the following commands: /globalleaderboards, /gldbs, /gldb, /glbs, and /glb.
+- - Unfortunately we have run out of F keys to use. Until we find a solution, please bind it to a key yourself if so desired.
+</help>

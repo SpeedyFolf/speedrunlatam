@@ -1,0 +1,47 @@
+<!-- https://www.w3schools.com/tags/att_input_list.asp -->
+<!-- https://stackoverflow.com/questions/6290442/html-input-type-text-onchange-event-not-working -->
+<!-- https://www.w3schools.com/tags/tag_label.asp -->
+<!-- https://www.w3schools.com/cssref/pr_class_display.asp -->
+<!-- https://stackoverflow.com/questions/7220193/applying-css-style-to-table-cell-when-hovered-over -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<* = call ( getResourceFromName("ajax"), "start", getResourceName(getThisResource()) ) *>
+		<script src="client.js" type="text/javascript"></script>
+		<link  href="style.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body onload="updateInfo()">
+		<div id="container" style="display: none;">
+			<input id="mapInput" list="mapList" onchange="getMapInfo();">
+			<datalist id="mapList"></datalist><input type="button" id="clearButton" value="X" onclick="clearInputField();">
+			<br><br>
+			<label id="mapCountLabel"></label>
+			<p>Please select a map from the list or start typing its name</p>
+			<label id="mapAuthorLabel"></label>
+			<br>
+			<label id="totalTopsLabel"></label>
+			<br><br>
+			<table id="mapInfoTable" class="hover">
+				<thead>
+					<tr>
+						<th id="position">Position</th>
+						<th id="name">Player Name</th>
+						<th id="time">Toptime</th>
+						<th id="difference">Difference</th>
+						<th id="date">Date</th>
+					</tr>
+				</thead>
+				<tbody id="mapInfoTbody">
+					<!-- <tr>
+						<td id="Pos"></td>
+						<td id="Name"></td>
+						<td id="Time"></td>
+						<td id="Diff"></td>
+						<td id="Date"></td>
+					</tr> -->
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,9 @@
+<settings>
+    <setting name="ip2c.ip2cUpdateTime" value="[1793845422]"/>
+    <setting name="race_ghost.ghostserver" value="http://127.0.0.1:5000"/>
+    <setting name="race_ghost.recordpersonalbests" value="[ true ]"/>
+    <setting name="*mapnameupdateassistant.updatesdone" value="[25]"/>
+    <setting name="race.addons" value='[&quot;race_toptimes,race_traffic_sensor,mapratings,race_ghost&quot;]'></setting>
+    <setting name="race_ghost.validatetime" value="[false]"/>
+    <setting name="race_ghost.validatespawn" value="[false]"/>
+</settings>

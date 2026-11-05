@@ -1,0 +1,19 @@
+.env
+server-template.tar.gz
+.DS_Store
+
+# Local server runtime
+server/logs/
+server/ghosts_server/ghosts/
+server/mods/deathmatch/logs/
+server/mods/deathmatch/resource-cache/
+server/mods/deathmatch/backups/
+server/mods/deathmatch/dumps/
+server/mods/deathmatch/databases/
+server/mods/deathmatch/registry.db
+server/mods/deathmatch/internal.db
+server/mods/deathmatch/banlist.xml
+server/mods/deathmatch/server-id.keys
+server/mods/deathmatch/neon-identity.keys
+server/mods/deathmatch/mtaserver.conf
+**/autologin/encryption_key.txt

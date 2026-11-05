@@ -1,0 +1,17 @@
+<meta>
+	<info author="Lordmau5" version="1.2.1" name="AFK Kicker" addon="race" description="Push people into forced spectate when they idle" type="script"></info>
+
+	<script src="server.lua" type="server"></script>
+	<script src="client.lua" type="client" cache="false"></script>
+	<script src="util.lua" type="client" cache="false"></script>
+
+	<config src="help.xml" type="client"></config>
+
+	<settings>
+		<setting
+			name="*afk_timer"
+			value="[30]"
+			friendlyname="AFK Timer in seconds"
+			desc="The time in seconds a player can be AFK before they get forced to spectate"></setting>
+	</settings>
+</meta>

@@ -1,0 +1,9 @@
+<help title="Achievements" popup="yes">There are many different achievements you can get by completing various challenges on the server or in specific maps.
+Remember, you have to be logged in to your account to save achievement completion progress.
+
+Commands:
+/achievements, /ach, or F1 button - Opens the GUI that shows all achievements on the server and information about collected achievements and their progress.
+/togglebridges - Shows blips for collected bridges on the minimap and F11 map.
+
+Made by Discoordination, LotsOfS, and Mawfeen
+</help>

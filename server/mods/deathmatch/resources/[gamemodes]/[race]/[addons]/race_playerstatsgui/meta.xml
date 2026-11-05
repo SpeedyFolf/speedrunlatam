@@ -1,0 +1,25 @@
+<meta>
+	<info name="Race Player Stats GUI" author="AcidbRain" version="1.0" description="Displays player race statistics" type="script" addon="race"></info>
+
+	<script src="common.lua" type="server"></script>
+	<script src="settings.lua" type="server"></script>
+	<script src="util.lua" type="server"></script>
+	<script src="main.lua" type="server"></script>
+	<script src="common.lua" type="client"></script>
+	<script src="gui.lua" type="client"></script>
+
+	<config src="help.xml" type="client"></config>
+
+	<export function="AddStatColumn" type="client"></export>
+
+	<settings>
+
+		<setting
+			name="*showStatsOnMapFinish"
+			friendlyname="Display stats panel when race finishes"
+			group="GUI"
+			accept="true|false"
+			value="false"></setting>
+
+	</settings>
+</meta>

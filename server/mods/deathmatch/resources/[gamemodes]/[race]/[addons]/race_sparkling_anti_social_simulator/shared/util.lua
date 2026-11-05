@@ -1,0 +1,6 @@
+HIDE_TYPES = {
+	DISABLED = 0,
+	FADE = 1,
+	FADE_HIDE = 2,
+	HIDE = 3,
+}

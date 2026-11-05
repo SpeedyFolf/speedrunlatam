@@ -1,0 +1,10 @@
+<meta>
+	<info author="MTA contributors (github.com/multitheftauto/mtasa-resources)" version="1.0.0"></info>
+	<script src="script.lua" type="client"></script>
+	<file src="images\error.png"></file>
+	<file src="images\info.png"></file>
+	<file src="images\question.png"></file>
+	<file src="images\warning.png"></file>
+
+	<export function="guiShowMessageBox" type="client"></export>
+</meta>

@@ -1,0 +1,16 @@
+<help title="Tiki" popup="yes">Tired of quantity over quality? Tired of feeling abandoned?
+Too bad. But at least you've got tiki!
+
+Type /tiki to open the menu and hunt down those strange objects hidden in all those maps.
+
+'/tikitoggle' to enable or disable this resource for you.
+'/tikimap' to toggle showing map info in the chatbox when loading into map, if the map has any.
+'/tikiblips' to toggle blips on and off on the radar.
+'/tikitext' to toggle showing pickup info in the chatbox when a tiki is collected.
+'/tikireset mapname' to reset tiki on a specific map.
+
+New tiki can be collected on a new map every week, as long as all previous tiki were found.
+Are you creating or submitting a custom map that you believe deserves tiki? Contact me.
+
+- Mawfeen
+</help>

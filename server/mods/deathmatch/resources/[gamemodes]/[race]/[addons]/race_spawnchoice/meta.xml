@@ -1,0 +1,13 @@
+<meta>
+	<info name="SpawnChoice" description="Choose your spawn!" author="Vibecodin&apos; Muffin, updated by morpp" type="script" addon="race" version="1.1" edf:definition="edf.edf"></info>
+
+	<script src="client.lua" type="client"></script>
+	<script src="server.lua" type="server"></script>
+	<config src="help.xml" type="client"></config>
+
+	<aclrequest>
+		<right name="general.ModifyOtherObjects" access="true"></right>
+	</aclrequest>
+
+	<oop>false</oop>
+</meta>

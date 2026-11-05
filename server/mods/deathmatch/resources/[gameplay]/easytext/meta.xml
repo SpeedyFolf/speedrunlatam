@@ -1,0 +1,9 @@
+<meta>
+	<info author="erorr404" type="script" name="Easy Text" showInResourceBrowser="true" version="1.0.0"></info>
+
+	<script src="main.lua" type="server"></script>
+
+	<export function="displayMessageForPlayer" type="server" http="true"></export>
+	<export function="clearMessageForPlayer" type="server" http="true"></export>
+
+</meta>

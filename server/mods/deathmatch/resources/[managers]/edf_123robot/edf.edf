@@ -1,0 +1,3 @@
+<def name="Race">
+	<setting name="racetype" friendlyname="Race type" type="selection:???,R,DD,MG,SR,TW" description="The tag (&quot;[TAG]&quot;) that is to appear in front of the map name." default="???" required="true"></setting>
+</def>

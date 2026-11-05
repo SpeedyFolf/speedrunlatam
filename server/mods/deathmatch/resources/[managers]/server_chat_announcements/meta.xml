@@ -1,0 +1,4 @@
+<meta>
+	<info name="Server Chat Announcements" longname="Server Chat Announcements" description="Rotating green chat messages every 4 minutes including tips, reminders, and general server information." author="Joshimuz" type="script" version="1.0"></info>
+	<script src="server.lua" type="server" validate="false"></script>
+</meta>

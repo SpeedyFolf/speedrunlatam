@@ -1,0 +1,6 @@
+<meta>
+	<info name="Anti World Blow" longname="Anti World Blow" description="An attempt to prevent deaths from other people driving into barrels etc. Limitations: Explosions might still push you around, and you might die in them anyway, but it'll still hopefully prevent 75% of deaths." author="LotsOfS" type="script" version="2.1"></info>
+	<script src="script.lua" type="client"></script>
+	<script src="server.lua" type="server"></script>
+	<script src="vehicle_explosive_check_radii.lua" type="client"></script>
+</meta>

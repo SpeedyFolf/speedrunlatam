@@ -1,0 +1,23 @@
+<meta>
+	<info author="erorr404,jbeta,Talidan" description="Official MTA map editor" version="1.0.0"></info>
+
+	<!-- Include map manager, needed for the testing components, and handles the idea of "Gamemodes" and "Maps" -->
+	<include resource="mapmanager"></include>
+
+	<!-- Include "Editor definition format" definitions -->
+	<include resource="edf"></include>
+
+	<!-- Include main component of the editor - handles all movement -->
+	<include resource="editor_main"></include>
+
+	<!-- Include GUI frontend for the editor -->
+	<include resource="editor_gui"></include>
+
+	<!-- Simple script to check freeroam is available (not an include resource, but a dependency) -->
+	<script src="freeroam.lua" type="server"></script>
+
+	<!-- Script to handle editor's exported functions -->
+	<script src="exports.lua" type="server"></script>
+
+	<export function="import" type="server"></export>
+</meta>

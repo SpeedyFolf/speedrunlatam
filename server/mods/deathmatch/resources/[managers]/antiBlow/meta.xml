@@ -1,0 +1,6 @@
+<meta>
+	<info author="Lordmau5" name="Antiblow - No explode, many visual, wow kill" type="misc" version="0.0.2"></info>
+	<oop>true</oop>
+	<script src="client.lua" type="client"></script>
+	<script src="server.lua" type="server"></script>
+</meta>

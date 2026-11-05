@@ -1,0 +1,43 @@
+<meta>
+    <info author="San Andreas Online" name="Native wanted and police" version="2.0.0" type="script"
+          description="Server-authoritative wanted levels with GTA's own crime rules, police cars, foot cops and arrests" />
+    <!-- Shared: the client reads the close-range speed rules for police cars. -->
+    <script src="rules.lua" type="shared" cache="false" />
+    <script src="server.lua" type="server" />
+    <script src="client.lua" type="client" cache="false" />
+
+    <settings>
+        <!-- Cops alive at once on the whole server, and per wanted player. -->
+        <setting name="*maxCops" value="24" />
+        <setting name="*maxCopsPerSuspect" value="10" />
+        <!-- Count crimes against other players (punching, shooting, running over). -->
+        <setting name="*pvpCrimes" value="true" />
+        <!-- A cop farther than this from its suspect gives up (metres). -->
+        <setting name="*copLostDistance" value="220" />
+        <!-- Another player within this range of a cop can run its AI (metres). -->
+        <setting name="*ownerRange" value="90" />
+        <!-- Draw other wanted players' stars above their heads. -->
+        <setting name="*overheadStars" value="true" />
+        <!-- Show BUSTED on the arrested player's screen. -->
+        <setting name="*bustedText" value="true" />
+        <!-- Street cops from native-ped-traffic join the chase, as in solo. -->
+        <setting name="*streetCops" value="true" />
+        <!-- Police cars from 2 stars, as in solo (version 2). Off: version 1's
+             foot cops at every level. -->
+        <setting name="*policeCars" value="true" />
+        <!-- Police cars at once on the whole server, and per wanted player
+             (solo's own cap per level, 1-3, applies under this). -->
+        <setting name="*maxCars" value="12" />
+        <setting name="*maxCarsPerSuspect" value="3" />
+    </settings>
+
+    <export function="reportNativeCrime" type="server" />
+    <export function="getNativeWantedState" type="server" />
+    <export function="setNativeWantedEnabled" type="server" />
+    <export function="clearNativeWanted" type="server" />
+    <export function="setNativeWantedLevel" type="server" />
+    <export function="setNativeWantedMaximum" type="server" />
+    <export function="getNativePoliceUnits" type="server" />
+    <export function="getNativePoliceCars" type="server" />
+    <export function="requestNativePoliceBackoff" type="server" />
+</meta>

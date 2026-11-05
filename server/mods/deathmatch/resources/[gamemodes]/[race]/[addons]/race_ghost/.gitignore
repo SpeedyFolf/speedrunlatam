@@ -1,0 +1,4 @@
+# Ignore race ghosts
+ghosts/
+# Ignore race ghosts backup copy from before switching from XML to JSON
+ghosts - Copy/

@@ -1,0 +1,37 @@
+<meta>
+	<min_mta_version server="1.6.0-9.22430" client="1.5.8-9.20957"></min_mta_version>
+	<info type="script" shortname="TwitchEmotesGlob" name="Twitch Emotes Glob" longname="Twitch Emotes (Global)" author="Ali Digitali, SpeedyFolf, &amp; Google Gemini" version="1.2.0" description="Twitch emotes will show up in the chat when you type their name (just as on twitch.tv). This is a slave resource or emote pack which holds all standard Twitch emote images."></info>
+
+	<script src="server.lua" type="server" validate="false"></script>
+
+	<!-- <file src="Emotes/HypeTrainSetSeven/*.png"></file> -->
+	<file src="Emotes/CelebrateKPOP/*.png"></file>
+	<file src="Emotes/GlitchCon2020/*.png"></file>
+	<file src="Emotes/Global/*.gif"></file>
+	<file src="Emotes/Global/*.png"></file>
+	<file src="Emotes/HAHAHAlidays/*.png"></file>
+	<file src="Emotes/Hindsight2020/*.png"></file>
+	<file src="Emotes/Holidays2024/December/*.gif"></file>
+	<file src="Emotes/Holidays2024/December/*.png"></file>
+	<file src="Emotes/Holidays2024/May/*.gif"></file>
+	<file src="Emotes/Holidays2024/October/*.gif"></file>
+	<file src="Emotes/HyperScape/*.png"></file>
+	<file src="Emotes/HypeTrainOriginal/*.png"></file>
+	<file src="Emotes/HypeTrainSetEight/*.gif"></file>
+	<file src="Emotes/HypeTrainSetFive/*.png"></file>
+	<file src="Emotes/HypeTrainSetFour/*.png"></file>
+	<file src="Emotes/HypeTrainSetNine/*.gif"></file>
+	<file src="Emotes/HypeTrainSetSix/*.gif"></file>
+	<file src="Emotes/HypeTrainSetSix/*.png"></file>
+	<file src="Emotes/HypeTrainSetThree/*.png"></file>
+	<file src="Emotes/HypeTrainSetTwo/*.png"></file>
+	<file src="Emotes/RPGMegacheer/*.png"></file>
+	<file src="Emotes/SingleSurvivors/*.png"></file>
+	<file src="Emotes/SpecialUnlockables/2FA/*.png"></file>
+	<file src="Emotes/SpecialUnlockables/ClipCreation/*.png"></file>
+	<file src="Emotes/SpecialUnlockables/Others/*.gif"></file>
+	<file src="Emotes/SpecialUnlockables/Prime/*.png"></file>
+	<file src="Emotes/SpecialUnlockables/Turbo/*.png"></file>
+	<file src="Emotes/StreamerLuv/*.png"></file>
+	<file src="Emotes/StreamWithPride/*.png"></file>
+</meta>

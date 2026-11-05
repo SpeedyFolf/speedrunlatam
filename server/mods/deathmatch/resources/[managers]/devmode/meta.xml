@@ -1,0 +1,4 @@
+<meta>
+	<info name="Dev Mode" longname="Development Mode" description="Enable development mode without using the entire Runcode resource or an old version of Admin Panel. Use &quot;/devmode&quot; to enable if it hasn't been already." author="LotsOfS" type="script" version="1.0.1"></info>
+	<script src="script.lua" type="client"></script>
+</meta>

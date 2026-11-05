@@ -1,0 +1,11 @@
+<meta>
+	<info author="Jusonex, Audifire" type="misc" version="1.0.0" name="webbrowser"></info>
+	<min_mta_version client="1.5.1"></min_mta_version>
+	<oop>true</oop>
+	<include resource="dialogs"></include>
+
+	<script src="client.lua" type="client"></script>
+	<script src="WebBrowserGUI.lua" type="client"></script>
+
+	<file src="chromiumIcon.png"></file>
+</meta>

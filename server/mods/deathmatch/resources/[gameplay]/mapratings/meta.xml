@@ -1,0 +1,15 @@
+<meta>
+	<info name="Map Ratings" description="Rating system for maps" author="Flobu" type="script" addon="race" version="1.0"></info>
+
+	<script src="mapratings_server.lua" type="server"></script>
+
+	<export function="getMapRating" type="server"></export>
+	<export function="getMapLastTimePlayed" type="server"></export>
+	<export function="getMapTimesPlayed" type="server"></export>
+	<export function="getPlayerRating" type="server"></export>
+	<export function="getRatingColor" type="server"></export>
+	<export function="getRatingColorAsHex" type="server"></export>
+	<export function="getMapRatingForPoll" type="server"></export>
+	<export function="getMapLastTimePlayedForPoll" type="server"></export>
+
+</meta>

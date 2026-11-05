@@ -1,0 +1,13 @@
+<meta>
+	<min_mta_version server="1.6.0-9.22430" client="1.5.8-9.20957"></min_mta_version>
+	<info type="script" shortname="TwitchEmotesCore" name="Twitch Emotes Core" longname="Twitch Emotes (Core)" author="Ali Digitali, SpeedyFolf, &amp; Google Gemini" version="1.2.0" description="Twitch emotes will show up in the chat when you type their name (just as on twitch.tv). This is the master resource which holds the master list, assigns the hidden IDs, listens to the chat box, and draws the images. It doesn&apos;t contain any images itself.
+
+All emote images included in the glob and sub sub-resources remain the property of Twitch Interactive or their respective owners/creators. These images are used for non-commercial, community-driven purposes."></info>
+
+	<script src="server.lua" type="server" validate="false"></script>
+	<script src="client.lua" type="client" validate="true"></script>
+
+	<export function="registerEmotes" type="server"></export>
+
+	<config src="help.xml" type="client"></config>
+</meta>

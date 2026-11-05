@@ -1,0 +1,1 @@
+Unlock these emotes by enabling [2-Factor Authentication (2FA)](https://passport.twitch.tv/register_2fa/new).

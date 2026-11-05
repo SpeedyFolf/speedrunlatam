@@ -1,0 +1,11 @@
+<meta>
+	<info description="Help manager" author="jbeta" type="script" version="1.0.0"></info>
+	<script src="helpmanager_server.lua" type="server"></script>
+	<export function="showHelp" type="server"></export>
+	<export function="hideHelp" type="server"></export>
+	<script src="helpmanager_client.lua" type="client"></script>
+	<export function="addHelpTab" type="client"></export>
+	<export function="removeHelpTab" type="client"></export>
+	<export function="showHelp" type="client"></export>
+	<export function="hideHelp" type="client"></export>
+</meta>

@@ -1,0 +1,10 @@
+<meta>
+	<info name="MNUA" longname="Map Name Update Assistant" description="Assist with the renamement of maps" author="S." type="script" version="1.0"></info>
+	<script src="client.lua" type="client"></script>
+	<script src="server.lua" type="server"></script>
+	<script src="sql.lua" type="server"></script>
+	<script src="renames.lua" type="shared"></script>
+	<settings>
+		<setting name="*updatesdone" value="0" friendlyname="Updates Done" group="Updates" accept="0-999" desc="Desc"></setting>
+	</settings>
+</meta>

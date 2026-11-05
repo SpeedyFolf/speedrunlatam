@@ -1,0 +1,9 @@
+<help title="Private Messages" popup="yes">Send a private message to someone using the following command:
+
+/pm player message
+
+where 'player' is the name of the player you want to send a message,
+and 'message' is the message you want to send.
+
+You must type the player name exactly the same as it is shown in the player list (hold tab).
+</help>

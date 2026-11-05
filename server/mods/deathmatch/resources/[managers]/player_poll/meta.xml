@@ -1,0 +1,5 @@
+<meta>
+	<script src="client.lua" type="client"></script>
+	<script src="server.lua" type="server"></script>
+	<info name="Poll" author="Ali_Digitali" version="1.0.0"></info>
+</meta>

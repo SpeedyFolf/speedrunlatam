@@ -1,0 +1,3 @@
+<help>/cpdelays            - toggle the delays
+/setdelaypos x y     - set the relative position of the delays [0 - 1]
+</help>

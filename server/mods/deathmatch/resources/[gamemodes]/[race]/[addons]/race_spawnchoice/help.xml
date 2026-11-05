@@ -1,0 +1,16 @@
+<help title="Race SpawnChoice" popup="yes">Choose your spawn!
+
+To use, simply use your scrollwheel or arrow keys to cycle through available spawnpoints.
+Press right mouse button (mouse2) to automatically select the spawnpoint closest to Checkpoint #1.
+
+You can also use:
+- "/spawnchoice #" to warp to a specific spawnpoint.
+- "/spawnchoice +#" or "/spawnchoice -#" to move relative to your current spawn.
+
+Your selected spawnpoint is automatically saved to your computer (spawns.xml) for each map, so it will remember your preference next time you play the map!
+
+SpawnChoice can only be used during the pre-race grid countdown.
+It is disabled on maps that have it explicitly disabled, have only 1 spawnpoint, or do not have ghostmode enabled.
+
+To disable it on your map, place a setting inside your map&apos;s meta.xml named &quot;#spawnchoice&quot; with a value of &quot;[ &apos;false&apos; ]&quot;.
+</help>

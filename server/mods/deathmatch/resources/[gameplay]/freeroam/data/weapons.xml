@@ -1,0 +1,77 @@
+<catalog type="weapon">
+	<group name="Hand">
+		<weapon id="1" name="Brass knuckles"></weapon>
+	</group>
+
+	<group name="Melee">
+		<weapon id="5" name="Baseball bat"></weapon>
+		<weapon id="15" name="Cane"></weapon>
+		<weapon id="9" name="Chainsaw"></weapon>
+		<weapon id="2" name="Golf club"></weapon>
+		<weapon id="7" name="Pool cue"></weapon>
+		<weapon id="8" name="Katana"></weapon>
+		<weapon id="4" name="Knife"></weapon>
+		<weapon id="3" name="Nightstick"></weapon>
+		<weapon id="6" name="Shovel"></weapon>
+	</group>
+
+	<group name="Handguns">
+		<weapon id="24" name="Desert eagle"></weapon>
+		<weapon id="22" name="Pistol"></weapon>
+		<weapon id="23" name="Silenced"></weapon>
+	</group>
+
+	<group name="Shotguns">
+		<weapon id="26" name="Sawn-off shotgun"></weapon>
+		<weapon id="25" name="Shotgun"></weapon>
+		<weapon id="27" name="SPAZ-12"></weapon>
+	</group>
+
+	<group name="Sub-machine guns">
+		<weapon id="29" name="MP5"></weapon>
+		<weapon id="32" name="TEC-9"></weapon>
+		<weapon id="28" name="Uzi"></weapon>
+	</group>
+
+	<group name="Machine guns">
+		<weapon id="30" name="AK47"></weapon>
+		<weapon id="31" name="M4"></weapon>
+	</group>
+
+	<group name="Rifles">
+		<weapon id="33" name="Country sniper"></weapon>
+		<weapon id="34" name="Sniper"></weapon>
+	</group>
+
+	<group name="Heavy weapons">
+		<weapon id="37" name="Flame thrower"></weapon>
+		<weapon id="36" name="Heat seeking RPG"></weapon>
+		<weapon id="38" name="Minigun"></weapon>
+		<weapon id="35" name="Rocket launcher"></weapon>
+	</group>
+
+	<group name="Projectiles">
+		<weapon id="16" name="Grenade"></weapon>
+		<weapon id="18" name="Molotov"></weapon>
+		<weapon id="39" name="Satchel"></weapon>
+		<weapon id="40" name="Satchel detonator"></weapon>
+		<weapon id="17" name="Tear gas"></weapon>
+	</group>
+
+	<group name="Special">
+		<weapon id="41" name="Spraycan"></weapon>
+		<weapon id="43" name="Camera"></weapon>
+		<weapon id="42" name="Fire extinguisher"></weapon>
+		<weapon id="45" name="Infrared goggles"></weapon>
+		<weapon id="44" name="Night vision goggles"></weapon>
+		<weapon id="46" name="Parachute"></weapon>
+	</group>
+
+	<group name="Other">
+		<weapon id="14" name="Flowers"></weapon>
+		<weapon id="10" name="Long dildo"></weapon>
+		<weapon id="11" name="Short dildo"></weapon>
+		<weapon id="13" name="Silver vibrator"></weapon>
+		<weapon id="12" name="Vibrator"></weapon>
+	</group>
+</catalog>

@@ -1,0 +1,3 @@
+# Ignore security logs that contain sensitive info
+actions.txt
+violations.txt

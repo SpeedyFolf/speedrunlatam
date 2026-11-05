@@ -1,0 +1,8 @@
+<meta>
+	<info author="Neon Nights" name="Player Style" description="Skin y colores persistentes por cuenta" type="script" version="1.0.0" />
+
+	<script src="theme.lua" type="client" />
+	<script src="style.lua" type="client" />
+	<script src="color.lua" type="client" />
+	<script src="style_server.lua" type="server" />
+</meta>

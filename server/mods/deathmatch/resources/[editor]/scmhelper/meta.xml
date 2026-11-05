@@ -1,0 +1,7 @@
+<meta>
+	<info name="SCM Helper" type="script" author="tduva" version="0.1"></info>
+	<script src="util_s.lua" type="server"></script>
+	<script src="main.lua" type="client"></script>
+	<script src="util.lua" type="client"></script>
+	<script src="scm.lua" type="client"></script>
+</meta>

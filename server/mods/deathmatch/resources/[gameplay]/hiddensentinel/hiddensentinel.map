@@ -1,0 +1,63 @@
+<map edf:definitions="editor_main">
+    <sentinel
+		id="hiddensentinel5" sirens="false" paintjob="3" interior="0" alpha="255"
+		model="405"
+		plate="MTN5CST" dimension="0"
+		color="32,61,29,0,0,0,0,0,0,0,0,0"
+		posX="-2741.9"
+		posY="-2076.8"
+		posZ="29.8"
+		rotX="0" rotY="0"
+		rotZ="21">
+	</sentinel>
+    <sentinel
+		id="hiddensentinel4" sirens="false" paintjob="3" interior="0" alpha="255"
+		model="405"
+		plate="CARGOM4N" dimension="0"
+		color="141,69,6,0,0,0,0,0,0,0,0,0"
+		posX="2256.6"
+		posY="-2278.4"
+		posZ="14.8" rotX="0" rotY="0"
+		rotZ="320">
+	</sentinel>
+    <sentinel
+		id="hiddensentinel3" sirens="false" paintjob="3" interior="0" alpha="255"
+		model="405"
+		plate="DEDPLAN3" dimension="0"
+		color="203,199,199,0,0,0,0,0,0,0,0,0"
+		posX="104.5"
+		posY="2417.5"
+		posZ="17" rotX="0" rotY="0"
+		rotZ="2">
+	</sentinel>
+    <sentinel
+		id="hiddensentinel2" sirens="false" paintjob="3" interior="0" alpha="255"
+		model="405"
+		plate="FNCBLND2" dimension="0"
+		color="255,61,52,0,0,0,0,0,0,0,0,0"
+		posX="266.3"
+		posY="950.3"
+		posZ="28" rotX="0" rotY="0"
+		rotZ="290">
+	</sentinel>
+	<sentinel
+		id="hiddensentinel1" sirens="false" paintjob="3" interior="0" alpha="255"
+		model="405"
+		plate="V3MSPTX" dimension="0"
+		color="189,190,198,76,117,183,0,0,0,0,0,0"
+		posX="2927.6"
+		posY="1662.6"
+		posZ="18.9" rotX="0" rotY="0"
+		rotZ="0">
+	</sentinel>
+    <sentinel
+		id="hiddensentinel0" sirens="false" paintjob="3" interior="0" alpha="255"
+		model="405"
+		plate="UW3D2E2" dimension="0"
+		color="34,25,24,245,245,245,0,0,0,0,0,0"
+		posX="1891.1"
+		posY="2113.6001"
+		posZ="10.8" rotX="0" rotY="0"
+		rotZ="90">
+	</sentinel>
+</map>

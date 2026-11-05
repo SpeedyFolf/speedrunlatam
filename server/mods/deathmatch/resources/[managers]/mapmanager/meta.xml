@@ -1,0 +1,42 @@
+<meta>
+	<info author="jbeta" type="script" version="1.0.6" name="Map manager" description="Gamemode / map manager" showInResourceBrowser="true"></info>
+
+	<script src="mapmanager_main.lua"></script>
+	<script src="mapmanager_exports.lua"></script>
+	<script src="mapmanager_http.lua"></script>
+
+	<settings>
+		<setting name="*ASE" value="[true]"></setting>
+		<setting name="*messages" value="[true]"></setting>
+		<setting name="*color" value="#E1AA5A"></setting>
+		<setting name="*currentmap" value="[true]"></setting>
+	</settings>
+
+	<export function="changeGamemode"></export>
+	<export function="changeGamemodeByName" http="true"></export>
+	<export function="changeGamemodeMap"></export>
+	<export function="getCachedGamemodeList" http="true"></export>
+	<export function="getGamemodes"></export>
+	<export function="getGamemodesCompatibleWithMap"></export>
+	<export function="getMaps"></export>
+	<export function="getMapsCompatibleWithGamemode" http="true"></export>
+	<export function="getRunningGamemode" http="true"></export>
+	<export function="getRunningGamemodeMap" http="true"></export>
+	<export function="isGamemode"></export>
+	<export function="isGamemodeCompatibleWithMap"></export>
+	<export function="isMap"></export>
+	<export function="isMapCompatibleWithGamemode"></export>
+	<export function="stopGamemode"></export>
+	<export function="stopGamemodeMap"></export>
+
+	<html src="mapmanager.htm" default="true"></html>
+	<html src="mapmanager.css" raw="true"></html>
+	<html src="mapmanager.js" raw="true"></html>
+
+	<aclrequest>
+        <right name="function.startResource" access="true"></right>
+        <right name="function.restartResource" access="true"></right>
+        <right name="function.stopResource" access="true"></right>
+        <right name="function.refreshResources" access="true"></right>
+	</aclrequest>
+</meta>

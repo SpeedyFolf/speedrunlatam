@@ -1,0 +1,65 @@
+<map>
+<!-- You can use multiple maps: map="Map1, Map2, Map3" -->
+<!-- #1 08/07/26 -->
+	<tiki id="tiki (1)"		map="PostNuclearRace"		posX="-187.78"		posY="1780.4"		posZ="129.6"></tiki>
+	<tiki id="tiki (2)"		map="PostNuclearRace"		posX="-275.7"		posY="2123.2"		posZ="57.887"></tiki>
+	<tiki id="tiki (3)"		map="PostNuclearRace"		posX="-413.5"		posY="2728.3"		posZ="71.3"></tiki>
+	<tiki id="tiki (4)"		map="PostNuclearRace"		posX="-472.7"		posY="1443.61"		posZ="18.7"></tiki>
+	<tiki id="tiki (5)"		map="PostNuclearRace"		posX="-854.7"		posY="2439.792"		posZ="111"></tiki>
+	<tiki id="tiki (6)"		map="PostNuclearRace"		posX="-690.1"		posY="1289"			posZ="41.11"></tiki>
+	<tiki id="tiki (7)"		map="PostNuclearRace"		posX="-1715"		posY="1910.1"		posZ="23.5"></tiki>
+	<tiki id="tiki (8)"		map="PostNuclearRace"		posX="-767.59"		posY="2460.22"		posZ="128.58"></tiki>
+	<tiki id="tiki (9)"		map="PostNuclearRace"		posX="-161.4"		posY="2184.388"		posZ="39.9"></tiki>
+	<tiki id="tiki (10)"	map="GoldenEye007Dam"		posX="1921.6"		posY="-5301.2"		posZ="397.1"></tiki>
+	<tiki id="tiki (11)"	map="MonteInferno"			posX="2622.7"		posY="984.40"		posZ="505.3"></tiki>
+	<tiki id="tiki (12)"	map="MonteInferno"			posX="2897.3"		posY="-492.6"		posZ="484.6"></tiki>
+	<tiki id="tiki (13)"	map="MonteInferno"			posX="2872.2"		posY="-791.8"		posZ="255.3"></tiki>
+	<tiki id="tiki (14)"	map="MonteInferno"			posX="3290.6"		posY="-1410.7"		posZ="176.9"></tiki>
+	<tiki id="tiki (15)"	map="MonteInferno"			posX="3016.1"		posY="-2101.1"		posZ="48.3"></tiki>
+	<tiki id="tiki (16)"	map="MonteInferno"			posX="2763.9"		posY="-2416.7"		posZ="34.9"></tiki>
+	<tiki id="tiki (17)"	map="MonteInferno"			posX="3005.7"		posY="-2223.4"		posZ="66.5"></tiki>
+	<tiki id="tiki (18)"	map="TheMastersSun"			posX="-3261.51"		posY="569.645"		posZ="50.63"></tiki>
+	<tiki id="tiki (19)"	map="TheMastersSun"			posX="-4244.38"		posY="365.331"		posZ="79.45"></tiki>
+	<tiki id="tiki (20)"	map="TheMastersSun"			posX="-3553.71"		posY="1150.03"		posZ="2.46"></tiki>
+	<tiki id="tiki (21)"	map="TheMastersSun"			posX="-2996.08"		posY="1166.42"		posZ="3.98"></tiki>
+	<tiki id="tiki (22)"	map="CoDExCity"				posX="1231.49"		posY="-3308.6201"	posZ="107.01"></tiki>
+	<tiki id="tiki (23)"	map="CoDExCity"				posX="1338.2"		posY="-3415.22"		posZ="96.77"></tiki>
+	<tiki id="tiki (24)"	map="CoDExCity"				posX="959.94"		posY="-3500.6101"	posZ="68.87"></tiki>
+	<tiki id="tiki (25)"	map="CoDExCity"				posX="722.87"		posY="-3160.97"		posZ="4.27"></tiki>
+	<tiki id="tiki (26)"	map="CoDExCity"				posX="685.131"		posY="-2876.46"		posZ="33.38"></tiki>
+	<tiki id="tiki (27)"	map="CoDExCity"				posX="1166.6"		posY="-3308.6001"	posZ="105.15"></tiki>
+	<tiki id="tiki (28)"	map="CoDExCity"				posX="1327.35"		posY="-3112.13"		posZ="98.64"></tiki>
+	<tiki id="tiki (29)"	map="CoDExCity"				posX="1364.51"		posY="-3264.93"		posZ="83.92"></tiki>
+	<tiki id="tiki (30)"	map="CoinspiracyCashout"	posX="3251.61"		posY="-1757.63"		posZ="44.68"></tiki>
+	<tiki id="tiki (31)"	map="CoinspiracyCashout"	posX="3103.0701"	posY="-1707.65"		posZ="5.39"></tiki>
+	<tiki id="tiki (32)"	map="CoinspiracyCashout"	posX="3218.5601"	posY="-1824.95"		posZ="16.75"></tiki>
+<!-- #2 15/07/26 -->
+	<tiki id="tiki (33)"	map="EscapePortElegy"		posX="590.21997"	posY="3099.8101"	posZ="18.19"></tiki>
+	<tiki id="tiki (34)"	map="EscapePortElegy"		posX="1273.64"		posY="3332.8701"	posZ="26.3"></tiki>
+	<tiki id="tiki (35)"	map="EscapePortElegy"		posX="1356.5"		posY="4009.6399"	posZ="8.01"></tiki>
+	<tiki id="tiki (36)"	map="EscapePortElegy"		posX="906.669"		posY="3301.1499"	posZ="15.52"></tiki>
+	<tiki id="tiki (37)"	map="EscapePortElegy"		posX="558.96002"	posY="4007.6599"	posZ="31.91"></tiki>
+	<tiki id="tiki (38)"	map="EscapePortElegy"		posX="-211.36"		posY="3787.95"		posZ="5.91"></tiki>
+	<tiki id="tiki (39)"	map="Baltika"				posX="6775.3101"	posY="-758.90997"	posZ="16.39"></tiki>
+	<tiki id="tiki (40)"	map="Baltika"				posX="6584.48"		posY="-432.01999"	posZ="16.43"></tiki>
+	<tiki id="tiki (41)"	map="Baltika"				posX="6686.4102"	posY="-888.76001"	posZ="8.7"></tiki>
+	<tiki id="tiki (42)"	map="Baltika"				posX="6584.27"		posY="-655.98999"	posZ="16.36"></tiki>
+	<tiki id="tiki (43)"	map="SollerStreetRace"		posX="3033.57"		posY="-3213.37"		posZ="35.38"></tiki>
+	<tiki id="tiki (44)"	map="SollerStreetRace"		posX="3384.3999"	posY="-3158.3401"	posZ="26.9"></tiki>
+	<tiki id="tiki (45)"	map="SollerStreetRace"		posX="4116.95"		posY="-1899.189"	posZ="29.909"></tiki>
+	<tiki id="tiki (46)"	map="SollerStreetRace"		posX="4066.45"		posY="-1632.41"		posZ="29.24"></tiki>
+	<tiki id="tiki (47)"	map="SollerStreetRace"		posX="3616.9399"	posY="-2254.3799"	posZ="30.21"></tiki>
+	<tiki id="tiki (48)"	map="SollerStreetRace"		posX="4311.5098"	posY="-1822.1"		posZ="29.91"></tiki>
+	<tiki id="tiki (49)"	map="SollerStreetRace"		posX="3820.8799"	posY="-3067.1001"	posZ="58.71"></tiki>
+	<tiki id="tiki (50)"	map="SollerStreetRace"		posX="3583.72"		posY="-2888.1899"	posZ="84.92"></tiki>
+	<tiki id="tiki (51)"	map="SollerStreetRace"		posX="4813.77"		posY="-2935.72"		posZ="6.7"></tiki>
+<!-- #3 22/07/26 -->
+	<tiki id="tiki (52)"	map="CaveEscape"			posX="1282.099"		posY="-3301.01"		posZ="38.9"></tiki>
+	<tiki id="tiki (53)"	map="CaveEscape"			posX="1184.9"		posY="-3021.389"	posZ="43.4"></tiki>
+	<tiki id="tiki (54)"	map="CaveEscape"			posX="766.6699"		posY="-3761.389"	posZ="42"></tiki>
+	<tiki id="tiki (55)"	map="PuigMajorTurismo"		posX="2709.51"		posY="-4184.22"		posZ="77.75"></tiki>
+	<tiki id="tiki (56)"	map="PuigMajorTurismo"		posX="3408.959"		posY="-6273.3"		posZ="133.94"></tiki>
+	<tiki id="tiki (57)"	map="PuigMajorTurismo"		posX="3898.169"		posY="-6135.88"		posZ="133.77"></tiki>
+	<tiki id="tiki (58)"	map="PuigMajorTurismo"		posX="4745.49"		posY="-6511.87"		posZ="211.27"></tiki>
+	<tiki id="tiki (59)"	map="PuigMajorTurismo"		posX="5296.57"		posY="-6291.4"		posZ="220.88"></tiki>
+</map>

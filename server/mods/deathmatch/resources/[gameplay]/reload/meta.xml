@@ -1,0 +1,6 @@
+<meta>
+	<info name="Reload" version="0.9" type="misc" author="Gamesnert" description="Script that allows you to reload your weapon by pushing the button for it"></info>
+
+	<script src="reload.lua"></script>
+	<script src="reload_c.lua" type="client"></script>
+</meta>

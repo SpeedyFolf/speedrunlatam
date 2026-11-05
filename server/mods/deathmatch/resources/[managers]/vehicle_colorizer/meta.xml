@@ -1,0 +1,5 @@
+<meta>
+	<info name="Vehicle Colorizer" longname="Vehicle Colorizer" description="Allows changing vehicle colors by using the command /colorify. This uses color names as found on Encycolorpedia (all lowercase, sans spaces and accent marks, and replacing fancy apostrophes with generic apostrophes. Colors a random player a random color every 10 seconds. Formerly Pinker-er." author="Joshimuz" type="script" version="1.0"></info>
+	<script src="server.lua" type="server" validate="false"></script>
+	<script src="colors.lua" type="server" validate="false"></script>
+</meta>

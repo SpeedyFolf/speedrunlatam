@@ -1,0 +1,12 @@
+<meta>
+    <info author="eAi" type="script" visibleInResourceBrowser="false" version="1.0.0"></info>
+    <script src="ajax.lua"></script>
+
+    <html src="loading.gif" raw="true"></html>
+    <html src="ajax.js" raw="true"></html>
+    <html src="exportedfunctions.js"></html>
+
+    <export function="moduleStart"></export>
+    <export function="moduleEnd"></export>
+    <export function="start"></export>
+</meta>

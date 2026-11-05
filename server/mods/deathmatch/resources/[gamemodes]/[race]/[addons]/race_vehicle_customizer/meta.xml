@@ -1,0 +1,6 @@
+<meta>
+	<info author="marshall" name="Vehicle Customizer" version="1.9.0" type="script" description="Persistent per-player per-model visual tuning for Race" addon="race"></info>
+	<script src="config.lua" type="shared" validate="true"></script>
+	<script src="server.lua" type="server" validate="false"></script>
+	<script src="client.lua" type="client" validate="true"></script>
+</meta>

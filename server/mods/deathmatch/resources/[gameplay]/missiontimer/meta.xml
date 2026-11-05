@@ -1,0 +1,24 @@
+<meta>
+	<info author="Talidan" version="1.0.0" description="Utility script to handle mission timers for scripts"></info>
+	<min_mta_version server="1.3.0-9.04570"></min_mta_version>
+
+	<script src="missiontimer_server.lua" type="server"></script>
+	<script src="missiontimer_client.lua" type="client"></script>
+	<script src="missiontimer_rpc.lua" type="client"></script>
+	<script src="missiontimer_draw.lua" type="client"></script>
+
+	<file src="timeleft.png"></file>
+
+	<export function="createMissionTimer" type="server"></export>
+	<export function="createMissionTimer" type="client"></export>
+	<export function="getMissionTimerTime" type="server"></export>
+	<export function="getMissionTimerTime" type="client"></export>
+	<export function="setMissionTimerTime" type="server"></export>
+	<export function="setMissionTimerTime" type="client"></export>
+	<export function="setMissionTimerFrozen" type="client"></export>
+	<export function="setMissionTimerFrozen" type="server"></export>
+	<export function="setMissionTimerHurryTime" type="server"></export>
+	<export function="setMissionTimerHurryTime" type="client"></export>
+	<export function="setMissionTimerFormat" type="server"></export>
+	<export function="setMissionTimerFormat" type="client"></export>
+</meta>

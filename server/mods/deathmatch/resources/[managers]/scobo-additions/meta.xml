@@ -1,0 +1,4 @@
+<meta>
+  <info author="S." name="Scoreboard Additions" version="1" type="script" description="Scoreboard Additions"></info>
+	<script src="script.lua" type="server"></script>
+</meta>

@@ -1,0 +1,12 @@
+<meta>
+    <include resource="ajax"></include>
+    <script src="browser.lua"></script>
+	<html src="browser.htm" default="true"></html>
+    <html src="css.css" raw="true"></html>
+    <html src="script.js" raw="true"></html>
+	<html src="banner_b_gd.png" raw="true"></html>
+	<info author="eAi" name="Resource Browser" version="1.0.0"></info>
+    <export function="getResourcesByState" http="true"></export>
+	<export function="getThisResource" http="true"></export>
+    <config src="config.xml"></config>
+</meta>

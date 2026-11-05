@@ -1,0 +1,4 @@
+<meta>
+	<info name="HLODs Render Distance Increaser" description="See objects earlier" author="&lt;unknown&gt;" type="script" version="1.0"></info>
+	<script src="increaseHLODRenderDistance_c.lua" type="client"></script>
+</meta>

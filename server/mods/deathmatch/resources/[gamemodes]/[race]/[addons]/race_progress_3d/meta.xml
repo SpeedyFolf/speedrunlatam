@@ -1,0 +1,14 @@
+<meta>
+	<info name="Race Minimap" longname="Race Minimap 2D" description="Minimap addon for Race (displays a line chart of the track with all player's locations)" author="LotsOfS, driver2" type="script" addon="race" version="2.1"></info>
+
+	<file src="corner.png" type="client"></file>
+	<script src="InfoText.lua" type="client"></script>
+	<script src="defaultSettings.lua" type="client"></script>
+	<script src="var_dump.lua" type="client"></script>
+	<script src="Settings.lua" type="client"></script>
+	<script src="client_util.lua" type="client"></script>
+	<script src="Xml.lua" type="client"></script>
+	<script src="client.lua" type="client"></script>
+
+	<config src="help.xml" type="client"></config>
+</meta>

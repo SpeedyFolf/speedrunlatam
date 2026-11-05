@@ -1,0 +1,8 @@
+<meta>
+	<info author="SpeedyFolf" name="sup" type="misc" version="1.0.0" description="Sup stands for startup, I&apos;m just using slang. Starts and restarts certain resources when this resource is started as I don&apos;t have access to edit mtaserver.conf. Also disables votemap when Josh is on the server."></info>
+	<script src="server.lua" type="server"></script>
+
+	<aclrequest>
+		<right name="function.set" access="true"></right>
+	</aclrequest>
+</meta>

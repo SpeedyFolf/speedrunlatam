@@ -1,0 +1,170 @@
+<meta>
+	<info author="Talidan, jbeta" description="Map editor GUI" version="1.0.0"></info>
+
+	<!-- Required resources -->
+	<include resource="dialogs"></include>
+	<include resource="tooltip"></include>
+
+	<!-- Client-side logic -->
+	<!-- Client utils -->
+	<script src="client/orderedPairs.lua" type="client"></script>
+	<script src="client/vehicleupgrades.lua" type="client"></script>
+	<script src="client/editingControls.lua" type="client"></script>
+	<script src="client/controlinterface.lua" type="client"></script>
+	<script src="client/interface.lua" type="client"></script>
+	<script src="client/client_anim.lua" type="client"></script>
+	<script src="client/me_gui.lua" type="client"></script>
+	<script src="client/buttonclicked.lua" type="client"></script>
+	<script src="client/highlighting.lua" type="client"></script>
+	<script src="client/guiGetMouseOverElement.lua" type="client"></script>
+	<script src="client/elementproperties.lua" type="client"></script>
+	<script src="client/options_gui.lua" type="client"></script>
+	<script src="client/options_backend.lua" type="client"></script>
+	<script src="client/options_action.lua" type="client"></script>
+	<script src="client/locations.lua" type="client"></script>
+	<config src="client/presets.xml" type="client"></config>
+	<script src="client/mapsettings_gui.lua" type="client"></script>
+	<script src="client/mapsettings_backend.lua" type="client"></script>
+	<script src="client/mapsettings_gamemodesettings.lua" type="client"></script>
+	<script src="client/definitions.lua" type="client"></script>
+	<script src="client/save.lua" type="client"></script>
+	<script src="client/load.lua" type="client"></script>
+	<script src="client/test.lua" type="client"></script>
+	<script src="client/autosnap.lua" type="client"></script>
+	<script src="client/currentbrowser.lua" type="client"></script>
+	<script src="client/guiworldclick.lua" type="client"></script>
+	<script src="client/disablegui.lua" type="client"></script>
+	<script src="client/tutorialfunctions.lua" type="client"></script>
+	<script src="client/tutorialdefinition.lua" type="client"></script>
+	<script src="client/outputmessage.lua" type="client"></script>
+	<script src="client/welcome.lua" type="client"></script>
+	<script src="client/getCameraRotation.lua" type="client" validate="false"></script>
+
+	<!-- Server-side exports -->
+	<export function="loadsave_getResources" type="server"></export>
+	<export function="outputMessage" type="server"></export>
+
+	<!-- Client-side exports -->
+	<export function="sx_getOptionData" type="client"></export>
+	<export function="outputMessage" type="client"></export>
+	<export function="setGUIShowing" type="client"></export>
+	<export function="setHUDAlpha" type="client"></export>
+	<export function="guiGetMouseOverElement" type="client"></export>
+	<export function="closeSaveDialog" type="client"></export>
+	<export function="closeLoadDialog" type="client"></export>
+	<export function="guiGetMouseOverElement" type="client"></export>
+	<export function="openPropertiesBox" type="client"></export>
+	<export function="restoreSaveDialog" type="client"></export>
+	<export function="stopTest" type="client"></export>
+	<export function="restoreSelectedElement" type="client"></export>
+
+	<!-- MessageBox exports -->
+	<export function="newCallback" type="client"></export>
+	<export function="openCallback" type="client"></export>
+	<export function="saveCallback" type="client"></export>
+
+	<!-- Browser -->
+	<script src="client/browser/browserList.lua" type="client"></script>
+	<script src="client/browser/browser.lua" type="client"></script>
+	<script src="client/browser/previewelement.lua" type="client"></script>
+	<script src="client/browser/clientsearch.lua" type="client"></script>
+	<script src="client/browser/freelook.lua" type="client"></script> <!-- Credits to norby89 -->
+	<config src="client/browser/objects.xml" type="client"></config> <!-- Credits to Fusion and the rest of the alw crew for new categories -->
+	<config src="client/browser/skins.xml" type="client"></config> <!-- Credits to Slothman -->
+	<config src="client/browser/vehicles.xml" type="client"></config>
+
+	<!-- Server-side logic -->
+	<script src="server/guiserverlink.lua" type="server"></script>
+	<script src="server/interface.lua" type="server"></script>
+
+	<!-- GUI icons -->
+	<!-- Most icons courtesy of the Evaraldo Crystal icon gallery -->
+	<file src="client/images/select.png"></file>
+	<file src="client/images/line.png"></file>
+
+	<file src="client/images/elementmenu/generic.png"></file>
+
+	<file src="client/images/topmenu/second/current_elements.png"></file>
+	<file src="client/images/topmenu/second/map_settings.png"></file>
+	<file src="client/images/topmenu/second/definitions.png"></file>
+	<file src="client/images/topmenu/second/test.png"></file> <!-- From the Tango Icon library -->
+
+	<file src="client/images/topmenu/new.png"></file>
+	<file src="client/images/topmenu/open.png"></file>
+	<file src="client/images/topmenu/save.png"></file>
+	<file src="client/images/topmenu/save_as.png"></file>
+	<file src="client/images/topmenu/options.png"></file>
+	<file src="client/images/topmenu/undo.png"></file> <!-- From the Tango Icon library -->
+	<file src="client/images/topmenu/redo.png"></file> <!-- From the Tango Icon library -->
+	<file src="client/images/topmenu/locations.png"></file>
+
+	<!-- Blips -->
+	<file src="client/images/blips/0.png"></file>
+	<file src="client/images/blips/1.png"></file>
+	<file src="client/images/blips/2.png"></file>
+	<file src="client/images/blips/3.png"></file>
+	<file src="client/images/blips/4.png"></file>
+	<file src="client/images/blips/5.png"></file>
+	<file src="client/images/blips/6.png"></file>
+	<file src="client/images/blips/7.png"></file>
+	<file src="client/images/blips/8.png"></file>
+	<file src="client/images/blips/9.png"></file>
+	<file src="client/images/blips/10.png"></file>
+	<file src="client/images/blips/11.png"></file>
+	<file src="client/images/blips/12.png"></file>
+	<file src="client/images/blips/13.png"></file>
+	<file src="client/images/blips/14.png"></file>
+	<file src="client/images/blips/15.png"></file>
+	<file src="client/images/blips/16.png"></file>
+	<file src="client/images/blips/17.png"></file>
+	<file src="client/images/blips/18.png"></file>
+	<file src="client/images/blips/19.png"></file>
+	<file src="client/images/blips/20.png"></file>
+	<file src="client/images/blips/21.png"></file>
+	<file src="client/images/blips/22.png"></file>
+	<file src="client/images/blips/23.png"></file>
+	<file src="client/images/blips/24.png"></file>
+	<file src="client/images/blips/25.png"></file>
+	<file src="client/images/blips/26.png"></file>
+	<file src="client/images/blips/27.png"></file>
+	<file src="client/images/blips/28.png"></file>
+	<file src="client/images/blips/29.png"></file>
+	<file src="client/images/blips/30.png"></file>
+	<file src="client/images/blips/31.png"></file>
+	<file src="client/images/blips/32.png"></file>
+	<file src="client/images/blips/33.png"></file>
+	<file src="client/images/blips/34.png"></file>
+	<file src="client/images/blips/35.png"></file>
+	<file src="client/images/blips/36.png"></file>
+	<file src="client/images/blips/37.png"></file>
+	<file src="client/images/blips/38.png"></file>
+	<file src="client/images/blips/39.png"></file>
+	<file src="client/images/blips/40.png"></file>
+	<file src="client/images/blips/41.png"></file>
+	<file src="client/images/blips/42.png"></file>
+	<file src="client/images/blips/43.png"></file>
+	<file src="client/images/blips/44.png"></file>
+	<file src="client/images/blips/45.png"></file>
+	<file src="client/images/blips/46.png"></file>
+	<file src="client/images/blips/47.png"></file>
+	<file src="client/images/blips/48.png"></file>
+	<file src="client/images/blips/49.png"></file>
+	<file src="client/images/blips/50.png"></file>
+	<file src="client/images/blips/51.png"></file>
+	<file src="client/images/blips/52.png"></file>
+	<file src="client/images/blips/53.png"></file>
+	<file src="client/images/blips/54.png"></file>
+	<file src="client/images/blips/55.png"></file>
+	<file src="client/images/blips/56.png"></file>
+	<file src="client/images/blips/57.png"></file>
+	<file src="client/images/blips/58.png"></file>
+	<file src="client/images/blips/59.png"></file>
+	<file src="client/images/blips/60.png"></file>
+	<file src="client/images/blips/61.png"></file>
+	<file src="client/images/blips/62.png"></file>
+	<file src="client/images/blips/63.png"></file>
+
+	<!-- Palette -->
+	<file src="client/images/palette.png"></file>
+	<file src="client/images/alpha.png"></file>
+</meta>

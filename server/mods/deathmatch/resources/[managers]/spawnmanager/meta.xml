@@ -1,0 +1,14 @@
+<meta>
+	<script src="spawn.lua"></script>
+	<html src="info.htm" default="true"></html>
+	<info author="Talidan" type="script" description="Spawnpoint manager" version="1.0.0"></info>
+	<export function="createSpawnpoint"></export>
+	<export function="setSpawnpointRotation"></export>
+	<export function="setSpawnpointSkin"></export>
+	<export function="setSpawnpointTeam"></export>
+	<export function="getSpawnpointRotation"></export>
+	<export function="getSpawnpointSkin"></export>
+	<export function="getSpawnpointTeam"></export>
+	<export function="setSpawnWave"></export>
+	<export function="spawnPlayerAtSpawnpoint"></export>
+</meta>

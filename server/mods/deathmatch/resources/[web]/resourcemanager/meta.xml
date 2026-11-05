@@ -1,0 +1,17 @@
+<meta>
+    <include resource="ajax"></include>
+    <script src="manager.lua"></script>
+	<html src="manager.htm" default="true"></html>
+    <html src="css.css" raw="true"></html>
+    <html src="script.js" raw="true"></html>
+	<info author="eAi" showInResourceBrowser="true" name="Resource manager" description="Start, stop and restart resources running on the server" version="1.0.0"></info>
+    <export function="getResourceList" http="true"></export>
+    <export function="getResourcesByState" http="true"></export>
+    <export function="getResourceInfo" http="true"></export>
+	<export function="getResourceState" http="true"></export>
+	<export function="startResource" http="true"></export>
+	<export function="restartResource" http="true"></export>
+	<export function="stopResource" http="true"></export>
+	<export function="getResourcesSearch" http="true"></export>
+	<export function="refreshResources" http="true"></export>
+</meta>

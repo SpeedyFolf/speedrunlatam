@@ -1,0 +1,82 @@
+{
+  "_comment": "Speedrun LATAM server egg",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-11-05T18:00:00+00:00",
+  "name": "Speedrun LATAM",
+  "author": "ferecece",
+  "description": "Servidor Speedrun LATAM. Motor: San Andreas Online.",
+  "features": null,
+  "docker_images": {
+    "ghcr.io/ferecece/speedrunlatam:latest": "ghcr.io/ferecece/speedrunlatam:latest"
+  },
+  "file_denylist": [],
+  "startup": "./mta-server64 --port {{SERVER_PORT}} --httpport {{SERVER_HTTP_PORT}} -n",
+  "config": {
+    "files": "{}",
+    "startup": "{\"done\":\"Server started and is ready to accept connections!\"}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\n/opt/install-server.sh /mnt/server",
+      "container": "ghcr.io/ferecece/speedrunlatam:latest",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": [
+    {
+      "name": "HTTP Port",
+      "description": "Puerto HTTP del servidor. Debe estar asignado como allocation.",
+      "env_variable": "SERVER_HTTP_PORT",
+      "default_value": "22005",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|integer|between:1,65535",
+      "field_type": "text"
+    },
+    {
+      "name": "Server Name",
+      "description": "Nombre visible en el navegador de servidores.",
+      "env_variable": "SERVER_NAME",
+      "default_value": "Speedrun LATAM",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:255",
+      "field_type": "text"
+    },
+    {
+      "name": "Owner Email",
+      "description": "Email de contacto del servidor. Puede quedar vacío.",
+      "env_variable": "OWNER_EMAIL",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|email",
+      "field_type": "text"
+    },
+    {
+      "name": "HTTP Download URL",
+      "description": "URL externa de descarga de resources. Vacío usa el HTTP interno.",
+      "env_variable": "HTTP_DOWNLOAD_URL",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|url",
+      "field_type": "text"
+    },
+    {
+      "name": "GitHub Token",
+      "description": "Opcional. Solo si el repositorio o el release son privados.",
+      "env_variable": "GITHUB_TOKEN",
+      "default_value": "",
+      "user_viewable": false,
+      "user_editable": true,
+      "rules": "nullable|string",
+      "field_type": "text"
+    }
+  ]
+}

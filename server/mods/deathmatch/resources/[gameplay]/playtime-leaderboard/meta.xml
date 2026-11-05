@@ -1,0 +1,5 @@
+<meta>
+	<info author="Google Gemini" type="script" name="Playtime Leaderboard GUI" description="Type /playtime to view a list of players&apos; time played sorted most to least" version="1.0"></info>
+	<script src="server.lua" type="server"></script>
+	<script src="client.lua" type="client"></script>
+</meta>

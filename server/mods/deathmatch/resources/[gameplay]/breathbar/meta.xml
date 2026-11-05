@@ -1,0 +1,4 @@
+<meta>
+	<info author="Google Gemini" type="script" name="Dynamic Breath HUD" description="Shows breath bar only when in water" version="1.0"></info>
+	<script src="client.lua" type="client"></script>
+</meta>

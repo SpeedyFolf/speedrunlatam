@@ -1,0 +1,111 @@
+/* https://stackoverflow.com/questions/20937475/remove-datalist-dropdown-arrow-in-chrome */
+/* https://www.rapidtables.com/web/color/Gold_Color.html */
+/* https://www.rapidtables.com/web/color/silver-color.html */
+/* https://rgbcolorcode.com/color/bronze */
+/* https://stackoverflow.com/questions/7220193/applying-css-style-to-table-cell-when-hovered-over */
+
+body {
+	background-color:#000000;
+	color: #FFFFFF;
+}
+
+input::-webkit-calendar-picker-indicator {
+	display: none;
+}
+
+#container {
+	text-align: center;
+}
+
+#mapInput {
+	width: 300px;
+}
+
+#clearButton {
+	color: #FF0000;
+}
+
+#mapInfoTable {
+	width: 100%;
+}
+
+#mapInfoTable, td, th {
+	border: 1px solid gray;
+}
+
+#position, /*#country,*/ #name, #time, #difference, #date {
+	color: #FBF6D9;
+}
+
+#mapInfoTable {
+	max-width: 900px;
+	margin: auto;
+}
+
+#mapInfoTable tr {
+	color: #FFFFFF;
+	text-align: center;
+}
+
+#mapInfoTable td:nth-child(1) {
+	width: 5%;
+}
+
+#mapInfoTable td:nth-child(2) {
+	text-align: left;
+	padding-left: 5px;
+}
+
+#mapInfoTable td:nth-child(3) {
+	width: 15%;
+}
+
+#mapInfoTable td:nth-child(4) {
+	width: 15%;
+}
+
+#mapInfoTable td:nth-child(5) {
+	width: 15%;
+}
+
+
+/* #firstPos, #secondPos, #thirdPos, #fourthPos, #fifthPos, #sixthPos, #seventhPos, #eighthPos, #ninthPos, #tenthPos {
+	width: 50px;
+	text-align: center;
+}
+
+#firstName, #secondName, #thirdName, #fourthName, #fifthName, #sixthName, #seventhName, #eighthName, #ninthName, #tenthName {
+	width: 200px;
+	text-align: left;
+}
+
+#firstTime, #secondTime, #thirdTime, #fourthTime, #fifthTime, #sixthTime, #seventhTime, #eighthTime, #ninthTime, #tenthTime {
+	width: 100px;
+	text-align: center;
+}
+
+#firstDiff, #secondDiff, #thirdDiff, #fourthDiff, #fifthDiff, #sixthDiff, #seventhDiff, #eighthDiff, #ninthDiff, #tenthDiff {
+	width: 100px;
+	text-align: center;
+}
+
+#firstDate, #secondDate, #thirdDate, #fourthDate, #fifthDate, #sixthDate, #seventhDate, #eighthDate, #ninthDate, #tenthDate {
+	width: 100px;
+	text-align: center;
+} */
+
+table.hover tr:hover {
+	background-color: rgba(211, 211, 211, 0.3);
+}
+
+#mapInfoTbody tr:first-child {
+	color: #FFD700;
+}
+
+#mapInfoTbody tr:nth-child(2) {
+	color: #C0C0C0;
+}
+
+#mapInfoTbody tr:nth-child(3) {
+	color: #CD7F32;
+}

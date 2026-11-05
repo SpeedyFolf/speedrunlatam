@@ -1,0 +1,63 @@
+<commands>
+  <!--
+    handler - the command used by players
+    call - internal admin call, better not touch those unless you know what you're doing
+    args - argument types for conversion, better not touch that too
+  -->
+  <player>
+    <command handler="kick" call="kick" args="P,s"></command>
+    <command handler="ban" call="ban" args="P,s,i"></command>
+    <command handler="shout" call="shout" args="P,s"></command>
+    <command handler="freeze" call="freeze" args="P"></command>
+    <command handler="unfreeze" call="freeze" args="P"></command>
+    <command handler="mute" call="mute" args="P,s,i"></command>
+    <command handler="unmute" call="mute" args="P"></command>
+    <command handler="sethealth" call="sethealth" args="P,i"></command>
+    <command handler="sethp" call="sethealth" args="P,i"></command>
+    <command handler="setarmour" call="setarmour" args="P,i"></command>
+    <command handler="setarmor" call="setarmour" args="P,i"></command>
+    <command handler="setskin" call="setskin" args="P,i"></command>
+    <command handler="setstat" call="setstat" args="P,i,i"></command>
+    <command handler="setteam" call="setteam" args="P,T"></command>
+    <command handler="setinterior" call="setinterior" args="P,s"></command>
+    <command handler="setdimension" call="setdimension" args="P,i"></command>
+    <command handler="jetpack" call="jetpack" args="P"></command>
+    <command handler="givevehicle" call="givevehicle" args="P,i"></command>
+    <command handler="giveweapon" call="giveweapon" args="P,i,i"></command>
+    <command handler="slap" call="slap" args="P,i"></command>
+    <command handler="warpto" call="warp" args="P"></command>
+  </player>
+  <team>
+    <command handler="createteam" call="createteam" args="s,i,i,i"></command>
+    <command handler="destroyteam" call="destroyteam" args="s,i,i,i"></command>
+  </team>
+  <vehicle>
+    <command handler="repair" call="repair" args="P"></command>"
+    <command handler="addupgrade" call="customize" args="P,t-"></command>
+    <command handler="addupgrades" call="customize" args="P,t-"></command>
+    <command handler="setpaintjob" call="setpaintjob" args="P,i"></command>
+    <command handler="setcolor" call="setcolor" args="P,t-"></command>
+    <command handler="blowvehicle" call="blow" args="P"></command>
+    <command handler="destroyvehicle" call="destroyvehicle" args="P"></command>
+  </vehicle>
+  <server>
+    <command handler="setgame" call="setgame" args="s-"></command>
+    <command handler="setgametype" call="setgame" args="s-"></command>
+    <command handler="setmap" call="setmap" args="s-"></command>
+    <command handler="setmapname" call="setmap" args="s-"></command>
+    <command handler="settime" call="settime" args="i,i"></command>
+    <command handler="setwelcome" call="setwelcome" args="s-"></command>
+    <command handler="setpassword" call="setpassword" args="s"></command>
+    <command handler="setweather" call="setweather" args="i"></command>
+    <command handler="blendweather" call="blendweather" args="i"></command>
+    <command handler="setgamespeed" call="setgamespeed" args="i"></command>
+    <command handler="setgravity" call="setgravity" args="i"></command>
+    <command handler="clearchat" call="clearchat" args=""></command>
+  </server>
+  <bans>
+    <command handler="banip" call="banip" args="s"></command>
+    <command handler="banserial" call="banserial" args="s"></command>
+    <command handler="unbanip" call="unbanip" args="s"></command>
+    <command handler="unbanserial" call="unbanserial" args="s"></command>
+  </bans>
+</commands>

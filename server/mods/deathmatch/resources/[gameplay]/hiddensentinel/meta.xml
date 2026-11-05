@@ -1,0 +1,6 @@
+<meta>
+    <info name="Hidden Sentinel" longname="Hidden Sentinel" description="#broughtbacksentinel" type="script" author="S." version="0.1"></info>
+    <map src="hiddensentinel.map" dimension="0"></map>
+    <config src="help.xml" type="client"></config>
+    <script src="script.lua" type="server"></script>
+</meta>

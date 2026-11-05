@@ -1,0 +1,9 @@
+<meta>
+	<info author="Google Gemini, Microsoft Copilot, &amp; SpeedyFolf" type="script" name="Folf Radio" description="Browse and play radio stations or stream a custom URL"></info>
+
+	<script src="stations.lua" type="client" validate="true"></script>
+	<script src="client.lua" type="client" validate="true"></script>
+	<script src="gui.lua" type="client" validate="true"></script>
+
+	<min_mta_version client="1.5.0"></min_mta_version>
+</meta>

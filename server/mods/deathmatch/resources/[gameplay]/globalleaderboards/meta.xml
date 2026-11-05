@@ -1,0 +1,17 @@
+<meta>
+	<min_mta_version server="1.6.0-9.22196"></min_mta_version>
+    <info type="script" name="Global Leaderboards" author="LotsOfS" version="0.0.2" description="Global Leaerboards"></info>
+
+    <script src="shared.lua" type="shared" validate="true"></script>
+    <script src="map_blacklist.lua" type="shared" validate="true"></script>
+    <script src="ui_c.lua" type="client" validate="true"></script>
+    <script src="data_s.lua" type="server"></script>
+    <script src="queries_s.lua" type="server"></script>
+
+    <config src="help.xml" type="client"></config>
+
+	<!-- <file src="EBGaramond-Regular.ttf"></file> -->
+	<!-- <file src="EBGaramond-Bold.ttf"></file> -->
+	<!-- <script src="database_s.lua" type="server"></script> -->
+
+</meta>

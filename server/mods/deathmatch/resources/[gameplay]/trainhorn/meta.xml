@@ -1,0 +1,9 @@
+<meta>
+    <info author="MTA contributors (github.com/multitheftauto/mtasa-resources)" version="1.0" name="Train horn" description="Train horn" type="script"></info>
+    <min_mta_version server="1.3.0-9.04570"></min_mta_version>
+
+    <script src="client.lua" type="client"></script>
+    <script src="server.lua" type="server"></script>
+
+    <file src="horn.aac"></file>
+</meta>

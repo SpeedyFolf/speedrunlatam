@@ -1,0 +1,4 @@
+# Ignore player reports that contain sensitive info
+conf/reports.xml
+# Ignore screenshots
+screenshots/

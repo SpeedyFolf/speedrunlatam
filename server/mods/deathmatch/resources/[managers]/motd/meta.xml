@@ -1,0 +1,21 @@
+<meta>
+	<info name="motd" longname="Message of the day" description="Welcomes people on the server with a message" author="driver2" type="script" version="1.0"></info>
+
+	<!-- Classes -->
+	<script src="xml.lua" type="server"></script>
+	<script src="xml.lua" type="client"></script>
+
+	<!-- Settings -->
+	<script src="settings.lua" type="client"></script>
+
+	<!-- Scripts -->
+	<script src="server.lua" type="server"></script>
+	<script src="client.lua" type="client"></script>
+
+	<!-- Help -->
+	<config src="help.xml" type="client"></config>
+
+	<!-- Logo Filename -->
+	<file src="logo.png"></file>
+
+</meta>

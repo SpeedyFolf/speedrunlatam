@@ -1,0 +1,66 @@
+<meta>
+	<info author="jbeta" description="Vote manager resource" type="script" version="1.1.0"></info>
+	<include resource="helpmanager"></include>
+
+	<script src="votemanager_errorcodes.lua" type="shared"></script>
+		<export function="getErrorCodes" type="shared"></export>
+	<script src="votemanager_server.lua" type="server"></script>
+		<export function="startPoll"></export>
+		<export function="stopPoll"></export>
+		<export function="finishPoll"></export>
+	<script src="votemanager_polls.lua" type="server"></script>
+		<export function="voteMap"></export>
+		<export function="voteKick"></export>
+		<export function="voteBan"></export>
+		<export function="voteBetweenMaps"></export>
+		<export function="voteBetweenModes"></export>
+	<script src="votemanager_client.lua" type="client"></script>
+	<config src="help.xml" type="client"></config>
+
+	<settings>
+		<setting name="*color" value="#DF6464"></setting>
+		<setting name="*log_votes" value="[true]"></setting>
+
+		<setting name="*poll_color" value="#000032" accept="*" examples="#000032" desc="Hex RGB color code of the voting poll's background."></setting>
+		<setting name="*poll_alphalevel" value="150" accept="0-255" desc="Amount of transparency of the voting poll's background. Acceptable values are from 0 (fully transparent) to 255 (fully opaque)."></setting>
+
+		<setting name="*default_timeout" value="[15]"></setting>
+		<setting name="*default_allowchange" value="[false]"></setting>
+		<setting name="*default_percentage" value="[65]"></setting>
+		<setting name="*default_maxnominations" value="[3]"></setting>
+
+		<setting name="*votemap_enabled" value="[true]"></setting>
+		<setting name="*votemap_timeout" value="[15]"></setting>
+		<setting name="*votemap_locktime" value="[120]"></setting>
+		<setting name="*votemap_percentage" value="[70]"></setting>
+		<setting name="*votemap_allowchange" value="[true]"></setting>
+
+		<setting name="*votemode_enabled" value="[true]"></setting>
+		<setting name="*votemode_timeout" value="[15]"></setting>
+		<setting name="*votemode_locktime" value="[120]"></setting>
+		<setting name="*votemode_percentage" value="[70]"></setting>
+		<setting name="*votemode_allowchange" value="[true]"></setting>
+
+		<setting name="*votekick_enabled" value="[true]"></setting>
+		<setting name="*votekick_timeout" value="[15]"></setting>
+		<setting name="*votekick_locktime" value="[120]"></setting>
+		<setting name="*votekick_percentage" value="[70]"></setting>
+		<setting name="*votekick_allowchange" value="[true]"></setting>
+
+		<setting name="*voteban_enabled" value="[false]"></setting>
+		<setting name="*voteban_timeout" value="[15]"></setting>
+		<setting name="*voteban_locktime" value="[120]"></setting>
+		<setting name="*voteban_percentage" value="[75]"></setting>
+		<setting name="*voteban_allowchange" value="[true]"></setting>
+		<setting name="*voteban_banip" value="[false]"></setting>
+		<setting name="*voteban_banusername" value="[false]"></setting>
+		<setting name="*voteban_banserial" value="[true]"></setting>
+		<setting name="*voteban_duration" value="[3600]"></setting>
+
+		<setting name="*votekill_enabled" value="[false]"></setting>
+		<setting name="*votekill_timeout" value="[15]"></setting>
+		<setting name="*votekill_locktime" value="[120]"></setting>
+		<setting name="*votekill_percentage" value="[70]"></setting>
+		<setting name="*votekill_allowchange" value="[true]"></setting>
+	</settings>
+</meta>

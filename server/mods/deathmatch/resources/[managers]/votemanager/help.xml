@@ -1,0 +1,42 @@
+<help title="Vote Manager" popup="yes">For new players, here is a rundown of the meaning of the acronyms in brackets before map names in the voting menu:
+* [R] - Race: Ordinary checkpoint-to-checkpoint race.
+* [SR] - Speedrun: Race based on a singleplayer mission or speedrun route. Good for practising, finding new routes, or enjoying the singleplayer campaign with your friends or strangers.
+* [DD] - Destruction Derby: Take out other players and attempt to be the last one standing!
+* [TW] - Teamwork: Work together with a randomly selected team in order to try and be the first team to complete a course. Some of your team will be required to help your other teammates complete the course.
+* [MG] - Minigame: Beat other players in a map-specific task to win, which is explained to you when you play them.
+* [F] - Footrace: Races in which you can exit your vehicle and collect checkpoints on foot.
+
+The following votes are handled by this manager:
+
+/votemap *
+Starts a vote to launch a random map running on the current gamemode.
+
+/votemap some_gamemode some_map
+Starts a vote to launch "some_map" running on the gamemode "some_gamemode".
+
+/votemap some_map
+Starts a vote to launch "some_map" running on the current gamemode.
+
+/votemap some_gamemode
+Starts a vote to launch a map compatible with "some_gamemode".
+
+/voteredo
+Starts a vote to restart the current map from the beginning.
+
+/votemode
+Starts a vote to launch a gamemode and a map compatible with it.
+
+/votekick playername [reason]
+Starts a vote to kick the player by the specified name.
+
+/voteban playername [reason]
+Starts a vote to ban the player by the specified name.
+
+/votekill playername [reason]
+Starts a vote to kill the player by the specified name.
+
+Note that some of these modes may be disabled in your current server.
+
+You may change your vote.
+You may press Backspace to cancel/remove your vote.
+</help>

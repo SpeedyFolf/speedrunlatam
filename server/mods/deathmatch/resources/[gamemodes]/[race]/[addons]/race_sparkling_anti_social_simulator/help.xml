@@ -1,0 +1,19 @@
+<help title="Race Sparkling Anti Social Simulator (SASS)" popup="yes">Allows you to play Multi Theft Auto in peace, without worrying about another player being in your face.
+
+To use, enter "/hide ui" to open its UI to change settings. They're stored locally and are per server.
+
+Additionally, you can type "/hide" followed by a number to switch just the hide type. Or "/hide" without anything to cycle through available types.
+
+"/hide 0" (Disabled) - Turns off SASS - No additional hiding beyond normal transparency will be applied
+"/hide 1" (Fade) - Turns on distance based SASS - Players will change transparency based on distance
+"/hide 2" (Fade+) - Turns on advanced distance based SASS - Works the same as 1, but also hides players if they're too close
+"/hide 3" (Hide) - Turns on full SASS - Fully hides other players
+
+When "Alt. Ghost Mode" is enabled it will set your own vehicle (or the one of the player you're spectating) opaque.
+When "Enable When Spectating" is enabled it will treat the player you're spectating as "you" and will apply the hide type you have selected.
+If it's disabled it will treat it as hide type 0 (disabled)
+
+SASS only works on non-collision requiring races. Not on Destruction Derbies or (most) minigames and not on races that have collision turned on.
+
+SASS will attempt to remember your settings between races, and if you're logged into an account it will store your last selected state in your account data.
+</help>

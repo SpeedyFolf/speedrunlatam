@@ -1,0 +1,17 @@
+<meta>
+	<info author="MTA contributors (github.com/multitheftauto/mtasa-resources)" version="1.0.0"></info>
+	<script src="controlinterface.lua" type="client"></script>
+	<script src="move_keyboard.lua" type="client" validate="false"></script>
+
+	<!-- client functions -->
+	<export function="attachElement" type="client"></export>
+	<export function="detachElement" type="client"></export>
+	<export function="setMoveSpeeds" type="client"></export>
+	<export function="setRotateSpeeds" type="client"></export>
+	<export function="getAttachedElement" type="client"></export>
+	<export function="getMoveSpeeds" type="client"></export>
+	<export function="getRotateSpeeds" type="client"></export>
+	<export function="toggleAxesLock" type="client"></export>
+	<export function="enable" type="client"></export>
+	<export function="disable" type="client"></export>
+</meta>

@@ -1,0 +1,29 @@
+<meta>
+	<info author="jbeta" name="Scripting console" type="script" version="1.0.1" showInResourceBrowser="true"></info>
+	<oop>true</oop>
+
+	<include resource="ajax"></include>
+
+	<script src="shared_util.lua" type="shared"></script>
+	<script src="client.lua" type="client" cache="false"></script>
+	<script src="client_util.lua" type="client" cache="false"></script>
+	<script src="server.lua" type="server"></script>
+	<script src="server_util.lua" type="server"></script>
+
+	<html src="runcode.htm" default="true"></html>
+	<html src="runcode.css" raw="true"></html>
+	<html src="runcode.js" raw="true"></html>
+
+	<!-- codemirror files https://codemirror.net/ -->
+	<html src="codemirror\codemirror.js" raw="true"></html>
+	<html src="codemirror\codemirror.css" raw="true"></html>
+	<html src="codemirror\docs.css" raw="true"></html>
+	<html src="codemirror\neat.css" raw="true"></html>
+	<html src="codemirror\lua.js" raw="true"></html>
+
+	<export function="httpRun" http="true" protected="true"></export>
+
+	<aclrequest>
+		<right name="function.loadstring" access="true"></right>
+	</aclrequest>
+</meta>

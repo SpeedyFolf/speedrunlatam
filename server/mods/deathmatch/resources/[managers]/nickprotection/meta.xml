@@ -1,0 +1,80 @@
+<meta>
+	<info name="nickProtection" longname="Nick Protection" description="Prevents stealing of protected nicknames as well as nickchange spam." author="driver2" type="script" version="1.0"></info>
+
+	<script src="script.lua" type="server"></script>
+	<config src="help.xml" type="client"></config>
+
+	<settings>
+		<!-- *****************************************************
+			 All these settings are adjustable in the Admin Panel:
+				1. start admin
+				2. press 'p'
+				3. select Resources tab
+				4. double click on 'nickProtection'
+			 ***************************************************** -->
+
+
+		<setting name="*changeNickInsteadOfKicking" value="true"
+					friendlyname="Change nick instead of kicking"
+					accept="false,true"
+					group="General"
+					desc="Change nick of players who fail to authenticate in time."></setting>
+
+		<setting name="*timeForLogin" value="30"
+					friendlyname="Time for login"
+					group="General"
+					accept="*"
+					desc="Number of seconds that players have to login to their account if they use a protected nick."></setting>
+
+		<setting name="*useTextDisplays" value="true"
+					friendlyname="Use Text Displays to warn players"
+					accept="false,true"
+					group="General"
+					desc="Use Text Displays together with the message in the chat to warn players."></setting>
+
+		<setting name="*protectedNicksPerAccount" value="2"
+					friendlyname="Protected Nicks per Account"
+					group="General"
+					accept="*"
+					desc="Maximum number of protected nicks allowed per account."></setting>
+
+
+		<setting name="*protectedNicksPerAccountExtended" value="10"
+					friendlyname="Protected Nicks per Account (extended)"
+					accept="*"
+					group="General"
+					desc="Maximum number of protected nicks allowed per account for users who have the resource.nickProtection.extended right in their ACL."></setting>
+
+		<setting name="*protectedNicksExpireAfterDays" value="365"
+					friendlyname="Nicks expire after these many days"
+					accept="*"
+					group="General"
+					desc="Protected nicks expire (get deleted) if they haven't been used these many days."></setting>
+
+		<setting name="*protectedNicksExpireMode" value="1"
+					friendlyname="Nicks expire mode"
+					accept="0-2"
+					group="General"
+					desc="Nicks can expire after some time, this determines how that happens: 0 - Nicks don't expire at all, 1 - Regular nicks expire (but not those for users that have the resource.nickProtection.extended right), 2 - All nicks expire"></setting>
+
+		<setting name="*enableNickChangeSpamProtection" value="true"
+					friendlyname="Enable Nick Change Spam Protection"
+					accept="false,true"
+					group="NickChangeSpamProtection"
+					desc="Enables protection against people changing their nicks too often."></setting>
+
+		<setting name="*nickChangeSpamProtectionWaitTime" value="30"
+					friendlyname="Wait time"
+					accept="*"
+					group="NickChangeSpamProtection"
+					desc="Wait for this many seconds before player is allowed to change nick again."></setting>
+
+		<setting name="*maxNickChanges" value="2"
+					friendlyname="Maximum Nick Changes"
+					accept="1-"
+					group="NickChangeSpamProtection"
+					desc="Maximum number of nick changes before the player has to wait."></setting>
+
+	</settings>
+
+</meta>

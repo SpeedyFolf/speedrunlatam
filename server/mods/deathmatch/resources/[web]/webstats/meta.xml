@@ -1,0 +1,29 @@
+<meta>
+	<info author="eAi" name="Statistics" description="View charts of statistics showing what's going on on your server" showInResourceBrowser="true" version="2.0.0"></info>
+
+	<include resource="ajax"></include>
+
+	<html src="index.htm" default="true"></html>
+	<html src="css.css" raw="true"></html>
+	<html src="script.js" raw="true"></html>
+
+	<script src="stats.lua" type="server"></script>
+	<export function="getCurrentStats" http="true"></export>
+	<export function="registerStat"></export>
+	<export function="getRegisteredStats" http="true"></export>
+	<export function="getStatListByResource"></export>
+
+	<!-- Internal stats -->
+	<script src="internal_stats.lua" type="server"></script>
+	<export function="getVehicleCount"></export>
+	<export function="getObjectCount"></export>
+	<export function="getPlayerCount"></export>
+	<export function="getBlipCount"></export>
+	<export function="getMarkerCount"></export>
+	<export function="getPickupCount"></export>
+	<export function="getPublicChatCount"></export>
+	<export function="getTeamChatCount"></export>
+	<export function="getDamageCount"></export>
+	<export function="getVehiclesWastedCount"></export>
+	<export function="getChatCount"></export>
+</meta>

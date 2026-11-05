@@ -1,0 +1,45 @@
+<meta>
+    <info author="Talidan + Fenix" description="A handler resource to account for common uses for voice support" type="utility" version="1.1.0"></info>
+	<!--Client -->
+	<script src="cGlobals.lua" type="client"></script>
+	<script src="cDrawIcon.lua" type="client"></script>
+	<script src="cPlayerMuting.lua" type="client"></script>
+
+	<export function="setPlayerVoiceMuted" type="client"></export>
+	<export function="isPlayerVoiceMuted" type="client"></export>
+
+	<file src="images/voice.png"></file>
+	<file src="images/voice_small.png"></file>
+	<file src="images/voice_small_muted.png"></file>
+
+
+	<!--Server -->
+	<script src="sGlobals.lua" type="server"></script>
+	<script src="sDefaultChannelManager.lua" type="server"></script>
+	<script src="sChannelManager.lua" type="server"></script>
+	<script src="sPlayerMuting.lua" type="server"></script>
+
+	<export function="setPlayerVoiceMuted" type="server"></export>
+	<export function="isPlayerVoiceMuted" type="server"></export>
+	<export function="getPlayerVoiceMutedByList" type="server"></export>
+	<export function="getPlayerChannel" type="server"></export>
+	<export function="setPlayerChannel" type="server"></export>
+	<export function="getPlayersInChannel" type="server"></export>
+	<export function="getNextEmptyChannel" type="server"></export>
+
+
+	<settings>
+		<setting name="*show_chat_icon" value="[true]" description="This will display an icon over a player's head when he/she is speaking over the microphone."></setting>
+		<setting name="*autoassign_to_teams" value="[true]" description="This will automatically assign players into a team if they join the team"></setting>
+	</settings>
+
+
+	<!-- Exported functions for backward compatibility only -->
+	<!-- DO NOT USE THESE AS THEY WILL BE REMOVED IN A LITTLE WHILE -->
+	<export function="setPlayerMuted" type="client"></export>
+	<export function="isPlayerMuted" type="client"></export>
+	<export function="setPlayerMuted" type="server"></export>
+	<export function="isPlayerMuted" type="server"></export>
+	<export function="getPlayerMutedByList" type="server"></export>
+	<!-- DO NOT USE THESE AS THEY WILL BE REMOVED IN A LITTLE WHILE -->
+</meta>

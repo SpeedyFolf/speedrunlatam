@@ -1,0 +1,18 @@
+<meta>
+	<info author="MTA contributors (github.com/multitheftauto/mtasa-resources)" version="1.0.0"></info>
+	<script src="move_cursor.lua" type="client"></script>
+    <script src="controlinterface.lua" type="client"></script>
+
+	<!-- client functions -->
+	<export function="attachElement" type="client"></export>
+	<export function="detachElement" type="client"></export>
+	<export function="setMaxMoveDistance" type="client"></export>
+	<export function="setRotateSpeeds" type="client"></export>
+	<export function="setZoomSpeeds" type="client"></export>
+	<export function="getAttachedElement" type="client"></export>
+	<export function="getMaxMoveDistance" type="client"></export>
+	<export function="getRotateSpeeds" type="client"></export>
+	<export function="getZoomSpeeds" type="client"></export>
+	<export function="enable" type="client"></export>
+	<export function="disable" type="client"></export>
+</meta>

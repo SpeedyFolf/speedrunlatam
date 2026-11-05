@@ -1,0 +1,22 @@
+<meta>
+	<info type="script" name="Race Information UI" description="Show Race Information at map start, in the bottom left corner, and maybe other places" addon="race" author="S."></info>
+	<script src="textlib.lua" type="client"></script>
+	<script src="mapchangehandler_s.lua" type="server"></script>
+	<script src="gui_c.lua" type="client"></script>
+	<script src="settings_c.lua" type="client"></script>
+	<script src="settings_s.lua" type="server"></script>
+	<script src="util_s.lua" type="server"></script>
+	<script src="init_c.lua" type="client"></script>
+
+	<file src="img/TW.png"></file>
+	<file src="img/MG.png"></file>
+	<file src="img/DD.png"></file>
+	<file src="img/R.png"></file>
+	<file src="img/SR.png"></file>
+	<file src="img/F.png"></file>
+
+	<settings>
+		<setting name="*colorbottomleft" value="#ED1C23" friendlyname="Bottom left UI color" group="Display" accept="*" examples="#FF0000,#776655" desc="Color of the UI text labels."></setting>
+		<setting name="*mapfolder" value="folder" friendlyname="Map folder" group="Display" accept="folder,fullpath" desc="Whether to display the current map's folder name or its full path."></setting>
+	</settings>
+</meta>

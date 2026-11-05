@@ -1,0 +1,16 @@
+<meta>
+    <info name="fastrope" version="1.0.0" type="script" author="Cazomino05" description="fastrope script for MTA 1.1.1"></info>
+	<min_mta_version client="1.1.1-9.03250"></min_mta_version>
+    <!-- Required Server-Scripts -->
+    <script src="fastrope_manager.lua" type="server"></script>
+
+    <!-- Required Client-Scripts -->
+    <script src="fastrope.lua" type="client"></script>
+
+    <!--Exports -->
+    <export function="createFastRopeOnHeli" type="server"></export>
+    <export function="createFastRope" type="server"></export>
+    <export function="addPlayerToFastRope" type="server"></export>
+    <export function="hasFastRopeExpired" type="server"></export>
+
+</meta>

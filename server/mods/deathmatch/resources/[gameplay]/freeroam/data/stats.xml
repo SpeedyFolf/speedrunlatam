@@ -1,0 +1,25 @@
+<catalog type="stat">
+	<group name="Body">
+		<stat name="Fat" id="21"></stat>
+		<stat name="Muscle" id="23"></stat>
+		<stat name="Max health" id="24"></stat>
+		<stat name="Lung capacity" id="225"></stat>
+	</group>
+	<group name="Weapon skill">
+		<stat name="AK-47" id="77"></stat>
+		<stat name="Desert eagle" id="71"></stat>
+		<stat name="M4" id="78"></stat>
+		<stat name="MP5" id="76"></stat>
+		<stat name="Pistol" id="69"></stat>
+		<stat name="Sawnoff shotgun" id="73"></stat>
+		<stat name="Shotgun" id="72"></stat>
+		<stat name="Silenced pistol" id="70"></stat>
+		<stat name="Sniper rifle" id="79"></stat>
+		<stat name="SPAZ-12" id="74"></stat>
+		<stat name="Uzi" id="75"></stat>
+	</group>
+	<group name="Other skills">
+		<stat name="Cycling skill" id="230"></stat>
+		<stat name="Biking skill" id="229"></stat>
+	</group>
+</catalog>

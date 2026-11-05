@@ -1,0 +1,11 @@
+<help title="Race Player Stats GUI" popup="yes">Commands:
+---------------
+/stats - displays stats panel for current player
+
+/stats &lt;nick&gt; - displays stats panel for specified player
+
+
+Binds:
+---------------
+F10 - Toggle stats panel
+</help>

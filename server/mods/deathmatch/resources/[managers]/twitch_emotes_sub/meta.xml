@@ -1,0 +1,37 @@
+<meta>
+	<min_mta_version server="1.6.0-9.22430" client="1.5.8-9.20957"></min_mta_version>
+	<info type="script" shortname="TwitchEmotesSub" name="Twitch Emotes Sub" longname="Twitch Emotes (Subscriber)" author="Ali Digitali, SpeedyFolf, &amp; Google Gemini" version="1.2.0" description="Twitch emotes will show up in the chat when you type their name (just as on twitch.tv). This is a slave resource or emote pack which holds Twitch channel sub/follower emote images."></info>
+
+	<script src="server.lua" type="server" validate="false"></script>
+
+	<file src="Emotes/123robot/*.gif"></file>
+	<file src="Emotes/123robot/*.png"></file>
+	<file src="Emotes/Big_Asian_Boy/*.gif"></file>
+	<file src="Emotes/Big_Asian_Boy/*.png"></file>
+	<file src="Emotes/DosAmp/*.gif"></file>
+	<file src="Emotes/DosAmp/*.png"></file>
+	<file src="Emotes/Joshimuz/*.gif"></file>
+	<file src="Emotes/Joshimuz/*.png"></file>
+	<file src="Emotes/Lance_Latifi/*.gif"></file>
+	<file src="Emotes/Lance_Latifi/*.png"></file>
+	<file src="Emotes/LotsOfS/*.gif"></file>
+	<file src="Emotes/LotsOfS/*.png"></file>
+	<file src="Emotes/m15enki/*.gif"></file>
+	<file src="Emotes/m15enki/*.png"></file>
+	<file src="Emotes/maritza8627/*.gif"></file>
+	<file src="Emotes/maritza8627/*.png"></file>
+	<file src="Emotes/marshalltherealcarry1/*.gif"></file>
+	<file src="Emotes/marshalltherealcarry1/*.png"></file>
+	<file src="Emotes/MindReflex/*.gif"></file>
+	<file src="Emotes/MindReflex/*.png"></file>
+	<file src="Emotes/MTAQA/*.gif"></file>
+	<file src="Emotes/MTAQA/*.png"></file>
+	<file src="Emotes/SpeedyFolf/*.gif"></file>
+	<file src="Emotes/SpeedyFolf/*.png"></file>
+	<file src="Emotes/tduva/*.gif"></file>
+	<file src="Emotes/tduva/*.png"></file>
+	<file src="Emotes/Twitch/*.gif"></file>
+	<file src="Emotes/Twitch/*.png"></file>
+	<file src="Emotes/WuziCZ/*.gif"></file>
+	<file src="Emotes/WuziCZ/*.png"></file>
+</meta>

@@ -1,0 +1,40 @@
+~~~DD/MM/2026 Update~~~
+[blurb]
+
+NEW MAPS:
+- &quot;name&quot; by name, submitted by name
+- &quot;name&quot; by name, submitted by name
+- &quot;name&quot; by name, submitted by name
+- &quot;name&quot; by name, submitted by name
+
+UPDATED MAPS:
+&quot;name&quot;:
+- - - item
+- - - item
+&quot;name&quot;:
+- - - item
+- - - item
+&quot;name&quot;:
+- - - item
+- - - item
+&quot;name&quot;:
+- - - item
+- - - item
+
+REMOVED MAPS:
+- &quot;name&quot; reason
+- &quot;name&quot; reason
+- &quot;name&quot; reason
+- &quot;name&quot; reason
+
+GENERAL UPDATES:
+- item
+
+MAP CREATORS:
+- item
+
+ACHIEVEMENTS:
+- item
+
+COLLECTIBLES:
+- item

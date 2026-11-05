@@ -1,0 +1,13 @@
+<meta>
+	<min_mta_version server="1.6.0-9.22430" client="1.5.8-9.20957"></min_mta_version>
+	<info type="script" shortname="TwitchEmotesExt" name="Twitch Emotes External" longname="Twitch Emotes (External)" author="Ali Digitali, SpeedyFolf, &amp; Google Gemini" version="1.2.0" description="Twitch emotes will show up in the chat when you type their name (just as on twitch.tv). This is a slave resource or emote pack which holds Twitch browser extension (7TV, BetterTTV, and FrankerFaceZ) emote images."></info>
+
+	<script src="server.lua" type="server" validate="false"></script>
+
+	<file src="Emotes/7TV/*.gif"></file>
+	<file src="Emotes/7TV/*.png"></file>
+	<file src="Emotes/BTTV/*.gif"></file>
+	<file src="Emotes/BTTV/*.png"></file>
+	<file src="Emotes/FFZ/*.gif"></file>
+	<file src="Emotes/FFZ/*.png"></file>
+</meta>

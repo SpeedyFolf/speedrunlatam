@@ -1,0 +1,26 @@
+<meta>
+	<info author="Noneatme" type="script" version="1.0.0"></info>
+
+	<!-- SERVER CLASSES -->
+
+
+	<!-- CLIENT CLASSES -->
+
+	<script src="client/cSound.lua" type="client"></script>
+	<script src="client/cFlappy.lua" type="client"></script>
+	<script src="client/cTube.lua" type="client"></script>
+	<script src="client/cFlappyUI.lua" type="client"></script>
+	<script src="client/cFlappyBirdGame.lua" type="client"></script>
+	<script src="client/cStart.lua" type="client"></script>
+
+	<!-- FILES -->
+	<file src="files/images/atlas.png"></file>
+
+	<file src="files/sounds/sfx_die.ogg"></file>
+	<file src="files/sounds/sfx_hit.ogg"></file>
+	<file src="files/sounds/sfx_point.ogg"></file>
+	<file src="files/sounds/sfx_swooshing.ogg"></file>
+	<file src="files/sounds/sfx_wing.ogg"></file>
+	<file src="files/sounds/flappy.mp3"></file>
+
+</meta>

@@ -1,0 +1,38 @@
+<meta>
+	<include resource="ajax"></include>
+	<info author="eAi" showInResourceBrowser="true" name="Admin" description="Various useful pages of administration tools" pages="acls.htm|ACLs,groups.htm|Groups,players.htm|Players" noDefaultPage="true" version="1.0.0"></info>
+	<script src="admin.lua" type="server"></script>
+	<html src="acls.htm"></html>
+	<html src="groups.htm"></html>
+	<html src="players.htm"></html>
+	<html src="admin.js" raw="true"></html>
+	<html src="icon_minus_8_on_F.png" raw="true"></html>
+	<html src="icon_plus_8_on_F.png" raw="true"></html>
+	<html src="icon_x_8_on_F.png" raw="true"></html>
+
+	<html src="ie-70.css" raw="true"></html>
+	<html src="css.css" raw="true"></html>
+	<html src="groups.css" raw="true"></html>
+
+	<!-- ACLS -->
+	<export function="getACLs" http="true" protected="true"></export>
+	<export function="setACLRight" http="true" protected="true"></export>
+	<export function="removeACLRight" http="true" protected="true"></export>
+	<export function="createACL" http="true" protected="true"></export>
+	<export function="removeACL" http="true" protected="true"></export>
+
+	<!-- GROUPS -->
+	<export function="getGroups" http="true"></export>
+	<export function="addObjectToGroup" http="true" protected="true"></export>
+	<export function="addACLToGroup" http="true" protected="true"></export>
+	<export function="removeObjectFromGroup" http="true" protected="true"></export>
+	<export function="removeACLFromGroup" http="true" protected="true"></export>
+	<export function="removeGroup" http="true" protected="true"></export>
+	<export function="addGroup" http="true" protected="true"></export>
+	<export function="isAccountNameValid" http="true"></export>
+
+	<!-- PLAYERS -->
+	<export function="serverKickPlayer" http="true" protected="true"></export>
+ 	<export function="serverBanPlayer" http="true" protected="true"></export>
+
+</meta>

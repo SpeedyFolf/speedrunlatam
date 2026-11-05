@@ -1,0 +1,40 @@
+[17/02/2026 20:26] Carbon Mode Match Ended
+  - foxx.Mateoryt        | Score: 3373 | MP: 10 | MW:  4 | PPM: 337.3
+  - [SiK]KacPower        | Score: 3141 | MP: 10 | MW:  6 | PPM: 314.1
+--------------------------------------------------
+
+[17/02/2026 20:54] Free-For-All Match Ended
+  - [SiK]KacPower        | Score:  71 | MP:  5 | MW:  3 | PPM: 14.2
+  - foxx.Mateoryt        | Score:  69 | MP:  5 | MW:  2 | PPM: 13.8
+--------------------------------------------------
+
+[17/02/2026 20:55] Carbon Mode Match Ended
+  - [SiK]KacPower        | Score:  15 | MP:  1 | MW:  1 | PPM: 15.0
+  - foxx.Mateoryt        | Score:  13 | MP:  1 | MW:  0 | PPM: 13.0
+--------------------------------------------------
+
+[18/02/2026 00:18] Carbon Mode Match Ended
+  - foxx.Mateoryt        | Score: 1350 | MP:  3 | MW:  3 | PPM: 450.0
+--------------------------------------------------
+
+[26/05/2026 15:11] Carbon Mode Match Ended
+  - foxx.Mateoryt        | Score:  15 | MP:  1 | MW:  1 | PPM: 15.0
+--------------------------------------------------
+
+[26/05/2026 15:15] Carbon Mode Match Ended
+  - foxx.Mateoryt        | Score: 435 | MP:  2 | MW:  2 | PPM: 217.5
+--------------------------------------------------
+
+[26/05/2026 15:16] Not Even Trying (15) vs Speed is King (0) - Not Even Trying won
+ Team: Not Even Trying
+  - foxx.Mateoryt        | Score:  15 | MP:  1 | MW:  1 | PPM: 15.0
+ Team: Speed is King
+--------------------------------------------------
+[26/05/2026 15:24] Carbon Mode Match Ended
+  - foxx.Mateoryt        | Score:  15 | MP:  1 | MW:  1 | PPM: 15.0
+--------------------------------------------------
+
+[26/05/2026 15:32] Carbon Mode Match Ended
+  - foxx.Mateoryt        | Score:  15 | MP:  1 | MW:  1 | PPM: 15.0
+--------------------------------------------------
+

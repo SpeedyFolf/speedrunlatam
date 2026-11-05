@@ -1,0 +1,125 @@
+<meta>
+	<info author="Talidan + Iggy" type="script" version="2.0.1"></info>
+	<script src="utils/textlib.lua" type="client"></script>
+	<script src="utils/imagelib.lua" type="client"></script>
+	<script src="killmessages_client.lua" type="client"></script>
+	<script src="killmessages_server.lua" type="server"></script>
+	<script src="gui.lua" type="client"></script>
+	<script src="definitions.lua" type="client"></script>
+	<!--All icons courtesy of Iggy-->
+	<file src="icons/fist.png"></file>
+	<file src="icons/brassknuckle.png"></file>
+	<file src="icons/golfclub.png"></file>
+	<file src="icons/nitestick.png"></file>
+	<file src="icons/knifecur.png"></file>
+	<file src="icons/bat.png"></file>
+	<file src="icons/shovel.png"></file>
+	<file src="icons/poolcue.png"></file>
+	<file src="icons/katana.png"></file>
+	<file src="icons/chnsaw.png"></file>
+	<file src="icons/gun_dildo1.png"></file>
+	<file src="icons/gun_dildo2.png"></file>
+	<file src="icons/gun_vibe1.png"></file>
+	<file src="icons/flowera.png"></file>
+	<file src="icons/gun_cane.png"></file>
+	<file src="icons/grenade.png"></file>
+	<file src="icons/teargas.png"></file>
+	<file src="icons/molotov.png"></file>
+	<file src="icons/colt45.png"></file>
+	<file src="icons/Silenced.png"></file>
+	<file src="icons/desert_eagle.png"></file>
+	<file src="icons/chromegun.png"></file>
+	<file src="icons/sawnoff.png"></file>
+	<file src="icons/shotgspa.png"></file>
+	<file src="icons/micro_uzi.png"></file>
+	<file src="icons/mp5lng.png"></file>
+	<file src="icons/ak47.png"></file>
+	<file src="icons/m4.png"></file>
+	<file src="icons/tec9.png"></file>
+	<file src="icons/cuntgun.png"></file>
+	<file src="icons/sniper.png"></file>
+	<file src="icons/rocketla.png"></file>
+	<file src="icons/heatseek.png"></file>
+	<file src="icons/flame.png"></file>
+	<file src="icons/minigun.png"></file>
+	<file src="icons/satchel.png"></file>
+	<file src="icons/explosion.png"></file>
+	<file src="icons/suicide.png"></file>
+	<file src="icons/rammed.png"></file>
+	<file src="icons/hunter.png"></file>
+	<file src="icons/fall.png"></file>
+	<file src="icons/drowned.png"></file>
+	<file src="icons/generic.png"></file>
+	<file src="icons/headshot.png"></file>
+	<file src="icons/406.png"></file>
+	<file src="icons/408.png"></file>
+	<file src="icons/416.png"></file>
+	<file src="icons/417.png"></file>
+	<file src="icons/423.png"></file>
+	<file src="icons/424.png"></file>
+	<file src="icons/427.png"></file>
+	<file src="icons/428.png"></file>
+	<file src="icons/429.png"></file>
+	<file src="icons/432.png"></file>
+	<file src="icons/433.png"></file>
+	<file src="icons/434.png"></file>
+	<file src="icons/441.png"></file>
+	<file src="icons/443.png"></file>
+	<file src="icons/448.png"></file>
+	<file src="icons/457.png"></file>
+	<file src="icons/460.png"></file>
+	<file src="icons/462.png"></file>
+	<file src="icons/463.png"></file>
+	<file src="icons/464.png"></file>
+	<file src="icons/468.png"></file>
+	<file src="icons/470.png"></file>
+	<file src="icons/471.png"></file>
+	<file src="icons/480.png"></file>
+	<file src="icons/485.png"></file>
+	<file src="icons/486.png"></file>
+	<file src="icons/508.png"></file>
+	<file src="icons/511.png"></file>
+	<file src="icons/512.png"></file>
+	<file src="icons/513.png"></file>
+	<file src="icons/520.png"></file>
+	<file src="icons/524.png"></file>
+	<file src="icons/528.png"></file>
+	<file src="icons/530.png"></file>
+	<file src="icons/531.png"></file>
+	<file src="icons/532.png"></file>
+	<file src="icons/539.png"></file>
+	<file src="icons/564.png"></file>
+	<file src="icons/568.png"></file>
+	<file src="icons/571.png"></file>
+	<file src="icons/572.png"></file>
+	<file src="icons/573.png"></file>
+	<file src="icons/574.png"></file>
+	<file src="icons/578.png"></file>
+	<file src="icons/588.png"></file>
+	<file src="icons/593.png"></file>
+	<file src="icons/599.png"></file>
+	<file src="icons/bigtruck.png"></file>
+	<file src="icons/bike.png"></file>
+	<file src="icons/boat.png"></file>
+	<file src="icons/boxtruck.png"></file>
+	<file src="icons/bus.png"></file>
+	<file src="icons/cars.png"></file>
+	<file src="icons/copcar.png"></file>
+	<file src="icons/crotchrocket.png"></file>
+	<file src="icons/firetruck.png"></file>
+	<file src="icons/maverick.png"></file>
+	<file src="icons/monstertruck.png"></file>
+	<file src="icons/plane.png"></file>
+	<file src="icons/rccopter.png"></file>
+	<file src="icons/roundvan.png"></file>
+	<file src="icons/sparrow.png"></file>
+	<file src="icons/train.png"></file>
+	<file src="icons/fireextinguisher.png"></file>
+
+	<export function="outputMessage" type="server"></export>
+	<export function="outputMessage" type="client"></export>
+	<export function="outputKillMessage" type="server"></export>
+	<export function="outputKillMessage" type="client"></export>
+	<export function="setKillMessageStyle" type="client"></export>
+	<export function="setKillMessageStyle" type="server"></export>
+</meta>

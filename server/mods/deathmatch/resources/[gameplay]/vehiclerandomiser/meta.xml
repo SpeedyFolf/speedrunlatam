@@ -1,0 +1,6 @@
+<meta>
+    <min_mta_version server="1.6.0-9.22196"></min_mta_version>
+    <info type="script" name="Vehicle Randomiser" author="Discoordination" version="0.6.0" description="It randomises your vehicle when you reach a checkpoint"></info>
+    <script src="vehicle_randomizer_shared.lua" type="shared"></script>
+    <export function="changeModel" type="server"></export>
+</meta>

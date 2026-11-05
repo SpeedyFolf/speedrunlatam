@@ -1,0 +1,5 @@
+<meta>
+	<min_mta_version server="1.5.8-9.20957" client="1.5.8-9.20957"></min_mta_version>
+	<info type="script" shortname="Get Resource Failure Reason" name="Get Resource Load Failure Reason" longname="Get Reason Why Resource Failed To Load" author="SpeedyFolf" version="1.0.0" description="Checks if there&apos;s a resource that failed to load, then outputs the reason why to chat."></info>
+	<script src="server.lua" type="server" validate="false"></script>
+</meta>

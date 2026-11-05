@@ -1,0 +1,17 @@
+<meta>
+	<info author="eAi" name="Map" showInResourceBrowser="true" version="2.0.0"></info>
+
+	<include resource="ajax"></include>
+
+	<script src="map.lua"></script>
+
+	<html src="map.htm" default="true"></html>
+	<html src="css.css" raw="true"></html>
+	<html src="script.js" raw="true"></html>
+	<html src="geticon.htm"></html>
+	<html src="icons/02.png" raw="true"></html>
+
+	<export function="getAllPlayers" http="true"></export>
+	<export function="getAllRadarBlips" http="true"></export>
+	<export function="sendPlayerMessage" http="true"></export>
+</meta>

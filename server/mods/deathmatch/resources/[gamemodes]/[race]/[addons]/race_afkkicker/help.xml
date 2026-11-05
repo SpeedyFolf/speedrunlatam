@@ -1,0 +1,2 @@
+<help title="Race AFK Kicker" popup="yes">Forces active players into spectate mode when they&apos;ve been standing still for too long. The AFK timer only counts while a player is ready, unfrozen, and watching themselves. By default this is 30 seconds, but the time may be increased or decreased by server admins.
+</help>

@@ -1,0 +1,16 @@
+<help title="Nick Protection" popup="yes">Allows registered players to protect their nick from being taken by other players.
+
+You have to be logged in to use any of the commands. If you are, you can protect one or several nicks (depending on the server's configuration). If you already have protected too much nicks, but want to protect a new one, you may /unprotect one.
+
+If a player joins with a protected nick, he will be asked to change it or login (if he is the one who is authorized to use it). After a specified amount of time and if the player is still using the nick without authorization, he will be kicked or his nick changed automatically (depending on the server's configuration). If a player tries to change his nick to a protected nick, he will be unable to do so, unless he logs in first (again if he is the one who actually registered it, otherwise logging in won't do any good of course).
+
+Protected nicks expire after some time, if they are not used (if enabled on the server). To see if and when your protected nicks expire, use the /protected command. A protected nick will be considered used, if a player joins with or changes to a nick that he has protected (and is logged in of course).
+
+Commands:
+
+/protect          - Protects the nick you currently have.
+/unprotect [nick] - Unprotects the nick you currently have or the one you specified (if you have). This nick will then be free for use and also protecting by other players.
+/protected        - Outputs a list of all protected nicks associated with your account, together with the amount of days the nicks have been unused and the time after which unused nicks expire.
+
+[parameter] - optional parameter (please write it without parantheses, e.g. /protect myNick)
+</help>

@@ -1,0 +1,53 @@
+<def name="Race">
+	<setting name="respawn" friendlyname="Respawn type" type="selection:timelimit,none" description="Whether respawn is enabled or not. If enabled, a timelimit must be specified." default="timelimit" required="true"></setting>
+	<setting name="duration" friendlyname="Race duration" type="natural" description="The length of the race, in seconds. Default is 30 minutes." default="1800" required="true"></setting>
+	<setting name="vehicleweapons" friendlyname="Enabled vehicle weapons" type="selection:true,false" description="Whether vehicle weapons are enabled or not. Vehicles weapons include Hunter/Hydra/Tank rockets." default="false" required="true"></setting>
+	<setting name="hunterminigun" friendlyname="Enabled hunter minigun" type="selection:true,false" description="Whether the hunter minigun is enabled or not. No effect if vehicleweapons is disabled." default="false" required="true"></setting>
+	<setting name="ghostmode" friendlyname="Ghost mode" type="selection:true,false" description="Whether Ghost Mode is enabled or not. This mode allows vehicles to drive through each other during the race." default="true" required="true"></setting>
+	<setting name="collisionmode" friendlyname="Player collision mode" type="selection:ghost,solid" description="Whether race vehicles can drive through each other (ghost) or collide (solid). Traffic collisions are always enabled when traffic is enabled." default="solid" required="false"></setting>
+	<setting name="traffic" friendlyname="Ambient traffic" type="selection:true,false" description="Whether native pedestrian and vehicle traffic is enabled for this map." default="false" required="false"></setting>
+	<setting name="wanted" friendlyname="Wanted police" type="selection:true,false" description="Whether native wanted levels and police are enabled for this map." default="false" required="false"></setting>
+	<setting name="bikefall" friendlyname="Can fall off bike" type="selection:true,false" description="Whether the player can be knocked off their bike." default="false" required="false"></setting>
+	<setting name="skins" friendlyname="Driver skins" type="selection:cj,random" description="What kind of skins players will spawn as. CJ means that players will spawn as CJ, with varying motor clothes on. Random means that a random ped skin will be used set based on the map name. You can also use a skin ID integer 0-312 (excluding 74, 149, and 208) or a range list like '7 10 16-20 15' if you edit meta.xml externally." default="cj" required="true"></setting>
+	<setting name="randomclothes" friendlyname="Random clothes for CJ" type="selection:false,true" description="Whether random clothes for CJ is enabled or not." default="cj" required="false"></setting>
+	<setting name="respawntime" friendlyname="Respawn delay" type="integer" description="Time from death to respawn in seconds. Use -1 for gamemode default." default="-1" required="true"></setting>
+	<setting name="countdownduration" friendlyname="Countdown duration" type="integer" default="-1" description="How long the countdown of the race lasts. Countdown ticks above 3 are silent and invisible. Use -1 for gamemode/server default." required="false"></setting>
+	<setting name="timeafterfirstfinish" friendlyname="Time after first finish" type="integer" default="-1" description="The number of seconds the race continues for after someone wins. Use -1 for gamemode/server default." required="false"></setting>
+	<setting name="shufflespawns" friendlyname="Shuffle Spawnpoints" type="selection:true,false" default="false" description="Whether to pick a random spawnpoint for players at map start. When set to false it will pick spawnpoints in sequence." required="false"></setting>
+	<setting name="classicchangez" friendlyname="Classic Change Z" type="selection:true,false" default="false" description="Whether to use the classic Z coordinate calculations when changing vehicle." required="false"></setting>
+	<setting name="autopimp" friendlyname="Auto pimp" type="selection:true,false" default="true" description="Whether to apply a selection of visual upgrades to vehicles." required="false"></setting>
+	<setting name="firewater" friendlyname="Fire water" type="selection:true,false" default="false" description="Whether to explode the player when entering the water." required="false"></setting>
+	<setting name="allowonfoot" friendlyname="Allow on-foot" type="selection:true,false" default="false" description="Whether entering/exiting your vehicle is enabled or not." required="false"></setting>
+
+	<element name="spawnpoint" friendlyname="Spawnpoint" icon="edf/spawnpoint.png">
+		<data name="position" type="coord3d" default="0,0,0"></data>
+		<data name="rotation" type="coord3d" default="0,0,0"></data>
+		<data name="vehicle" type="vehicleID" default="522"></data>
+		<vehicle model="!vehicle!" rotation="!rotation!"></vehicle>
+	</element>
+	<element name="checkpoint" friendlyname="Checkpoint" icon="edf/checkpoint.png">
+		<data name="position" type="coord3d" default="0,0,0"></data>
+		<data name="type" type="selection:checkpoint,ring,corona,cylinder,arrow" description="Checkpoints extend vertically infinitely and use the circle collision shape. Rings, coronas, and arrows use the sphere collision shape. Cylinders use the tube collision shape." default="checkpoint"></data>
+		<data name="color" type="color" description="Color (#RRGGBBAA hex string). If the color attribute is completely missing from the checkpoint a random color will be used set based on the map name." required="false" default="#00F9"></data>
+		<data name="size" type="number" description="The radius of the checkpoint." default="2.25"></data>
+		<data name="height" type="number" description="The height of the checkpoint (cylinders only). 2 for default." required="false" default=""></data>
+		<data name="nextid" type="element:checkpoint" description="The next checkpoint after this one." required="false" default=""></data>
+		<data name="blipsize" type="integer" default="2" description="The size of this checkpoint's blip on the radar. 0 for invisible."></data>
+		<data name="extracolshapesize" type="number" default="4" description="Additional size added to this checkpoint's invisible hitbox."></data>
+		<data name="vehicle" type="vehicleID" required="false"></data>
+		<marker color="!color!" type="!type!" size="!size!"></marker>
+	</element>
+	<element name="racepickup" friendlyname="Race pickup" icon="edf/pickup.png">
+		<data name="position" type="coord3d" default="0,0,0"></data>
+		<data name="type" type="selection:nitro,repair,vehiclechange" description="The type of pickup. Can repair the vehicle, add a Nitro, or change the player's vehicle." default="nitro"></data>
+		<data name="respawn" type="integer" default="0" description="The respawn time in milliseconds."></data>
+		<data name="vehicle" type="vehicleID" default="522" description="The vehicle model, if a vehiclechange pickup." required="false"></data>
+		<object model="2221" position="0,0,0"></object>
+		<object model="1234" position="0,0,0" editorOnly="true" alpha="0"></object>
+		<marker position="0,0,0" type="corona" color="#00000000" editorOnly="true"></marker>
+	</element>
+
+	<script src="edf/edf.lua"></script>
+	<script src="edf/edf_client.lua" type="client"></script>
+	<script src="edf/edf_client_cp_lines.lua" type="client"></script>
+</def>

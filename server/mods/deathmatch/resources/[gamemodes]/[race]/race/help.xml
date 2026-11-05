@@ -1,0 +1,20 @@
+<help title="Race" popup="yes">/new                  - Start a vote for a new random map
+/kill                 - Kill player (hold for 1 second on foot races)
+/kill immediately     - Kill player without delay (bypassing 1 second delay on foot races)
+/kill cancel          - Cancel delayed kill (on foot races)
+/togglenametagoutline - Toggle the player nametag outline on or off
+/cpblips              - Choose the number of checkpoint blips/icons to be displayed on the minimap, either 2 or 3. The default is 2. A third is distinguishable by virtue of it having a lower alpha/transparency value.
+
+Keys
+----
+Enter/Exit - Kill player (hold on foot races)
+
+Admins
+------
+/config           - Configure Race addons
+/ghostmode        - Toggle collisions
+/checkmap mapname - Find a map
+/nextmap mapname  - Set the next map
+/random           - Change to a random map
+Change other settings in the Admin panel
+</help>

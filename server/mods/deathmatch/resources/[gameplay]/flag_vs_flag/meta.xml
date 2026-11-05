@@ -1,0 +1,10 @@
+<meta>
+	<info author="Google Gemini" description="Flag Shader" version="1.0" type="script"></info>
+
+	<script src="server.lua" type="server"></script>
+	<script src="client.lua" type="client"></script>
+
+	<file src="shader.fx"></file>
+	<file src="slovakia.png"></file>
+	<file src="slovenia.png"></file>
+</meta>

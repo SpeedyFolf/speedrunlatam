@@ -1,0 +1,8 @@
+<meta>
+	<info author="Discoordination" type="script" version="0.1"></info>
+	<min_mta_version client="1.5.5-9.20957.0" server="1.5.5-9.20957.0"></min_mta_version>
+	<oop>false</oop>
+
+	<script src="mapsearcher_s.lua" type="server"></script>
+	<script src="mapsearcher_c.lua" type="client" validate="true"></script>
+</meta>

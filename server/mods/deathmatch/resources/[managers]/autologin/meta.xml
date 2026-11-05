@@ -1,0 +1,5 @@
+<meta>
+	<info author="chris1384" version="1.2" name="Autologin" description="Allow players to automatically login on server join" type="script"></info>
+	<script src="server.lua" type="server"></script>
+	<script src="client.lua" type="client" cache="false"></script>
+</meta>

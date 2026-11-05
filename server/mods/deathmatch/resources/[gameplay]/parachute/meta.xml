@@ -1,0 +1,18 @@
+<meta>
+	<info author="Jax + Talidan" description="Parachutes script" version="1.0.1"></info>
+
+	<min_mta_version server="1.5.5-9.13846" client="1.5.5-9.13846"></min_mta_version>
+
+	<script src="utility.lua" type="client"></script>
+	<script src="parachute.lua"></script>
+	<script src="parachute_cl.lua" type="client"></script>
+	<script src="skydiving_cl.lua" type="client"></script>
+	<script src="openChute.lua" type="client"></script>
+	<script src="client_anim.lua" type="client"></script>
+
+	<export function="removeParachute" type="client"></export>
+	<export function="stopSkyDiving" type="client"></export>
+
+	<export function="isPlayerSkyDiving" type="client"></export>
+	<export function="isPlayerParachuting" type="client"></export>
+</meta>

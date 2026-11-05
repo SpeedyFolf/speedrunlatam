@@ -1,0 +1,3 @@
+<def name="Race SpawnChoice">
+	<setting name="spawnchoice" friendlyname="Spawn choice" type="selection:true,false" description="Whether choosing your spawnpoint should be enabled on this map" default="true" required="true"></setting>
+</def>

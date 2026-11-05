@@ -1,0 +1,13 @@
+<meta>
+	<info author="Mawfeen ft. AI" name="Tiki" type="script" version="1.1" description="Go find yourself"></info>
+
+	<script src="server.lua" type="server"></script>
+	<script src="client.lua" type="client"></script>
+
+	<file src="tikis.map"></file>
+	<file src="pickup.mp3"></file>
+	<file src="map.mp3"></file>
+	<file src="tiki.png"></file>
+
+	<config src="help.xml" type="client"></config>
+</meta>
