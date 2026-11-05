@@ -13,7 +13,11 @@ Panel de Pterodactyl:
 - Imagen: `ghcr.io/ferecece/speedrunlatam:latest`
 - Puerto de juego: allocation UDP/TCP.
 - Puerto HTTP: allocation TCP.
+- ASE: allocation UDP en `puerto de juego + 123` (ej. `22003` → `22126`).
 - Variable `SERVER_HTTP_PORT`: mismo puerto HTTP asignado.
+
+Pterodactyl no crea allocations automáticamente. Sin la allocation ASE, el server
+funciona pero no aparece en el server browser.
 
 El startup es:
 
