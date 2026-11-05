@@ -4,7 +4,10 @@ set -euo pipefail
 TARGET="${1:-/mnt/server}"
 REPO="${GITHUB_REPOSITORY:-ferecece/speedrunlatam}"
 URL="${SERVER_TEMPLATE_URL:-https://github.com/${REPO}/releases/latest/download/server-template.tar.gz}"
-TMP="$(mktemp -d)"
+# Wings mounts a 100MB tmpfs on /tmp. That is enough for the compressed
+# template but not for the extracted server, so stage on the container's
+# writable layer instead.
+TMP="$(mktemp -d "${TMPDIR:-/var/tmp}/speedrunlatam-install.XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 
 mkdir -p "$TARGET"
