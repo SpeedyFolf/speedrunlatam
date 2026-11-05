@@ -18,7 +18,7 @@
     "files": "{}",
     "startup": "{\"done\":\"Server started and is ready to accept connections!\"}",
     "logs": "{}",
-    "stop": "^C"
+    "stop": "shutdown"
   },
   "scripts": {
     "installation": {
