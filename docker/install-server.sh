@@ -66,25 +66,34 @@ if [ -f "$TARGET/mta-server64" ]; then
 fi
 
 # Managed files are replaced. Runtime data and per-deployment secrets stay.
-rsync -a --delete \
-    --exclude='/mods/deathmatch/registry.db' \
-    --exclude='/mods/deathmatch/internal.db' \
-    --exclude='/mods/deathmatch/settings.xml' \
-    --exclude='/mods/deathmatch/acl.xml' \
-    --exclude='/mods/deathmatch/banlist.xml' \
-    --exclude='/mods/deathmatch/server-id.keys' \
-    --exclude='/mods/deathmatch/neon-identity.keys' \
-    --exclude='/mods/deathmatch/databases/' \
-    --exclude='/mods/deathmatch/resource-cache/' \
-    --exclude='/mods/deathmatch/logs/' \
-    --exclude='/mods/deathmatch/backups/' \
-    --exclude='/mods/deathmatch/dumps/' \
-    --exclude='/mods/deathmatch/mtaserver.conf' \
-    --exclude='*/autologin/encryption_key.txt' \
-    --exclude='/ghosts_server/ghosts/' \
-    --exclude='/logs/' \
-    --exclude='/backups/' \
-    "$SRC/" "$TARGET/"
+# On a fresh install acl.xml/settings.xml do not exist yet, so they must come
+# from the template. On updates they are preserved.
+RSYNC_EXCLUDES=(
+    --exclude='/mods/deathmatch/registry.db'
+    --exclude='/mods/deathmatch/internal.db'
+    --exclude='/mods/deathmatch/banlist.xml'
+    --exclude='/mods/deathmatch/server-id.keys'
+    --exclude='/mods/deathmatch/neon-identity.keys'
+    --exclude='/mods/deathmatch/databases/'
+    --exclude='/mods/deathmatch/resource-cache/'
+    --exclude='/mods/deathmatch/logs/'
+    --exclude='/mods/deathmatch/backups/'
+    --exclude='/mods/deathmatch/dumps/'
+    --exclude='/mods/deathmatch/mtaserver.conf'
+    --exclude='*/autologin/encryption_key.txt'
+    --exclude='/ghosts_server/ghosts/'
+    --exclude='/logs/'
+    --exclude='/backups/'
+)
+
+if [ -f "$TARGET/mods/deathmatch/acl.xml" ]; then
+    RSYNC_EXCLUDES+=(
+        --exclude='/mods/deathmatch/acl.xml'
+        --exclude='/mods/deathmatch/settings.xml'
+    )
+fi
+
+rsync -a --delete "${RSYNC_EXCLUDES[@]}" "$SRC/" "$TARGET/"
 
 mkdir -p "$TARGET/ghosts_server/ghosts" "$TARGET/logs"
 
