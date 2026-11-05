@@ -34,7 +34,9 @@ COPY entrypoint.sh /entrypoint.sh
 COPY install-server.sh /opt/install-server.sh
 RUN chmod +x /entrypoint.sh /opt/install-server.sh
 
-USER container
+# Wings runs the server process with the configured pterodactyl user (999:988).
+# The installation container runs as root, which is required to read Wings'
+# 0700 installation directory mounted at /mnt/install. Do not set USER here.
 ENV USER=container HOME=/home/container
 WORKDIR /home/container
 
