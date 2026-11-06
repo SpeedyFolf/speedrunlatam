@@ -289,6 +289,12 @@ function loadMap(res)
 	g_MapInfo = getMapInfo(res)
 	g_MapInfo.name	  = map.info['name'] or 'unnamed'
 	g_MapInfo.author	= map.info['author']
+	-- racetype vive en el <info> del mapa, no en la tabla de getMapInfo().
+	local racetype = map.info['racetype']
+	if not racetype or racetype == "" then
+		racetype = getResourceInfo(res, "racetype")
+	end
+	g_MapInfo.racetype  = racetype or "???"
 	g_MapInfo.resname   = map.info['resname'] or getResourceName(res)
 	g_MapInfo.respath   = getResourceOrganizationalPath(res) or ""
 

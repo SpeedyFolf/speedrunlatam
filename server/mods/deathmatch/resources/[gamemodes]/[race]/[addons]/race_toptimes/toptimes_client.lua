@@ -318,7 +318,9 @@ function CToptimes:draw()
 
 	local h = headerH + bodyH + bottomPad
 	local x = sw - margin - w + (1 - a) * ip(14, s)
-	local y = sh - margin - ip(92, s) - ip(12, s) - h
+	-- Altura de la tarjeta de carrera (NeonUI.raceH en race/neon_ui_style.lua).
+	local raceHudH = 118
+	local y = sh - margin - ip(raceHudH, s) - ip(12, s) - h
 	if y < margin then
 		y = margin
 	end
