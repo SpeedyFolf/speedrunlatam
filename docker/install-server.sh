@@ -60,6 +60,7 @@ if [ -f "$TARGET/mta-server64" ]; then
         mods/deathmatch/neon-identity.keys \
         mods/deathmatch/databases \
         mods/deathmatch/resources/[managers]/autologin/encryption_key.txt \
+        mods/deathmatch/resources/[gamemodes]/[race]/[addons]/race_ghost/ghosts \
         ghosts_server/ghosts; do
         copy_item "$item"
     done
@@ -81,6 +82,7 @@ RSYNC_EXCLUDES=(
     --exclude='/mods/deathmatch/dumps/'
     --exclude='/mods/deathmatch/mtaserver.conf'
     --exclude='*/autologin/encryption_key.txt'
+    --exclude='race_ghost/ghosts/'
     --exclude='/ghosts_server/ghosts/'
     --exclude='/logs/'
     --exclude='/backups/'
@@ -96,6 +98,7 @@ fi
 rsync -a --delete "${RSYNC_EXCLUDES[@]}" "$SRC/" "$TARGET/"
 
 mkdir -p "$TARGET/ghosts_server/ghosts" "$TARGET/logs"
+mkdir -p "$TARGET/mods/deathmatch/resources/[gamemodes]/[race]/[addons]/race_ghost/ghosts"
 
 if [ "$(id -u)" = "0" ]; then
     chown -R "${PUID:-999}:${PGID:-988}" "$TARGET"
