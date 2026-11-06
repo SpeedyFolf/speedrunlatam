@@ -192,26 +192,26 @@ function cacheMapOptions(map)
 	g_MapOptions.weather		= map.weather or 0
 
 	g_MapOptions.skins			= map.skins or 'cj'
-	g_MapOptions.randomclothes  = map.randomclothes == true or map.randomclothes == 'true'
-	g_MapOptions.vehicleweapons = map.vehicleweapons == true or map.vehicleweapons == 'true'
-	g_MapOptions.traffic		= map.traffic == true or map.traffic == 'true'
-	g_MapOptions.wanted			= map.wanted == true or map.wanted == 'true'
-	g_MapOptions.bikefall		= map.bikefall == true or map.bikefall == 'true'
+	g_MapOptions.randomclothes  = toBoolean(map.randomclothes)
+	g_MapOptions.vehicleweapons = toBoolean(map.vehicleweapons)
+	g_MapOptions.traffic		= toBoolean(map.traffic)
+	g_MapOptions.wanted			= toBoolean(map.wanted)
+	g_MapOptions.bikefall		= toBoolean(map.bikefall)
 	if map.collisionmode ~= nil then
-		g_MapOptions.ghostmode = tostring(map.collisionmode) == 'ghost'
+		g_MapOptions.ghostmode = toSettingString(map.collisionmode) == 'ghost'
 	else
-		g_MapOptions.ghostmode = map.ghostmode == true or map.ghostmode == 'true'
+		g_MapOptions.ghostmode = toBoolean(map.ghostmode)
 	end
-	g_MapOptions.autopimp		= map.autopimp == true or map.autopimp == 'true'
-	g_MapOptions.firewater		= map.firewater == true or map.firewater == 'true'
-	g_MapOptions.classicchangez	= map.classicchangez == true or map.classicchangez == 'true'
-	g_MapOptions.hunterminigun	= map.hunterminigun == true or map.hunterminigun == 'true'
+	g_MapOptions.autopimp		= toBoolean(map.autopimp)
+	g_MapOptions.firewater		= toBoolean(map.firewater)
+	g_MapOptions.classicchangez	= toBoolean(map.classicchangez)
+	g_MapOptions.hunterminigun	= toBoolean(map.hunterminigun)
 
-	g_MapOptions.shufflespawns	= map.shufflespawns == true or map.shufflespawns == 'true'
+	g_MapOptions.shufflespawns	= toBoolean(map.shufflespawns)
 	g_MapOptions.countdownduration		= map.countdownduration and tonumber(map.countdownduration) >= 0 and map.countdownduration or g_GameOptions.countdownduration
 	g_MapOptions.timeafterfirstfinish	= map.timeafterfirstfinish and tonumber(map.timeafterfirstfinish) >= 0 and map.timeafterfirstfinish * 1000 or -1
 
-	g_MapOptions.allowonfoot	= map.allowonfoot == true or map.allowonfoot == 'true'
+	g_MapOptions.allowonfoot	= toBoolean(map.allowonfoot)
 
 	outputDebug("MISC", "duration = "..g_MapOptions.duration.."  respawn = "..g_MapOptions.respawn.."  respawntime = "..tostring(g_MapOptions.respawntime).."  time = "..g_MapOptions.time.."  weather = "..g_MapOptions.weather)
 
@@ -320,22 +320,11 @@ function loadMap(res)
 
 	cacheMapOptions(g_SavedMapSettings)
 
-	-- If no checkpoints and ghostmode no defined in the map, turn ghostmode off for this map
-	if #map:getAll('checkpoint') == 0 and not map.ghostmode and g_MapOptions.ghostmode then
+	-- If no checkpoints and the map defines no collision setting, turn ghostmode off for this map
+	if #map:getAll('checkpoint') == 0 and not map.ghostmode and not map.collisionmode and g_MapOptions.ghostmode then
 		g_MapOptions.ghostmode = false
 		if g_GameOptions.ghostmode_warning_if_map_override then
 			outputChatBox( 'Notice: Collisions are turned on for this map' )
-		end
-	end
-
-	-- Check race can start ok
-	if g_IgnoreSpawnCountProblems ~= res and not g_MapOptions.ghostmode then
-		local numSpawnPoints = #map:getAll('spawnpoint')
-		if getTotalPlayerCount() > numSpawnPoints then
-			-- unload map xml
-			map:unload()
-			outputRace( (numSpawnPoints).." or fewer players are required to start '"..tostring(getResourceName(res)).."' if not using ghostmode" )
-			return false
 		end
 	end
 

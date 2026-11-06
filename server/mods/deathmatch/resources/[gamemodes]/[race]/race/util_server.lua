@@ -619,3 +619,35 @@ function getBool(var,default)
 	end
 	return result == 'true' or result == true
 end
+
+-- Normalize values written by the map editor: true, "true", [ true ], [ "true" ].
+function toBoolean(value)
+	if type(value) == 'table' then
+		return toBoolean(value[1])
+	end
+	if value == true then
+		return true
+	end
+	if value == false or value == nil then
+		return false
+	end
+	if type(value) == 'number' then
+		return value ~= 0
+	end
+	if type(value) ~= 'string' then
+		return false
+	end
+	local normalized = value:lower():gsub('[%[%]%s"\']', '')
+	return normalized == 'true' or normalized == '1'
+end
+
+-- Normalize string settings written as [ "ghost" ] or "ghost".
+function toSettingString(value)
+	if value == nil then
+		return nil
+	end
+	if type(value) ~= 'string' then
+		return tostring(value)
+	end
+	return (value:gsub('[%[%]%s"\']', ''))
+end
