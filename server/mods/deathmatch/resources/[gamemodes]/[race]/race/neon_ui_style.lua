@@ -30,7 +30,7 @@ function NeonUI.refresh()
 	NeonUI.pad = math.floor(18 * scale)
 	NeonUI.cardW = math.floor(420 * scale)
 	NeonUI.telemetryH = math.floor(74 * scale)
-	NeonUI.raceH = math.floor(118 * scale)
+	NeonUI.raceH = math.floor(134 * scale)
 	NeonUI.voteYInit = false
 end
 

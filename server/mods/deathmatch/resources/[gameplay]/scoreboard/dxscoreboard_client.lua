@@ -72,6 +72,9 @@ local COLUMN_LABELS = {
 	["Pts per map"] = "PTS MAPA",
 	["Maps played"] = "MAPAS JUGADOS",
 	["Maps won"] = "MAPAS GANADOS",
+	["Time Played"] = "TIEMPO JUGADO",
+	Vehicle = "VEHÍCULO",
+	Location = "UBICACIÓN",
 	Voice = "VOZ",
 }
 
@@ -100,7 +103,8 @@ local function applyNeonTheme()
 	useAnimation = true
 	scoreboardIsToggleable = false
 	showServerInfo = true
-	showGamemodeInfo = true
+	-- MODO/MAPA are already shown in the bottom-right race HUD.
+	showGamemodeInfo = false
 	showTeams = true
 	useColors = true
 	drawSpeed = 5.5
@@ -648,15 +652,12 @@ function doDrawScoreboard( rtPass, onlyAnim, sX, sY )
 		end
 
 		local y = topY+s(5)
-		if serverInfo.server and showServerInfo then
-			dxDrawText( "SERVIDOR: " .. serverInfo.server, topX+s(5), y, topX+scoreboardDimensions.width-s(10), y+dxGetFontHeight( fontscale(serverInfoFont, scoreboardScale), serverInfoFont ), cServerInfo, fontscale(serverInfoFont, s(0.75)), serverInfoFont, "left", "top", false, false, drawOverGUI )
-		end
+		-- Server name intentionally hidden: the race HUD already carries the context.
 		if serverInfo.players and showServerInfo then
 			local players = getElementsByType("player")
 			local text = "JUGADORES: "..#players.."/"..serverInfo.players
-			local textWidth = dxGetTextWidth( text, fontscale(serverInfoFont, s(0.75)), serverInfoFont )
 
-			dxDrawText( text, topX+scoreboardDimensions.width-s(5)-textWidth, y, topX+scoreboardDimensions.width-s(5), y+dxGetFontHeight( fontscale(serverInfoFont, scoreboardScale), serverInfoFont ), cServerInfo, fontscale(serverInfoFont, s(0.75)), serverInfoFont, "left", "top", false, false, drawOverGUI )
+			dxDrawText( text, topX+s(5), y, topX+scoreboardDimensions.width-s(10), y+dxGetFontHeight( fontscale(serverInfoFont, scoreboardScale), serverInfoFont ), cServerInfo, fontscale(serverInfoFont, s(0.75)), serverInfoFont, "left", "top", false, false, drawOverGUI )
 		end
 		if (serverInfo.server or serverInfo.players) and showServerInfo then y = y+dxGetFontHeight( fontscale(serverInfoFont, scoreboardScale), serverInfoFont ) end
 		if serverInfo.gamemode and showGamemodeInfo then

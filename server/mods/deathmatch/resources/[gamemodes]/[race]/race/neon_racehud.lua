@@ -77,6 +77,7 @@ local function render()
 	local rank = tonumber(data.rank) or 0
 	local total = tonumber(data.total) or 0
 	local checkpoint = tonumber(data.checkpoint) or 0
+	local remaining = tonumber(data.remaining)
 	local finished = live and data.finished or false
 
 	local targetRatio = 0
@@ -212,9 +213,25 @@ local function render()
 		NeonUI.tcol(timeColor, a), NeonUI.px(1.25), "default-bold",
 		"right", "center", true, false, false)
 
+	-- Tiempo restante del mapa (solo si hay duracion y la carrera sigue).
+	if remaining and not finished then
+		local remScale = NeonUI.px(1.0)
+		local remText = NeonUI.time(remaining)
+		local remW = dxGetTextWidth(remText, remScale, "default-bold")
+		local remTop = y + NeonUI.i(92)
+		local remH = NeonUI.i(20)
+
+		dxDrawText(remText, x + w - pad - remW, remTop, x + w - pad, remTop + remH,
+			NeonUI.tcol(NeonUI.colors.text, a), remScale, "default-bold",
+			"right", "center", true, false, false)
+		dxDrawText("RESTANTE", x + pad, remTop, x + w - pad - remW - NeonUI.i(8), remTop + remH,
+			NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.8), "default-bold",
+			"right", "center", true, false, false)
+	end
+
 	-- Barra de progreso de checkpoints
 	local barX = x + pad
-	local barY = y + NeonUI.i(100)
+	local barY = y + NeonUI.i(116)
 	local barW = w - pad * 2
 	local barH = math.max(4, NeonUI.i(6))
 
@@ -250,6 +267,7 @@ addCommandHandler("racehudpreview", function(_, arg)
 		checkpoint = 4,
 		total = 12,
 		elapsed = 0,
+		remaining = 245000,
 		finished = false,
 		map = {
 			name = "Downtown Sprint",
