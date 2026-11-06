@@ -1,7 +1,7 @@
 
 <meta>
     <oop>true</oop>
-    <info gamemodes="race" type="map" racetype= "R"name="Hotring Race LS" author="D4n1elit0_xD" version="1.0.0" />
+    <info gamemodes="race" type="map" racetype= "R" name="Hotring Race LS" author="D4n1elit0_xD" version="1.0.0" />
     <map src="LSHotring.map" dimension="0" />
     <settings>
         <setting name="#skins" value="[ &quot;cj&quot; ]" />

@@ -1,6 +1,6 @@
 <meta>
     <oop>true</oop>
-    <info gamemodes="race" type="map" racetype="R" name="1% Posibilidad 99% Fe" author="AntoSiri, EzeKah, D4n1elito_xD y Tomy" />
+    <info gamemodes="race" type="map" racetype="R" name="1% Posibilidad 99% Fe" author="AntoSiri, EzeKah, D4n1elit0_xD y Tomy" />
     <map src="1Posibilidad.map" dimension="0" />
     <settings>
         <setting name="#skins" value="[ &quot;cj&quot; ]" />
