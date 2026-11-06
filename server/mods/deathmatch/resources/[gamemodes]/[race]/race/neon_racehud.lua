@@ -114,9 +114,47 @@ local function render()
 	dxDrawRectangle(x, y, math.max(2, NeonUI.i(2)), h,
 		NeonUI.tcol(NeonUI.colors.accent, a), false)
 
-	local labelTop = y + NeonUI.i(10)
+	-- Cabecera: tipo y nombre del mapa, con el autor a la derecha.
+	-- g_MapInfo lo asigna initRace en race_client.lua (mismo recurso).
+	local mapInfo = (preview and preview.map) or g_MapInfo
+	local mapType = mapInfo and mapInfo.racetype or nil
+	local mapName = mapInfo and (mapInfo.name or mapInfo.resname) or nil
+	local mapAuthor = mapInfo and mapInfo.author or nil
+
+	local headerTop = y + NeonUI.i(8)
+	local headerH = NeonUI.i(20)
+
+	if mapName then
+		local tagText = "[" .. (mapType or "???") .. "] "
+		local tagScale = NeonUI.px(0.85)
+		local tagW = dxGetTextWidth(tagText, tagScale, "default-bold")
+
+		local authorReserve = 0
+		if mapAuthor and mapAuthor ~= "" then
+			authorReserve = dxGetTextWidth(mapAuthor, NeonUI.px(0.75), "default-bold") + NeonUI.i(14)
+		end
+
+		dxDrawText(tagText, x + pad, headerTop, x + pad + tagW + 2, headerTop + headerH,
+			NeonUI.tcol(NeonUI.colors.accent, a), tagScale, "default-bold",
+			"left", "center", true, false, false)
+		dxDrawText(mapName, x + pad + tagW, headerTop, x + w - pad - authorReserve, headerTop + headerH,
+			NeonUI.tcol(NeonUI.colors.text, a), tagScale, "default-bold",
+			"left", "center", true, false, false)
+
+		if mapAuthor and mapAuthor ~= "" then
+			dxDrawText(mapAuthor, x + pad, headerTop, x + w - pad, headerTop + headerH,
+				NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.75), "default-bold",
+				"right", "center", true, false, false)
+		end
+
+		-- Separador entre la cabecera del mapa y las filas de carrera.
+		dxDrawRectangle(x + pad, y + NeonUI.i(30), w - pad * 2, 1,
+			NeonUI.tcol(NeonUI.colors.border, a), false)
+	end
+
+	local labelTop = y + NeonUI.i(34)
 	local labelH = NeonUI.i(22)
-	local valueTop = y + NeonUI.i(30)
+	local valueTop = y + NeonUI.i(54)
 	local valueH = NeonUI.i(42)
 
 	local rankX = x + pad
@@ -176,7 +214,7 @@ local function render()
 
 	-- Barra de progreso de checkpoints
 	local barX = x + pad
-	local barY = y + NeonUI.i(76)
+	local barY = y + NeonUI.i(100)
 	local barW = w - pad * 2
 	local barH = math.max(4, NeonUI.i(6))
 
@@ -213,6 +251,11 @@ addCommandHandler("racehudpreview", function(_, arg)
 		total = 12,
 		elapsed = 0,
 		finished = false,
+		map = {
+			name = "Downtown Sprint",
+			author = "Ferecece",
+			racetype = "SR",
+		},
 	}
 
 	previewTimer = setTimer(function()
