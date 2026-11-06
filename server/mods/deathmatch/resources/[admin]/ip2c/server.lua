@@ -195,30 +195,55 @@ function checkForIp2cFileUpdate( cor )
 		return	-- Not yet
 	end
 
-	set( "ip2cUpdateTime", timeNow )
+	-- Do not stamp the update time until the CSV is confirmed current/saved,
+	-- so a failed download retries on the next start.
 
-	-- Get md5
+	-- The mirror's .md5 is sometimes out of sync with the CSV it serves, so
+	-- treat it as a hint only. Otherwise every update is rejected and the
+	-- shipped database stays stale.
 	local fetchedMd5,errno = fetchRemoteContent( cor, IP2C_UPDATE_URL .. ".md5" );
-	if errno ~= 0 then return end
+	if errno ~= 0 then
+		outputDebugString( "[ip2c] failed to fetch remote .md5 (errno " .. tostring( errno ) .. ")", 2 )
+	end
 
-	-- check md5 against current file
-	local currentMd5 = md5( fileLoadContent( IP2C_FILENAME ) );
-	if currentMd5 == string.upper(fetchedMd5) then
+	local currentContent = fileLoadContent( IP2C_FILENAME )
+	local currentMd5 = currentContent and md5( currentContent ) or ""
+
+	if fetchedMd5 and currentMd5 == string.upper(fetchedMd5) then
+		set( "ip2cUpdateTime", timeNow )
 		return  -- We already have the latest file
 	end
 
 	-- Fetch remote ip2c file
 	local fetchedCsv,errno2 = fetchRemoteContent( cor, IP2C_UPDATE_URL );
-	if errno2 ~= 0 then return end
+	if errno2 ~= 0 then
+		outputDebugString( "[ip2c] failed to fetch CSV (errno " .. tostring( errno2 ) .. ")", 2 )
+		return
+	end
 
-	-- Check download was correct
-	local newMd5 = md5( fetchedCsv );
-	if newMd5 ~= string.upper(fetchedMd5) then
-		return  -- Download error, or md5 file incorrect
+	-- Reject empty/truncated downloads. The real file is about 3.2 MB.
+	if type( fetchedCsv ) ~= "string" or #fetchedCsv < 1024 * 1024 or not fetchedCsv:find( ",", 1, true ) then
+		outputDebugString( "[ip2c] downloaded CSV failed validation", 2 )
+		return
+	end
+
+	local newMd5 = md5( fetchedCsv )
+	if fetchedMd5 and newMd5 ~= string.upper(fetchedMd5) then
+		outputDebugString( "[ip2c] mirror .md5 is stale; accepting valid CSV anyway", 2 )
+	end
+
+	if newMd5 == currentMd5 then
+		set( "ip2cUpdateTime", timeNow )
+		return  -- Same content, nothing to save
 	end
 
 	-- Update file
-	fileSaveContent( IP2C_FILENAME, fetchedCsv );
+	if fileSaveContent( IP2C_FILENAME, fetchedCsv ) then
+		set( "ip2cUpdateTime", timeNow )
+		outputDebugString( "[ip2c] database updated (" .. tostring( #fetchedCsv ) .. " bytes)" )
+	else
+		outputDebugString( "[ip2c] failed to save updated CSV", 2 )
+	end
 end
 
 
