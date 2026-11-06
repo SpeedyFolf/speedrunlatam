@@ -197,7 +197,7 @@ function cacheMapOptions(map)
 	g_MapOptions.traffic		= toBoolean(map.traffic)
 	g_MapOptions.wanted			= toBoolean(map.wanted)
 	g_MapOptions.bikefall		= toBoolean(map.bikefall)
-	if map.collisionmode ~= nil then
+	if map.collisionmode then
 		g_MapOptions.ghostmode = toSettingString(map.collisionmode) == 'ghost'
 	else
 		g_MapOptions.ghostmode = toBoolean(map.ghostmode)
@@ -223,7 +223,7 @@ function cacheMapOptions(map)
 	end
 
 	-- Set ghostmode from g_GameOptions if not defined in the map, or map override not allowed
-	local mapHasCollisionSetting = map.collisionmode ~= nil or map.ghostmode ~= nil
+	local mapHasCollisionSetting = (map.collisionmode and true) or (map.ghostmode and true)
 	if not mapHasCollisionSetting or not g_GameOptions.ghostmode_map_can_override then
 		g_MapOptions.ghostmode = g_GameOptions.ghostmode
 	elseif g_GameOptions.ghostmode_warning_if_map_override and g_MapOptions.ghostmode ~= g_GameOptions.ghostmode then
