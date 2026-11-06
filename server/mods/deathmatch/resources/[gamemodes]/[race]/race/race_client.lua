@@ -68,6 +68,11 @@ function neonRaceHudTick()
 		elapsed = (g_NeonFinishTick or now) - g_StartTick
 	end
 
+	local remaining = nil
+	if g_Duration then
+		remaining = math.max(0, g_Duration - elapsed)
+	end
+
 	triggerEvent('neon:raceHud', localPlayer, {
 		active = g_NeonRaceActive,
 		ranked = g_NeonRanked,
@@ -75,6 +80,7 @@ function neonRaceHudTick()
 		checkpoint = reached,
 		total = total,
 		elapsed = elapsed,
+		remaining = remaining,
 		finished = isPlayerFinished(localPlayer) and true or false,
 	})
 end
@@ -395,6 +401,7 @@ function initRace(vehicle, checkpoints, objects, pickups, mapoptions, ranked, du
 	end
 
 	g_HurryDuration = g_GameOptions.hurrytime
+	g_Duration = nil
 	if duration then
 		launchRace(duration)
 	end
@@ -442,7 +449,8 @@ function launchRace(duration)
 	end
 
 	if type(duration) == 'number' then
-		showGUIComponents('timeleftbg', 'timeleft')
+		-- Time left is drawn by neon_racehud.lua, not by the stock GUI label.
+		hideGUIComponents('timeleftbg', 'timeleft')
 		guiLabelSetColor(g_GUI.timeleft, 255, 255, 255)
 		g_Duration = duration
 		addEventHandler('onClientRender', root, updateTime)

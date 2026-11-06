@@ -341,7 +341,8 @@ addEventHandler("onMapChangedC", root,
 		g_MapInfo = mapInfo
 
 		updateBottomLeftInformation()
-		showTravelingScreen()
+		-- Map info is already shown in the bottom-right race HUD.
+		-- showTravelingScreen()
 	end
 )
 
