@@ -130,10 +130,9 @@ function startRandomMap()
 		return
 	end
 
-	-- Get a random map chosen from the 10% of least recently player maps, with enough spawn points for all the players (if required)
-	local map = getRandomMapCompatibleWithGamemode( getThisResource(), 10, g_GameOptions.ghostmode and 0 or getTotalPlayerCount() )
+	-- Get a random map chosen from the 10% of least recently played maps
+	local map = getRandomMapCompatibleWithGamemode( getThisResource(), 10, 0 )
 	if map then
-		g_IgnoreSpawnCountProblems = map	-- Uber hack 4000
 		if not exports.mapmanager:changeGamemodeMap ( map, nil, true ) then
 			problemChangingMap()
 		end
@@ -433,7 +432,6 @@ function maybeApplyForcedNextMap()
 	if g_ForcedNextMap then
 		local map = g_ForcedNextMap
 		g_ForcedNextMap = nil
-		g_IgnoreSpawnCountProblems = map	-- Uber hack 4000
 		if not exports.mapmanager:changeGamemodeMap ( map, nil, true ) then
 			outputWarning( 'Forced next map failed' )
 			return false
