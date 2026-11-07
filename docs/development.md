@@ -104,9 +104,34 @@ El CI publica la imagen y el template del release.
 
 `mtaserver.conf` se genera al arrancar desde `mtaserver.conf.template` usando las variables de entorno.
 
+## Descargas con nginx
+
+Las descargas de resources las sirve nginx desde:
+
+```text
+home/container/mods/deathmatch/resource-cache/http-client-files
+```
+
+MTA mantiene su HTTP interno en `22007` solo para webadmin y web resources. No
+se publica.
+
+Probar una descarga:
+
+```bash
+curl -I http://127.0.0.1:22005/1Posibilidad/drawdistance.lua
+```
+
+Ver gzip:
+
+```bash
+curl -s -H 'Accept-Encoding: gzip' -D- \
+  http://127.0.0.1:22005/1Posibilidad/drawdistance.lua -o /dev/null
+```
+
 ## Variables
 
-`SERVER_NAME`, `SERVER_MAXPLAYERS`, `SERVER_FPSLIMIT`, `OWNER_EMAIL` y
-`HTTP_DOWNLOAD_URL` se aplican al generar `mtaserver.conf`.
+`SERVER_NAME`, `SERVER_MAXPLAYERS`, `SERVER_FPSLIMIT`, `SERVER_DOWNLOAD_PORT`,
+`OWNER_EMAIL` y `HTTP_DOWNLOAD_URL` se aplican al generar `mtaserver.conf`.
 
-Para producción, `HTTP_DOWNLOAD_URL` puede apuntar al CDN. Para local, dejarlo vacío usa el HTTP interno.
+`HTTP_DOWNLOAD_URL` debe apuntar al puerto de descargas. En local:
+`http://127.0.0.1:22005`. En producción, a la URL pública configurada.

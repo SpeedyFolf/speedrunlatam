@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libncursesw6 \
     libstdc++6 \
     lsof \
+    nginx-light \
     openssl \
     python3 \
     python3-pip \
@@ -32,6 +33,7 @@ RUN python3 -m venv /opt/ghosts-venv \
 
 COPY entrypoint.sh /entrypoint.sh
 COPY install-server.sh /opt/install-server.sh
+COPY nginx/nginx.conf.template /opt/nginx/nginx.conf.template
 RUN chmod +x /entrypoint.sh /opt/install-server.sh
 
 # Wings runs the server process with the configured pterodactyl user (999:988).

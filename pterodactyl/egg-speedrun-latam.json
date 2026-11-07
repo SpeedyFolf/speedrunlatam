@@ -13,7 +13,7 @@
     "ghcr.io/ferecece/speedrunlatam:latest": "ghcr.io/ferecece/speedrunlatam:latest"
   },
   "file_denylist": [],
-  "startup": "./mta-server64 --port {{SERVER_PORT}} --httpport {{SERVER_HTTP_PORT}} -n",
+  "startup": "./mta-server64 --port {{SERVER_PORT}} --httpport 22007 -n",
   "config": {
     "files": "{}",
     "startup": "{\"done\":\"Server started and is ready to accept connections!\"}",
@@ -29,9 +29,9 @@
   },
   "variables": [
     {
-      "name": "HTTP Port",
-      "description": "Puerto HTTP del servidor. Debe estar asignado como allocation.",
-      "env_variable": "SERVER_HTTP_PORT",
+      "name": "Download Port",
+      "description": "Puerto público de descargas de resources (nginx). Debe estar asignado como allocation TCP.",
+      "env_variable": "SERVER_DOWNLOAD_PORT",
       "default_value": "22005",
       "user_viewable": true,
       "user_editable": true,
@@ -59,13 +59,13 @@
       "field_type": "text"
     },
     {
-      "name": "HTTP Download URL",
-      "description": "URL externa de descarga de resources. Vacío usa el HTTP interno.",
+      "name": "Download URL",
+      "description": "URL pública de descargas de resources. Obligatoria: debe apuntar al puerto de descargas.",
       "env_variable": "HTTP_DOWNLOAD_URL",
       "default_value": "",
       "user_viewable": true,
       "user_editable": true,
-      "rules": "nullable|url",
+      "rules": "required|url",
       "field_type": "text"
     },
     {

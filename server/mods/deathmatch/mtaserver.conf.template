@@ -52,8 +52,8 @@
         
     <!-- This parameter specifies the TCP port on which the server will be accepting incoming http
          connections. It can be set to the same value as <serverport>. It is a required parameter
-         if <httpserver> is set to 1. -->
-    <httpport>22005</httpport>
+         if <httpserver> is set to 1. This port is internal: resource downloads are served by nginx. -->
+    <httpport>22007</httpport>
     
     <!-- If set, this parameter specifies the external URL from which clients will be able to download
          needed resources ingame. If not set (or the external URL files are incorrect), resource downloads

@@ -24,13 +24,15 @@ La imagen no contiene resources ni mapas. Los datos del servidor viven en `serve
 
 ```bash
 cp .env.example .env
-docker compose up
+./scripts/console.sh
 ```
 
 El servidor queda en:
 
 - juego: `22003/udp` y `22003/tcp`
-- HTTP: `22005/tcp`
+- descargas de resources: `22005/tcp` (nginx)
+
+El HTTP interno de MTA usa `22007` y no se publica.
 
 Los archivos que edites están en `server/`. Los mapas y resources nuevos van en:
 
@@ -44,8 +46,8 @@ Los archivos de runtime, DB, logs, cache y secretos están en `.gitignore`.
 
 1. Importar `pterodactyl/egg-speedrun-latam.json`.
 2. Crear el servidor con la imagen `ghcr.io/ferecece/speedrunlatam:latest`.
-3. Asignar tres allocations: juego, HTTP y ASE (`puerto de juego + 123`).
-4. Configurar `SERVER_HTTP_PORT`, `SERVER_NAME`, `SERVER_MAXPLAYERS`, `SERVER_FPSLIMIT`, `OWNER_EMAIL` y `HTTP_DOWNLOAD_URL`.
+3. Asignar tres allocations: juego, descargas (nginx) y ASE (`puerto de juego + 123`).
+4. Configurar `SERVER_DOWNLOAD_PORT`, `SERVER_NAME`, `SERVER_MAXPLAYERS`, `SERVER_FPSLIMIT`, `OWNER_EMAIL` y `HTTP_DOWNLOAD_URL`.
 5. Instalar o reinstalar el server.
 
 El instalador descarga el template desde GitHub Releases y conserva:
