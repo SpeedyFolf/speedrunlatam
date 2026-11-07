@@ -209,17 +209,18 @@ juntas como referencia.
 
 ### Checklist
 
-- Spawn con piso firme y vehículo asignado.
-- Primer checkpoint visible desde el spawn.
-- Ruta completa, sin cortes ni saltos imposibles.
-- Checkpoints fuera de paredes y techos.
-- Probado en local con **Test** del editor.
+- Creado con el editor del template, según la guía.
+- Probado con **Test** del editor.
+- `meta.xml` con `type="map"`, `gamemodes="race"` y el `racetype` de la carpeta.
 - Solo los archivos necesarios: `.map`, `meta.xml` y scripts del editor.
+
+No hace falta que la ruta sea perfecta ni que todos los checkpoints se vean.
+Se revisa en el issue o en el PR.
 
 ### Probar
 
-En el editor, **Test** carga el mapa con el gamemode `race` del template. Es la forma
-más rápida de verificar spawn, ruta y settings.
+En el editor, **Test** carga el mapa con el gamemode `race` del template. Es la
+forma más rápida de verificar que el mapa carga y se puede jugar.
 
 Si pruebas con el server completo:
 
