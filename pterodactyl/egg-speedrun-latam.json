@@ -89,6 +89,126 @@
       "field_type": "text"
     },
     {
+      "name": "Neon Auth",
+      "description": "Política de cuentas SA:O. disabled no pide identidad; optional permite entrar sin cuenta pero registra la identidad si existe; required rechaza a quien no tenga cuenta SA:O verificada. El registro automático necesita endpoint ASE público e Internet.",
+      "env_variable": "NEON_AUTH",
+      "default_value": "disabled",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|in:disabled,optional,required",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Registry",
+      "description": "1 publica el servidor en el navegador de San Andreas Online. 0 lo oculta. No desactiva la identidad si NEON_AUTH está activo ni reemplaza la publicación ASE.",
+      "env_variable": "NEON_REGISTRY",
+      "default_value": "1",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|in:0,1",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Public Host",
+      "description": "Hostname público del servidor en minúsculas, sin https:// ni puerto. Ejemplo: server.example.com. Requiere NEON_AUTH optional o required. El DNS debe resolver a una IPv4 pública y el relay debe reenviar juego, HTTP y ASE (puerto de juego + 123). Una configuración inválida impide arrancar.",
+      "env_variable": "NEON_REGISTRY_PUBLIC_HOST",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:253",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Tagline",
+      "description": "Frase corta que se muestra junto al servidor en el navegador. Opcional.",
+      "env_variable": "NEON_REGISTRY_TAGLINE",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:255",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Description",
+      "description": "Descripción larga del servidor en el panel de detalles del navegador. Opcional.",
+      "env_variable": "NEON_REGISTRY_DESCRIPTION",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:255",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Countries",
+      "description": "Códigos ISO de país separados por coma, por ejemplo AR, BO, BR, CL. Se muestran como región o banderas en el navegador. Vacío no muestra países.",
+      "env_variable": "NEON_REGISTRY_COUNTRIES",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:255",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Languages",
+      "description": "Idiomas de display separados por coma, por ejemplo Spanish, Portuguese. Vacío no muestra idiomas.",
+      "env_variable": "NEON_REGISTRY_LANGUAGES",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:255",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Website",
+      "description": "URL HTTPS pública del servidor. Opcional. Se muestra como enlace en el navegador.",
+      "env_variable": "NEON_REGISTRY_WEBSITE",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|url",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Discord",
+      "description": "URL pública del Discord, normalmente una invitación. Opcional.",
+      "env_variable": "NEON_REGISTRY_DISCORD",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|url",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Logo",
+      "description": "URL HTTPS de una imagen cuadrada. El registry la descarga, valida y cachea; si falla se usa el fallback. Opcional.",
+      "env_variable": "NEON_REGISTRY_LOGO",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|url",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Banner",
+      "description": "URL HTTPS de una imagen 16:9. El registry la descarga, valida y cachea; si falla se usa el fallback. Opcional.",
+      "env_variable": "NEON_REGISTRY_BANNER",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|url",
+      "field_type": "text"
+    },
+    {
+      "name": "Neon Accent",
+      "description": "Color de acento del navegador en formato #RRGGBB, por ejemplo #99D099. Vacío o inválido usa el color por defecto.",
+      "env_variable": "NEON_REGISTRY_ACCENT",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:7|regex:/^#[0-9A-Fa-f]{6}$/",
+      "field_type": "text"
+    },
+    {
       "name": "GitHub Token",
       "description": "Opcional. Solo si el repositorio o el release son privados.",
       "env_variable": "GITHUB_TOKEN",

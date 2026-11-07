@@ -135,32 +135,32 @@
          identities when available, or required to accept only players signed
          into Neon. The server creates and registers its identity automatically;
          no server id or public key needs to be configured. -->
-    <neon_auth>disabled</neon_auth>
+    <neon_auth>{{NEON_AUTH}}</neon_auth>
 
     <!-- Public Neon servers automatically announce themselves to the Neon
          browser while ASE is enabled. Runtime player counts, ping, version,
          password state, mode and map are still read live from ASE. Set this to
          0 to keep a public ASE server out of the Neon browser. -->
-    <neon_registry>1</neon_registry>
+    <neon_registry>{{NEON_REGISTRY}}</neon_registry>
     <!-- Optional lowercase public DNS hostname (no scheme or port), e.g. server.example.com.
          Requires automatic Neon Identity (neon_auth optional or required, no manual identity fields).
          DNS must resolve to one public IPv4; the relay must forward the configured game/HTTP
          ports and ASE (game port + 123). Invalid configurations stop server startup.
          Hosting, firewalling and DDoS protection remain the owner's responsibility. -->
-    <neon_registry_public_host></neon_registry_public_host>
-    <neon_registry_tagline>MTA Speedrun LATAM 2: Ahora es personal.</neon_registry_tagline>
-    <neon_registry_description>MTA Speedrun LATAM 2: Ahora es personal.</neon_registry_description>
+    <neon_registry_public_host>{{NEON_REGISTRY_PUBLIC_HOST}}</neon_registry_public_host>
+    <neon_registry_tagline>{{NEON_REGISTRY_TAGLINE}}</neon_registry_tagline>
+    <neon_registry_description>{{NEON_REGISTRY_DESCRIPTION}}</neon_registry_description>
     <!-- Comma-separated ISO country codes and display-language names. -->
-    <neon_registry_countries>AR, BO, BR, CL, CO, CR, CU, DO, EC, SV, GT, HN, MX, NI, PA, PY, PE, PR, UY, VE</neon_registry_countries>
-    <neon_registry_languages>Spanish</neon_registry_languages>
+    <neon_registry_countries>{{NEON_REGISTRY_COUNTRIES}}</neon_registry_countries>
+    <neon_registry_languages>{{NEON_REGISTRY_LANGUAGES}}</neon_registry_languages>
     <!-- Optional public HTTPS links, artwork and #RRGGBB browser accent.
          The Neon registry downloads and sanitizes logo/banner images before
          clients see them. Recommended: square logo and 16:9 banner. -->
-    <neon_registry_website></neon_registry_website>
-    <neon_registry_discord>https://discord.gg/DcGSeSgkFG</neon_registry_discord>
-    <neon_registry_logo>https://wasdwasdwasdwasdwasd.pcamposu.com/logo.jpg</neon_registry_logo>
-    <neon_registry_banner></neon_registry_banner>
-    <neon_registry_accent>#99D099</neon_registry_accent>
+    <neon_registry_website>{{NEON_REGISTRY_WEBSITE}}</neon_registry_website>
+    <neon_registry_discord>{{NEON_REGISTRY_DISCORD}}</neon_registry_discord>
+    <neon_registry_logo>{{NEON_REGISTRY_LOGO}}</neon_registry_logo>
+    <neon_registry_banner>{{NEON_REGISTRY_BANNER}}</neon_registry_banner>
+    <neon_registry_accent>{{NEON_REGISTRY_ACCENT}}</neon_registry_accent>
 
     <!-- This parameter reduces the server's bandwidth usage by using various optimizations.
          Values: none, medium or maximum ; default value: medium -->
