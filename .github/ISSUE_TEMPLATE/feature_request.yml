@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Describí el problema antes de la solución. Así se puede discutir el enfoque
+        Describe el problema antes de la solución. Así se puede discutir el enfoque
         aunque la implementación cambie.
 
   - type: textarea
@@ -22,7 +22,7 @@ body:
     id: propuesta
     attributes:
       label: Propuesta
-      description: Cómo imaginás la feature.
+      description: Cómo imaginas la feature.
       placeholder: Mostrar una tabla con el tiempo de cada jugador al final de la carrera.
     validations:
       required: true

@@ -6,14 +6,14 @@ body:
   - type: markdown
     attributes:
       value: |
-        Gracias por reportar. Antes de abrir el issue, revisá que no exista uno igual.
-        Si el problema es de un mapa puntual, indicá el nombre exacto del resource.
+        Gracias por reportar. Antes de abrir el issue, revisa que no exista uno igual.
+        Si el problema es de un mapa puntual, indica el nombre exacto del resource.
 
   - type: textarea
     id: descripcion
     attributes:
       label: Qué pasó
-      description: Describí el problema y qué esperabas que pasara.
+      description: Describe el problema y qué esperabas que pasara.
       placeholder: Al entrar al mapa X, el vehículo aparece bajo el piso.
     validations:
       required: true
@@ -34,7 +34,7 @@ body:
     id: mapa
     attributes:
       label: Mapa o resource afectado
-      description: Nombre del resource si lo sabés. Si no, dejalo vacío.
+      description: Nombre del resource si lo sabes. Si no, déjalo vacío.
       placeholder: ElegantKLK, race, mapmanager
 
   - type: dropdown
@@ -54,14 +54,14 @@ body:
     id: logs
     attributes:
       label: Logs o errores
-      description: Pegá solo las líneas relevantes de la consola o de `server/logs`.
+      description: Pega solo las líneas relevantes de la consola o de `server/logs`.
       render: text
 
   - type: textarea
     id: capturas
     attributes:
       label: Capturas o video
-      description: Arrastrá imágenes o links. Ayuda mucho a confirmar el bug.
+      description: Arrastra imágenes o links. Ayuda mucho a confirmar el bug.
 
   - type: input
     id: entorno

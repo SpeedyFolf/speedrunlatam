@@ -7,36 +7,36 @@ Guía para proponer mapas, features y correcciones.
 
 ## Antes de empezar
 
-Hay dos caminos. Elegí el que corresponda.
+Hay dos caminos. Elige el que corresponda.
 
 ### Solo vas a enviar un mapa (Windows, sin Docker)
 
-No hace falta Docker ni WSL2. Necesitás San Andreas Online y su server para
+No hace falta Docker ni WSL2. Necesitas San Andreas Online y su server para
 Windows.
 
-1. Instalá San Andreas Online con el instalador del release:
+1. Instala San Andreas Online con el instalador del release:
    https://github.com/Dryxio/san-andreas-online/releases/latest
    Requiere Windows 10 o superior.
-2. Descargá `MTA-Neon-Server-Windows-x64.zip` del mismo release y extraelo en
+2. Descarga `MTA-Neon-Server-Windows-x64.zip` del mismo release y extráelo en
    `C:\sao-server`. Queda la carpeta `C:\sao-server\MTA-Neon-Server-Windows-x64`.
-3. Descargá el repo con GitHub Desktop o el ZIP.
-4. Borrá `C:\sao-server\MTA-Neon-Server-Windows-x64\mods\deathmatch\resources`
-   y copiá ahí la carpeta `server/mods/deathmatch/resources/` del repo.
+3. Descarga el repo con GitHub Desktop o el ZIP.
+4. Borra `C:\sao-server\MTA-Neon-Server-Windows-x64\mods\deathmatch\resources`
+   y copia ahí la carpeta `server/mods/deathmatch/resources/` del repo.
    No mezcles las dos carpetas: hay resources con el mismo nombre y el server falla.
-5. Arrancá el editor:
+5. Arranca el editor:
 
    ```bat
    cd C:\sao-server\MTA-Neon-Server-Windows-x64
    "MTA Server64.exe" --config editor.conf
    ```
 
-6. En el cliente, entrá al server `127.0.0.1:22010` desde la pestaña LAN.
-7. Creá el mapa y usá **Test** para probarlo con el `race` del repo.
+6. En el cliente, entra al server `127.0.0.1:22010` desde la pestaña LAN.
+7. Crea el mapa y usa **Test** para probarlo con el `race` del repo.
 
-Usá siempre `MTA Server64.exe`. No uses **Host Game** ni **Map Editor** del menú
-principal. Usá la misma build de cliente y server.
+Usa siempre `MTA Server64.exe`. No uses **Host Game** ni **Map Editor** del menú
+principal. Usa la misma build de cliente y server.
 
-No hace falta saber Git: podés adjuntar el `.zip` de tu mapa en el issue.
+No hace falta saber Git: puedes adjuntar el `.zip` de tu mapa en el issue.
 
 ### Vas a tocar código, resources o el server
 
@@ -113,7 +113,7 @@ y sin símbolos. Usar CamelCase: `ElegantKLK`, `EnCaravana`, `CaraACara`.
 
 ### Opciones del `meta.xml`
 
-Esta parte es solo para mapas. Si no agregás una opción, queda en `false` y el
+Esta parte es solo para mapas. Si no agregas una opción, queda en `false` y el
 mapa funciona como siempre.
 
 ```xml
@@ -136,7 +136,7 @@ mapa funciona como siempre.
 | `#maxplayers` | — | Cantidad máxima de jugadores. |
 | `#minplayers` | `0` | Jugadores mínimos para que el mapa se vote. |
 | `#ghostmode` | — | `true`: los jugadores se atraviesan. |
-| `#respawntime` | valor del server | Segundos para reaparecer. Si no lo ponés, usa el default del server. |
+| `#respawntime` | valor del server | Segundos para reaparecer. Si no lo pones, usa el default del server. |
 | `#useLODs` | `true` | Carga LODs. Apagalo solo si el mapa pesa demasiado. |
 
 #### Avanzadas
@@ -151,12 +151,12 @@ mapa funciona como siempre.
 
 #### Funciones del mundo (opcionales)
 
-Ninguna viene activa. Activá una por vez y probá el mapa después de cada cambio.
+Ninguna viene activa. Activa una por vez y prueba el mapa después de cada cambio.
 
 **`#traffic`** (default `false`)
 
 Activa peatones y vehículos manejados por el server. Suma carga al server y al
-cliente: probalo con el mapa lleno antes de dejarlo. El tráfico siempre colisiona,
+cliente: pruébalo con el mapa lleno antes de dejarlo. El tráfico siempre colisiona,
 incluso con `#collisionmode "ghost"`.
 
 **`#wanted`** (default `false`)
@@ -168,9 +168,9 @@ Activa nivel de búsqueda, policías y arrestos. Funciona sola o junto con
 
 Modo realista de moto:
 
-- Si te caés o te bajás, quedás a pie. No reaparecés en la moto.
+- Si te caes o te bajas, quedas a pie. No reapareces en la moto.
 - No hay respawn de vehículo y `/kill` queda deshabilitado.
-- Si morís, quedás fuera de la carrera y pasás a espectador.
+- Si mueres, quedas fuera de la carrera y pasas a espectador.
 - No hay daño ni ataques a pie entre jugadores. El tráfico y la policía sí dañan.
 - Los checkpoints exigen vehículo, salvo que también actives `#allowonfoot`.
 
@@ -205,7 +205,7 @@ juntas como referencia.
 En el editor, **Test** carga el mapa con el gamemode `race` del repo. Es la forma
 más rápida de verificar spawn, ruta y settings.
 
-Si probás con el server completo:
+Si pruebas con el server completo:
 
 ```bash
 docker compose up
@@ -229,7 +229,7 @@ afectan a los mapas:
   y `height`.
 - El HUD, los toptimes y los ghosts son propios del server.
 
-Recomendamos exportar con el editor del repo. Si usás otro, avisalo en el issue.
+Recomendamos exportar con el editor del repo. Si usas otro, avísalo en el issue.
 
 Guía extendida en inglés, de donde salen estos resources:
 https://gitlab.com/The123robot/robot-mta-server/-/blob/develop/Readme.md
