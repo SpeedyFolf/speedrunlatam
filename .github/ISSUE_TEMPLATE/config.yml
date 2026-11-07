@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Guía de contribución
+    url: https://github.com/ferecece/speedrunlatam/blob/main/docs/contributing.md
+    about: Cómo enviar mapas y features, y cómo probar en local.
+  - name: Desarrollo local
+    url: https://github.com/ferecece/speedrunlatam/blob/main/docs/development.md
+    about: Levantar el server con Docker.

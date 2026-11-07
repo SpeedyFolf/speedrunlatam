@@ -1,0 +1,348 @@
+# Contribuir
+
+Guía para proponer mapas, features y correcciones.
+
+- Desarrollo local con Docker: [development.md](development.md).
+- Publicación y deploy: [deployment.md](deployment.md).
+
+## Antes de empezar
+
+Hay dos caminos. Elegí el que corresponda.
+
+### Solo vas a enviar un mapa (Windows, sin Docker)
+
+No hace falta Docker ni WSL2. Necesitás San Andreas Online y su server para
+Windows.
+
+1. Instalá San Andreas Online con el instalador del release:
+   https://github.com/Dryxio/san-andreas-online/releases/latest
+   Requiere Windows 10 o superior.
+2. Descargá `MTA-Neon-Server-Windows-x64.zip` del mismo release y extraelo en
+   `C:\sao-server`. Queda la carpeta `C:\sao-server\MTA-Neon-Server-Windows-x64`.
+3. Descargá el repo con GitHub Desktop o el ZIP.
+4. Borrá `C:\sao-server\MTA-Neon-Server-Windows-x64\mods\deathmatch\resources`
+   y copiá ahí la carpeta `server/mods/deathmatch/resources/` del repo.
+   No mezcles las dos carpetas: hay resources con el mismo nombre y el server falla.
+5. Arrancá el editor:
+
+   ```bat
+   cd C:\sao-server\MTA-Neon-Server-Windows-x64
+   "MTA Server64.exe" --config editor.conf
+   ```
+
+6. En el cliente, entrá al server `127.0.0.1:22010` desde la pestaña LAN.
+7. Creá el mapa y usá **Test** para probarlo con el `race` del repo.
+
+Usá siempre `MTA Server64.exe`. No uses **Host Game** ni **Map Editor** del menú
+principal. Usá la misma build de cliente y server.
+
+No hace falta saber Git: podés adjuntar el `.zip` de tu mapa en el issue.
+
+### Vas a tocar código, resources o el server
+
+Requisitos:
+
+- Docker y Docker Compose.
+- Git.
+- Opcional: editor de mapas de San Andreas Online.
+
+```bash
+cp .env.example .env
+docker compose pull
+docker compose up
+```
+
+Todo el contenido del server vive en:
+
+```text
+server/mods/deathmatch/resources/
+```
+
+Reglas:
+
+- Los cambios permanentes van en el repo, no en el volumen de producción.
+- No commitear runtime, DB, logs, cache, keys ni backups. `.gitignore` ya los excluye.
+- Probar en local antes de abrir el PR.
+
+## Mapas de carrera
+
+### Tipos
+
+| Carpeta | `racetype` | Contenido |
+| --- | --- | --- |
+| `[maps]/[R]` | `R` | Carreras normales. |
+| `[maps]/[F2F]` | `F2F` | Cara a cara, con colisiones y mínimo de jugadores. |
+| `[maps]/[SR]` | `SR` | Misiones de GTA portadas al modo race. |
+| `[maps]/[RANDOM]` | `RANDOM` | Carrera con randomizer de vehículo en los checkpoints. |
+
+### Crear el mapa
+
+1. Abrir el editor de mapas.
+2. Armar ruta, spawn, vehículos y checkpoints.
+3. Exportar el resource.
+4. Copiar la carpeta a `server/mods/deathmatch/resources/[maps]/[R]/NombreMapa/`.
+
+El nombre de la carpeta es el nombre del resource. Sin espacios, sin acentos
+y sin símbolos. Usar CamelCase: `ElegantKLK`, `EnCaravana`, `CaraACara`.
+
+### meta.xml
+
+```xml
+<meta>
+    <oop>true</oop>
+    <info gamemodes="race" type="map" racetype="R" name="Mi Mapa" author="TuNombre" version="1.0.0" />
+    <map src="MiMapa.map" dimension="0" />
+    <settings>
+        <setting name="#maxplayers" value="[ 128 ]" />
+        <setting name="#minplayers" value="[ 0 ]" />
+        <setting name="#ghostmode" value="[ &quot;true&quot; ]" />
+        <setting name="#time" value="12:0" />
+        <setting name="#weather" value="[ 0 ]" />
+        <setting name="#duration" value="[ 1800 ]" />
+        <setting name="#skins" value="[ &quot;random&quot; ]" />
+    </settings>
+    <script src="mapEditorScriptingExtension_s.lua" type="server" />
+    <script src="mapEditorScriptingExtension_c.lua" type="client" validate="false" />
+</meta>
+```
+
+- `name` es el nombre visible en el HUD y en las votaciones.
+- `author` es obligatorio para el crédito.
+- `racetype` debe coincidir con la carpeta.
+- Los valores van entre corchetes. Los textos llevan `&quot;` porque el archivo es XML.
+
+### Opciones del `meta.xml`
+
+Esta parte es solo para mapas. Si no agregás una opción, queda en `false` y el
+mapa funciona como siempre.
+
+```xml
+<settings>
+    <setting name="#traffic" value="[ true ]" />
+    <setting name="#wanted" value="[ true ]" />
+    <setting name="#bikefall" value="[ true ]" />
+    <setting name="#collisionmode" value="[ &quot;ghost&quot; ]" />
+</settings>
+```
+
+#### Básicas
+
+| Setting | Default | Qué hace |
+| --- | --- | --- |
+| `#duration` | — | Tiempo límite de la carrera, en segundos. |
+| `#time` | — | Hora del mapa, formato `HH:MM`. |
+| `#weather` | — | ID de clima. |
+| `#skins` | — | Lista de skins. `random` elige al azar. |
+| `#maxplayers` | — | Cantidad máxima de jugadores. |
+| `#minplayers` | `0` | Jugadores mínimos para que el mapa se vote. |
+| `#ghostmode` | — | `true`: los jugadores se atraviesan. |
+| `#respawntime` | valor del server | Segundos para reaparecer. Si no lo ponés, usa el default del server. |
+| `#useLODs` | `true` | Carga LODs. Apagalo solo si el mapa pesa demasiado. |
+
+#### Avanzadas
+
+| Setting | Default | Qué hace |
+| --- | --- | --- |
+| `#timeafterfirstfinish` | valor del server | Tiempo extra cuando alguien termina. |
+| `#countdownduration` | `3` | Duración de la cuenta regresiva, en segundos. |
+| `#shufflespawns` | `false` | Ordena los spawnpoints al azar. |
+| `#disableraceghosts` | `false` | Apaga los ghosts de la carrera. |
+| `#allowonfoot` | `false` | Permite bajarse del vehículo y tocar checkpoints a pie. |
+
+#### Funciones del mundo (opcionales)
+
+Ninguna viene activa. Activá una por vez y probá el mapa después de cada cambio.
+
+**`#traffic`** (default `false`)
+
+Activa peatones y vehículos manejados por el server. Suma carga al server y al
+cliente: probalo con el mapa lleno antes de dejarlo. El tráfico siempre colisiona,
+incluso con `#collisionmode "ghost"`.
+
+**`#wanted`** (default `false`)
+
+Activa nivel de búsqueda, policías y arrestos. Funciona sola o junto con
+`#traffic`; con tráfico activo, los policías de patrulla se suman a la persecución.
+
+**`#bikefall`** (default `false`)
+
+Modo realista de moto:
+
+- Si te caés o te bajás, quedás a pie. No reaparecés en la moto.
+- No hay respawn de vehículo y `/kill` queda deshabilitado.
+- Si morís, quedás fuera de la carrera y pasás a espectador.
+- No hay daño ni ataques a pie entre jugadores. El tráfico y la policía sí dañan.
+- Los checkpoints exigen vehículo, salvo que también actives `#allowonfoot`.
+
+**`#collisionmode`** (default: usa `#ghostmode`)
+
+Controla las colisiones entre jugadores:
+
+- `"ghost"`: se atraviesan.
+- `"solid"`: chocan.
+
+**`#allowonfoot`** (default `false`)
+
+`false`: el jugador no puede bajarse y los checkpoints solo cuentan en vehículo.
+`true`: puede bajarse y los checkpoints cuentan a pie o en cualquier vehículo.
+Es lo que permite terminar a pie con `#bikefall`.
+
+**Cómo probarlas:** primero `#traffic`, después `#wanted`, al final `#bikefall`.
+El mapa `In the Beginning`, en `[maps]/[SR]/[Misc]/InTheBeginning`, las usa todas
+juntas como referencia.
+
+### Checklist
+
+- Spawn con piso firme y vehículo asignado.
+- Primer checkpoint visible desde el spawn.
+- Ruta completa, sin cortes ni saltos imposibles.
+- Checkpoints fuera de paredes y techos.
+- Probado en local con **Test** del editor.
+- Solo los archivos necesarios: `.map`, `meta.xml` y scripts del editor.
+
+### Probar
+
+En el editor, **Test** carga el mapa con el gamemode `race` del repo. Es la forma
+más rápida de verificar spawn, ruta y settings.
+
+Si probás con el server completo:
+
+```bash
+docker compose up
+```
+
+En el juego, con cuenta admin: `/changemap NombreMapa`. La lista de mapas
+detectados se ve con `/maps`.
+
+Si el mapa no aparece, revisar que `meta.xml` tenga `type="map"` y
+`gamemodes="race"`.
+
+## Editor y race del repo
+
+El server no usa el editor ni el gamemode `race` originales. Tienen cambios que
+afectan a los mapas:
+
+- El editor del repo guarda `customMapEditorScriptingExtension_s.lua`. El editor
+  original guarda `mapEditorScriptingExtension_s.lua`. El del repo trae fixes de
+  LODs, visibilidad a distancia y remoción de objetos del mundo.
+- `race` soporta atributos extra en checkpoints: `blipsize`, `extracolshapesize`
+  y `height`.
+- El HUD, los toptimes y los ghosts son propios del server.
+
+Recomendamos exportar con el editor del repo. Si usás otro, avisalo en el issue.
+
+Guía extendida en inglés, de donde salen estos resources:
+https://gitlab.com/The123robot/robot-mta-server/-/blob/develop/Readme.md
+
+## Features y resources
+
+### Dónde va cada cosa
+
+| Carpeta | Uso |
+| --- | --- |
+| `[gameplay]` | Mecánicas: HUD, daño, armas, pickups. |
+| `[managers]` | Servicios globales: votaciones, chat, mapas, autologin. |
+| `[web]` | Panel web y estadísticas. |
+| `[gamemodes]/[race]/[addons]` | Extensiones del modo race. |
+| `native-*` | Features nativas con tests propios. |
+
+### meta.xml mínimo
+
+```xml
+<meta>
+    <oop>true</oop>
+    <info author="TuNombre" name="mi_feature" description="Qué hace" version="1.0.0" type="script" />
+    <script src="server.lua" type="server" />
+    <script src="client.lua" type="client" />
+</meta>
+```
+
+Reglas:
+
+- Un archivo por responsabilidad. `shared/` solo para lógica sin APIs de MTA.
+- Configuración en `<settings>` del `meta.xml`, no hardcodeada en el código.
+- Sin credenciales, IPs ni rutas absolutas.
+- Mensajes al jugador en español.
+- `outputDebugString` para logs de debug, sin ruido en producción.
+
+### Registrar el resource
+
+Un resource nuevo no arranca solo. Agregar la línea en
+`server/mods/deathmatch/mtaserver.conf.template`:
+
+```xml
+<resource src="mi_feature" startup="1" protected="0" />
+```
+
+Sin esa línea el resource nunca se inicia en un server limpio.
+
+### ACL
+
+Si el resource necesita permisos, documentar cuáles y por qué en el PR.
+No pedir derechos de admin completos.
+
+### Estilo y rendimiento
+
+- Nada de trabajo pesado en `onClientRender`. Usar timers y eventos.
+- Un timer por sistema, no uno por jugador.
+- Limpiar timers, binds y elementos en `onClientResourceStop`.
+
+### Tests
+
+Si el resource tiene lógica pura, agregar tests en `tests/`. El modo
+speedrun incluye un runner Lua sobre Node:
+
+```bash
+cd "server/mods/deathmatch/resources/[gamemodes]/[speedrun]/speedrun/tests"
+npm ci
+npm test
+```
+
+Los tests no deben llamar APIs de MTA.
+
+## Flujo de trabajo
+
+### Ramas
+
+| Prefijo | Uso |
+| --- | --- |
+| `feat/` | Feature nueva. |
+| `fix/` | Corrección. |
+| `docs/` | Documentación. |
+| `maps/` | Mapas. |
+
+Ejemplo: `feat/map-voting-timeout`.
+
+### Commits
+
+Formato convencional: `tipo(alcance): descripción`.
+
+```text
+feat(scoreboard): restyle Tab scoreboard with Neon theme
+fix(race): respect ghostmode when collisionmode is absent
+docs(contributing): add map and feature guide
+```
+
+### Pull request
+
+1. Abrir PR contra `main`.
+2. Completar la plantilla.
+3. Adjuntar captura o video para cambios visuales.
+4. Para mapas, adjuntar captura del recorrido.
+5. Esperar revisión.
+
+### Releases
+
+Mergear a `main` no actualiza el server de producción. Solo reconstruye la
+imagen `latest`. El deploy real es:
+
+1. Crear y pushear un tag `v*`.
+2. Esperar el release en GitHub Actions.
+3. Reinstall en Pterodactyl.
+
+Más detalles en [deployment.md](deployment.md).
+
+## Speedrun
+
+El modo speedrun y sus misiones están en desarrollo cerrado. No se aceptan
+misiones externas por ahora.

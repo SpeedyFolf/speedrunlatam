@@ -1,0 +1,110 @@
+name: Enviar un mapa
+description: Proponer un mapa nuevo para el servidor.
+title: "[Mapa] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Antes de enviar, leé [docs/contributing.md](https://github.com/ferecece/speedrunlatam/blob/main/docs/contributing.md)
+        y probá el mapa con **Test** del editor. No hace falta saber Git: podés
+        adjuntar el `.zip` del mapa en este issue.
+
+  - type: input
+    id: nombre
+    attributes:
+      label: Nombre del mapa
+      description: Nombre visible en el HUD.
+      placeholder: Elegant KLK
+    validations:
+      required: true
+
+  - type: input
+    id: resource
+    attributes:
+      label: Nombre del resource
+      description: Nombre de la carpeta, sin espacios.
+      placeholder: ElegantKLK
+    validations:
+      required: true
+
+  - type: input
+    id: autor
+    attributes:
+      label: Autor
+      description: Crédito que debe aparecer en el juego. Si es un port, indicá el autor original.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo de mapa
+      description: Debe coincidir con el `racetype` del `meta.xml`.
+      options:
+        - R (carrera normal)
+        - F2F (cara a cara)
+        - SR (misión de GTA en modo race)
+        - RANDOM (randomizer de vehículo)
+    validations:
+      required: true
+
+  - type: input
+    id: checkpoints
+    attributes:
+      label: Cantidad de checkpoints
+      placeholder: "12"
+    validations:
+      required: true
+
+  - type: input
+    id: duracion
+    attributes:
+      label: Duración estimada
+      description: Tiempo aproximado de una vuelta.
+      placeholder: 2 minutos 30 segundos
+    validations:
+      required: true
+
+  - type: input
+    id: link
+    attributes:
+      label: Link o archivo
+      description: PR, repositorio o ZIP adjunto en este issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: settings
+    attributes:
+      label: Settings especiales
+      description: |
+        Si activaste `#traffic`, `#wanted`, `#bikefall`, `#collisionmode` u otra,
+        contá cuáles y por qué.
+      placeholder: "#traffic y #wanted activos. #bikefall no."
+
+  - type: textarea
+    id: capturas
+    attributes:
+      label: Capturas
+      description: Arrastrá una imagen del mapa y otra del recorrido.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: El mapa tiene spawn con piso firme y vehículo.
+          required: true
+        - label: El primer checkpoint se ve desde el spawn.
+          required: true
+        - label: La ruta está completa y sin saltos imposibles.
+          required: true
+        - label: Probé el mapa con **Test** del editor.
+          required: true
+        - label: Exporté con el editor del repo, o aviso que usé otro.
+          required: true
+        - label: El `meta.xml` declara `type="map"`, `gamemodes="race"` y el `racetype` correcto.
+          required: true

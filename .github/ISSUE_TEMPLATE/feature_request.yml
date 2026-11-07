@@ -1,0 +1,67 @@
+name: Proponer una feature
+description: Idea, mejora o funcionalidad nueva para el servidor.
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describí el problema antes de la solución. Así se puede discutir el enfoque
+        aunque la implementación cambie.
+
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qué problema resuelve
+      description: Qué falta hoy y a quién afecta.
+      placeholder: Al terminar una carrera no se ve el tiempo de los demás jugadores.
+    validations:
+      required: true
+
+  - type: textarea
+    id: propuesta
+    attributes:
+      label: Propuesta
+      description: Cómo imaginás la feature.
+      placeholder: Mostrar una tabla con el tiempo de cada jugador al final de la carrera.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas
+      description: Otras formas de resolverlo que hayas considerado.
+
+  - type: dropdown
+    id: alcance
+    attributes:
+      label: Alcance
+      description: Qué parte del server toca.
+      options:
+        - Gameplay
+        - Interfaz o HUD
+        - Mapas
+        - Panel web o estadísticas
+        - Infraestructura o deploy
+        - Otro
+    validations:
+      required: true
+
+  - type: dropdown
+    id: implementacion
+    attributes:
+      label: ¿Vas a implementarlo?
+      description: No es obligatorio. Ayuda a coordinar.
+      options:
+        - Sí, puedo hacer el PR
+        - Puedo ayudar pero necesito guía
+        - No, solo lo propongo
+    validations:
+      required: true
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto extra
+      description: Capturas, ejemplos de otros servers, referencias.

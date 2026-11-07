@@ -1,0 +1,71 @@
+name: Reportar un bug
+description: Algo no funciona como debería en el servidor.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportar. Antes de abrir el issue, revisá que no exista uno igual.
+        Si el problema es de un mapa puntual, indicá el nombre exacto del resource.
+
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Qué pasó
+      description: Describí el problema y qué esperabas que pasara.
+      placeholder: Al entrar al mapa X, el vehículo aparece bajo el piso.
+    validations:
+      required: true
+
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Cómo reproducirlo
+      description: Pasos concretos para repetir el problema.
+      placeholder: |
+        1. Entrar al server.
+        2. Votar el mapa X.
+        3. Esperar el spawn.
+    validations:
+      required: true
+
+  - type: input
+    id: mapa
+    attributes:
+      label: Mapa o resource afectado
+      description: Nombre del resource si lo sabés. Si no, dejalo vacío.
+      placeholder: ElegantKLK, race, mapmanager
+
+  - type: dropdown
+    id: severidad
+    attributes:
+      label: Severidad
+      description: Qué tanto afecta al juego.
+      options:
+        - Bloquea jugar
+        - Afecta a varios jugadores
+        - Molesto pero jugable
+        - Cosmético
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs o errores
+      description: Pegá solo las líneas relevantes de la consola o de `server/logs`.
+      render: text
+
+  - type: textarea
+    id: capturas
+    attributes:
+      label: Capturas o video
+      description: Arrastrá imágenes o links. Ayuda mucho a confirmar el bug.
+
+  - type: input
+    id: entorno
+    attributes:
+      label: Entorno
+      description: Dónde lo viste.
+      placeholder: Server de producción, server local, MTA 1.6
