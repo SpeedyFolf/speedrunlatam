@@ -21,6 +21,40 @@ docker compose build
 docker compose up
 ```
 
+## Consola del server
+
+El `compose.yaml` expone stdin y TTY, así que el server acepta comandos.
+
+Con el server en primer plano:
+
+```bash
+docker compose up
+```
+
+Escribí el comando en la terminal. Ejemplos:
+
+```text
+say hola
+start editor
+shutdown
+```
+
+En segundo plano:
+
+```bash
+docker compose up -d
+docker compose attach server
+```
+
+Para salir del attach sin apagar el server: `Ctrl-P` y después `Ctrl-Q`.
+`Ctrl-C` detiene el contenedor.
+
+Si `docker compose attach` no existe en tu versión:
+
+```bash
+docker attach $(docker compose ps -q server)
+```
+
 ## Editar mapas y resources
 
 Todo lo que va al server vive en:
