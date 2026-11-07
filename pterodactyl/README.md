@@ -28,3 +28,12 @@ El servidor necesita tres allocations:
 
 El HTTP se configura con `SERVER_HTTP_PORT`. El puerto ASE lo deriva MTA
 automáticamente y solo hay que asignar la allocation.
+
+## Variables
+
+- `SERVER_NAME`: nombre visible en el navegador de servidores.
+- `SERVER_MAXPLAYERS`: cantidad máxima de jugadores. Default `70`.
+- `SERVER_FPSLIMIT`: FPS máximo de los clientes. Default `300`, `0` usa el ajuste del cliente.
+- `SERVER_HTTP_PORT`: puerto HTTP asignado.
+- `OWNER_EMAIL`: contacto del servidor. Opcional.
+- `HTTP_DOWNLOAD_URL`: URL externa de resources. Opcional.

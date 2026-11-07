@@ -4,7 +4,7 @@
     "version": "PTDL_v2",
     "update_url": null
   },
-  "exported_at": "2026-11-05T18:00:00+00:00",
+  "exported_at": "2026-11-07T00:00:00+00:00",
   "name": "Speedrun LATAM",
   "author": "ferecece@users.noreply.github.com",
   "description": "Servidor Speedrun LATAM. Motor: San Andreas Online.",
@@ -66,6 +66,26 @@
       "user_viewable": true,
       "user_editable": true,
       "rules": "nullable|url",
+      "field_type": "text"
+    },
+    {
+      "name": "Max Players",
+      "description": "Cantidad máxima de jugadores conectados.",
+      "env_variable": "SERVER_MAXPLAYERS",
+      "default_value": "70",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|integer|between:1,4096",
+      "field_type": "text"
+    },
+    {
+      "name": "Max FPS",
+      "description": "Límite máximo de FPS para los clientes. 0 usa el ajuste del cliente.",
+      "env_variable": "SERVER_FPSLIMIT",
+      "default_value": "300",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|integer|between:0,32767",
       "field_type": "text"
     },
     {

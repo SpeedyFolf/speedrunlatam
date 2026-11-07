@@ -46,9 +46,9 @@
          connections; default value: 22003. It is a required parameter. -->
     <serverport>22003</serverport>
     
-    <!-- This parameter specifies the number of maximum player slots available on the server; default
-         value: 32. It is a required parameter. -->
-    <maxplayers>70</maxplayers>
+    <!-- This parameter specifies the number of maximum player slots available on the server.
+         Default: 70. Configured with SERVER_MAXPLAYERS. It is a required parameter. -->
+    <maxplayers>{{SERVER_MAXPLAYERS}}</maxplayers>
         
     <!-- This parameter specifies the TCP port on which the server will be accepting incoming http
          connections. It can be set to the same value as <serverport>. It is a required parameter
@@ -254,8 +254,9 @@
     <filter_duplicate_log_lines>1</filter_duplicate_log_lines>
 
     <!-- Specifies the frame rate limit that will be applied to connecting clients.
-         Available range: 25 to 32767. Default: 74. You can also use 0 for uncapped fps. -->
-    <fpslimit>74</fpslimit>
+         Available range: 25 to 32767. Default: 300. 0 uses the client setting.
+         Configured with SERVER_FPSLIMIT. -->
+    <fpslimit>{{SERVER_FPSLIMIT}}</fpslimit>
 
     <!-- This parameter specifies whether or not to enable player voice chat in-game
          Values: 0 - disabled , 1 - enabled -->

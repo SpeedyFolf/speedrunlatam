@@ -60,6 +60,7 @@ El CI publica la imagen y el template del release.
 
 ## Variables
 
-`SERVER_NAME`, `OWNER_EMAIL` y `HTTP_DOWNLOAD_URL` se aplican al generar `mtaserver.conf`.
+`SERVER_NAME`, `SERVER_MAXPLAYERS`, `SERVER_FPSLIMIT`, `OWNER_EMAIL` y
+`HTTP_DOWNLOAD_URL` se aplican al generar `mtaserver.conf`.
 
 Para producción, `HTTP_DOWNLOAD_URL` puede apuntar al CDN. Para local, dejarlo vacío usa el HTTP interno.

@@ -15,6 +15,8 @@ Panel de Pterodactyl:
 - Puerto HTTP: allocation TCP.
 - ASE: allocation UDP en `puerto de juego + 123` (ej. `22003` → `22126`).
 - Variable `SERVER_HTTP_PORT`: mismo puerto HTTP asignado.
+- Variables opcionales: `SERVER_MAXPLAYERS` (default `70`) y `SERVER_FPSLIMIT`
+  (default `300`, `0` usa el ajuste del cliente).
 
 Pterodactyl no crea allocations automáticamente. Sin la allocation ASE, el server
 funciona pero no aparece en el server browser.

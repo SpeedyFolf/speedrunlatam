@@ -16,10 +16,13 @@ fi
 SERVER_NAME="${SERVER_NAME:-Speedrun LATAM}"
 OWNER_EMAIL="${OWNER_EMAIL:-}"
 HTTP_DOWNLOAD_URL="${HTTP_DOWNLOAD_URL:-}"
+SERVER_MAXPLAYERS="${SERVER_MAXPLAYERS:-70}"
+SERVER_FPSLIMIT="${SERVER_FPSLIMIT:-300}"
 CONF="/home/container/mods/deathmatch/mtaserver.conf"
 TEMPLATE="/home/container/mods/deathmatch/mtaserver.conf.template"
 if [ -f "$TEMPLATE" ]; then
     SERVER_NAME="$SERVER_NAME" OWNER_EMAIL="$OWNER_EMAIL" HTTP_DOWNLOAD_URL="$HTTP_DOWNLOAD_URL" \
+        SERVER_MAXPLAYERS="$SERVER_MAXPLAYERS" SERVER_FPSLIMIT="$SERVER_FPSLIMIT" \
         python3 - "$TEMPLATE" "$CONF" <<'PY'
 import os
 import sys
@@ -29,6 +32,8 @@ text = open(source, encoding="utf-8").read()
 text = text.replace("{{SERVER_NAME}}", os.environ.get("SERVER_NAME", "Speedrun LATAM"))
 text = text.replace("{{OWNER_EMAIL}}", os.environ.get("OWNER_EMAIL", ""))
 text = text.replace("{{HTTP_DOWNLOAD_URL}}", os.environ.get("HTTP_DOWNLOAD_URL", ""))
+text = text.replace("{{SERVER_MAXPLAYERS}}", os.environ.get("SERVER_MAXPLAYERS", "70"))
+text = text.replace("{{SERVER_FPSLIMIT}}", os.environ.get("SERVER_FPSLIMIT", "300"))
 open(target, "w", encoding="utf-8").write(text)
 PY
 fi

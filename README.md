@@ -45,7 +45,7 @@ Los archivos de runtime, DB, logs, cache y secretos están en `.gitignore`.
 1. Importar `pterodactyl/egg-speedrun-latam.json`.
 2. Crear el servidor con la imagen `ghcr.io/ferecece/speedrunlatam:latest`.
 3. Asignar tres allocations: juego, HTTP y ASE (`puerto de juego + 123`).
-4. Configurar `SERVER_HTTP_PORT`, `SERVER_NAME`, `OWNER_EMAIL` y `HTTP_DOWNLOAD_URL`.
+4. Configurar `SERVER_HTTP_PORT`, `SERVER_NAME`, `SERVER_MAXPLAYERS`, `SERVER_FPSLIMIT`, `OWNER_EMAIL` y `HTTP_DOWNLOAD_URL`.
 5. Instalar o reinstalar el server.
 
 El instalador descarga el template desde GitHub Releases y conserva:
