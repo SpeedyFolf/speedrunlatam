@@ -1,0 +1,19 @@
+<meta>
+    <info author="dinojoaco" name="Sweet's Girl" description="Speedrun de la mision Sweet's Girl (SWEET5 / hoods5)" version="0.1.0" type="map" gamemodes="speedrun" />
+    <oop>true</oop>
+
+    <script src="shared/data.lua" type="shared" />
+    <script src="logic/sw5_logic.lua" type="shared" />
+
+    <script src="server/stages.lua" type="server" />
+    <script src="server/instance.lua" type="server" />
+
+    <script src="client/text_audio.lua" type="client" />
+    <script src="client/actors.lua" type="client" />
+    <script src="client/chase.lua" type="client" />
+    <script src="client/main.lua" type="client" />
+
+    <export function="srCreateInstance" type="server" />
+    <export function="srDestroyInstance" type="server" />
+    <export function="srInstanceGo" type="server" />
+</meta>

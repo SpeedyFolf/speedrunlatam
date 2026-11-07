@@ -1,0 +1,7 @@
+{
+  "name": "speedrun-tests",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": { "test": "node run.js" },
+  "dependencies": { "fengari": "0.1.5" }
+}
