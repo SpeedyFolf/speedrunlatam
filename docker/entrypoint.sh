@@ -20,6 +20,20 @@ SERVER_MAXPLAYERS="${SERVER_MAXPLAYERS:-70}"
 SERVER_FPSLIMIT="${SERVER_FPSLIMIT:-300}"
 SERVER_DOWNLOAD_PORT="${SERVER_DOWNLOAD_PORT:-22005}"
 
+# Neon registry metadata. Empty means "not set".
+NEON_AUTH="${NEON_AUTH:-disabled}"
+NEON_REGISTRY="${NEON_REGISTRY:-1}"
+NEON_REGISTRY_PUBLIC_HOST="${NEON_REGISTRY_PUBLIC_HOST:-}"
+NEON_REGISTRY_TAGLINE="${NEON_REGISTRY_TAGLINE:-}"
+NEON_REGISTRY_DESCRIPTION="${NEON_REGISTRY_DESCRIPTION:-}"
+NEON_REGISTRY_COUNTRIES="${NEON_REGISTRY_COUNTRIES:-}"
+NEON_REGISTRY_LANGUAGES="${NEON_REGISTRY_LANGUAGES:-}"
+NEON_REGISTRY_WEBSITE="${NEON_REGISTRY_WEBSITE:-}"
+NEON_REGISTRY_DISCORD="${NEON_REGISTRY_DISCORD:-}"
+NEON_REGISTRY_LOGO="${NEON_REGISTRY_LOGO:-}"
+NEON_REGISTRY_BANNER="${NEON_REGISTRY_BANNER:-}"
+NEON_REGISTRY_ACCENT="${NEON_REGISTRY_ACCENT:-}"
+
 # Nginx serves thousands of small files; the default soft limit is too low.
 ulimit -n 65536 2>/dev/null || true
 
@@ -29,19 +43,41 @@ mkdir -p /home/container/logs \
 CONF="/home/container/mods/deathmatch/mtaserver.conf"
 TEMPLATE="/home/container/mods/deathmatch/mtaserver.conf.template"
 if [ -f "$TEMPLATE" ]; then
-    SERVER_NAME="$SERVER_NAME" OWNER_EMAIL="$OWNER_EMAIL" HTTP_DOWNLOAD_URL="$HTTP_DOWNLOAD_URL" \
-        SERVER_MAXPLAYERS="$SERVER_MAXPLAYERS" SERVER_FPSLIMIT="$SERVER_FPSLIMIT" \
-        python3 - "$TEMPLATE" "$CONF" <<'PY'
+    export SERVER_NAME OWNER_EMAIL HTTP_DOWNLOAD_URL SERVER_MAXPLAYERS SERVER_FPSLIMIT
+    export NEON_AUTH NEON_REGISTRY NEON_REGISTRY_PUBLIC_HOST NEON_REGISTRY_TAGLINE
+    export NEON_REGISTRY_DESCRIPTION NEON_REGISTRY_COUNTRIES NEON_REGISTRY_LANGUAGES
+    export NEON_REGISTRY_WEBSITE NEON_REGISTRY_DISCORD NEON_REGISTRY_LOGO
+    export NEON_REGISTRY_BANNER NEON_REGISTRY_ACCENT
+    python3 - "$TEMPLATE" "$CONF" <<'PY'
 import os
 import sys
+from xml.sax.saxutils import escape
 
 source, target = sys.argv[1], sys.argv[2]
 text = open(source, encoding="utf-8").read()
-text = text.replace("{{SERVER_NAME}}", os.environ.get("SERVER_NAME", "Speedrun LATAM"))
-text = text.replace("{{OWNER_EMAIL}}", os.environ.get("OWNER_EMAIL", ""))
-text = text.replace("{{HTTP_DOWNLOAD_URL}}", os.environ.get("HTTP_DOWNLOAD_URL", ""))
-text = text.replace("{{SERVER_MAXPLAYERS}}", os.environ.get("SERVER_MAXPLAYERS", "70"))
-text = text.replace("{{SERVER_FPSLIMIT}}", os.environ.get("SERVER_FPSLIMIT", "300"))
+
+keys = [
+    "SERVER_NAME",
+    "OWNER_EMAIL",
+    "HTTP_DOWNLOAD_URL",
+    "SERVER_MAXPLAYERS",
+    "SERVER_FPSLIMIT",
+    "NEON_AUTH",
+    "NEON_REGISTRY",
+    "NEON_REGISTRY_PUBLIC_HOST",
+    "NEON_REGISTRY_TAGLINE",
+    "NEON_REGISTRY_DESCRIPTION",
+    "NEON_REGISTRY_COUNTRIES",
+    "NEON_REGISTRY_LANGUAGES",
+    "NEON_REGISTRY_WEBSITE",
+    "NEON_REGISTRY_DISCORD",
+    "NEON_REGISTRY_LOGO",
+    "NEON_REGISTRY_BANNER",
+    "NEON_REGISTRY_ACCENT",
+]
+for key in keys:
+    text = text.replace("{{" + key + "}}", escape(os.environ.get(key, "")))
+
 open(target, "w", encoding="utf-8").write(text)
 PY
 fi
