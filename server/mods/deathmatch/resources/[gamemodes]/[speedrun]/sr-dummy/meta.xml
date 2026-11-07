@@ -1,0 +1,8 @@
+<meta>
+    <info author="dinojoaco" name="Prueba: caminar al punto" description="Mision de prueba del gamemode speedrun: caminar hasta el marcador" version="0.1.0" type="map" gamemodes="speedrun" speedrun_test="true" />
+
+    <script src="server.lua" type="server" />
+
+    <export function="srCreateInstance" type="server" />
+    <export function="srDestroyInstance" type="server" />
+</meta>

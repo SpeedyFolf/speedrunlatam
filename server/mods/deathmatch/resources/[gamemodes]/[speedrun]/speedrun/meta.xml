@@ -1,0 +1,33 @@
+<meta>
+    <info author="dinojoaco" name="Speedrun de misiones" description="Speedrun de misiones de GTA SA: cada jugador en su propia copia" version="0.1.0" type="gamemode" />
+    <oop>true</oop>
+
+    <script src="logic/round_logic.lua" type="shared" />
+    <script src="logic/results.lua" type="shared" />
+    <script src="logic/ambient_logic.lua" type="shared" />
+    <script src="shared/population_stages.lua" type="shared" />
+
+    <script src="logic/player_stats.lua" type="server" />
+    <script src="server/missions.lua" type="server" />
+    <script src="server/player_state.lua" type="server" />
+    <script src="server/instances.lua" type="server" />
+    <script src="server/ambient.lua" type="server" />
+    <script src="server/records.lua" type="server" />
+    <script src="server/vote.lua" type="server" />
+    <script src="server/main.lua" type="server" />
+
+    <script src="client/hud.lua" type="client" />
+    <script src="client/results.lua" type="client" />
+    <script src="client/spectate.lua" type="client" />
+    <script src="client/native.lua" type="client" />
+    <script src="client/ambient.lua" type="client" />
+
+    <file src="audio/mission_accomplished.mp3" />
+
+    <export function="registerMission" type="server" />
+    <export function="reportCompleted" type="server" />
+    <export function="reportFailed" type="server" />
+    <export function="getPlayerDimension" type="server" />
+    <export function="prepareActor" type="client" />
+    <export function="loadPopulationStage" type="client" />
+</meta>
