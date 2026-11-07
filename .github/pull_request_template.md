@@ -17,7 +17,7 @@
 ## Checklist
 
 - [ ] Probado en local con `docker compose up` o, si es un mapa, con **Test** del editor.
-- [ ] Si es un mapa: exportado con el editor del repo y aviso si usé otro.
+- [ ] Si es un mapa: exportado con el editor del template y aviso si usé otro.
 - [ ] No agregué DB, logs, cache, keys ni backups.
 - [ ] Si agregué un resource, lo registré en `server/mods/deathmatch/mtaserver.conf.template`.
 - [ ] Los mensajes al jugador están en español.

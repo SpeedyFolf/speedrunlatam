@@ -19,9 +19,20 @@ Windows.
    Requiere Windows 10 o superior.
 2. Descarga `MTA-Neon-Server-Windows-x64.zip` del mismo release y extráelo en
    `C:\sao-server`. Queda la carpeta `C:\sao-server\MTA-Neon-Server-Windows-x64`.
-3. Descarga el repo con GitHub Desktop o el ZIP.
+3. Descarga el template del último release:
+   https://github.com/ferecece/speedrunlatam/releases/latest/download/server-template.tar.gz
+   Guárdalo en `C:\sao-server` y extráelo:
+
+   ```bat
+   cd C:\sao-server
+   mkdir template
+   tar -xzf server-template.tar.gz -C template
+   ```
+
+   Ignora `mta-server64` y `x64`: son para Linux.
+
 4. Borra `C:\sao-server\MTA-Neon-Server-Windows-x64\mods\deathmatch\resources`
-   y copia ahí la carpeta `server/mods/deathmatch/resources/` del repo.
+   y copia ahí `C:\sao-server\template\mods\deathmatch\resources`.
    No mezcles las dos carpetas: hay resources con el mismo nombre y el server falla.
 5. Arranca el editor:
 
@@ -31,7 +42,12 @@ Windows.
    ```
 
 6. En el cliente, entra al server `127.0.0.1:22010` desde la pestaña LAN.
-7. Crea el mapa y usa **Test** para probarlo con el `race` del repo.
+7. Crea el mapa y usa **Test** para probarlo con el `race` del template.
+
+El template solo aporta los resources del server. El cliente se instala aparte
+con San Andreas Online. El template sale de cada tag `v*` y trae los mismos
+resources que producción. Si necesitas un cambio que todavía no salió en un
+release, usa el repo.
 
 Usa siempre `MTA Server64.exe`. No uses **Host Game** ni **Map Editor** del menú
 principal. Usa la misma build de cliente y server.
@@ -202,7 +218,7 @@ juntas como referencia.
 
 ### Probar
 
-En el editor, **Test** carga el mapa con el gamemode `race` del repo. Es la forma
+En el editor, **Test** carga el mapa con el gamemode `race` del template. Es la forma
 más rápida de verificar spawn, ruta y settings.
 
 Si pruebas con el server completo:
@@ -217,19 +233,19 @@ detectados se ve con `/maps`.
 Si el mapa no aparece, revisar que `meta.xml` tenga `type="map"` y
 `gamemodes="race"`.
 
-## Editor y race del repo
+## Editor y race custom
 
-El server no usa el editor ni el gamemode `race` originales. Tienen cambios que
-afectan a los mapas:
+El server no usa el editor ni el gamemode `race` originales. El template y el
+repo traen la misma versión custom. Tiene cambios que afectan a los mapas:
 
-- El editor del repo guarda `customMapEditorScriptingExtension_s.lua`. El editor
-  original guarda `mapEditorScriptingExtension_s.lua`. El del repo trae fixes de
+- El editor custom guarda `customMapEditorScriptingExtension_s.lua`. El editor
+  original guarda `mapEditorScriptingExtension_s.lua`. El custom trae fixes de
   LODs, visibilidad a distancia y remoción de objetos del mundo.
 - `race` soporta atributos extra en checkpoints: `blipsize`, `extracolshapesize`
   y `height`.
 - El HUD, los toptimes y los ghosts son propios del server.
 
-Recomendamos exportar con el editor del repo. Si usas otro, avísalo en el issue.
+Recomendamos exportar con el editor del template. Si usas otro, avísalo en el issue.
 
 Guía extendida en inglés, de donde salen estos resources:
 https://gitlab.com/The123robot/robot-mta-server/-/blob/develop/Readme.md

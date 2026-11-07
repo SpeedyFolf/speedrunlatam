@@ -104,7 +104,7 @@ body:
           required: true
         - label: Probé el mapa con **Test** del editor.
           required: true
-        - label: Exporté con el editor del repo, o aviso que usé otro.
+        - label: Exporté con el editor del template, o aviso que usé otro.
           required: true
         - label: El `meta.xml` declara `type="map"`, `gamemodes="race"` y el `racetype` correcto.
           required: true
