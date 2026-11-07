@@ -11,35 +11,40 @@
 ```bash
 cp .env.example .env
 docker compose pull
-docker compose up
+./scripts/console.sh
 ```
+
+`console.sh` levanta el server y te deja escribir en la consola. No hace falta
+correr `docker compose up` antes.
 
 Si estás trabajando sobre la imagen:
 
 ```bash
 docker compose build
-docker compose up
+./scripts/console.sh
 ```
 
+## Comandos
+
+| Quiero | Comando |
+| --- | --- |
+| Arrancar y escribir en la consola | `./scripts/console.sh` |
+| Arrancar en segundo plano, sin consola | `docker compose up -d` |
+| Entrar a la consola de un server ya corriendo | `./scripts/console.sh` |
+| Ver logs en vivo | `docker compose logs -f server` |
+| Apagar | `docker compose down` |
+
+`docker compose up` sirve para ver logs, pero **no** deja escribir comandos.
+
 ## Consola del server
-
-`docker compose up` no reenvía stdin, solo logs. Para escribir comandos hay que
-adjuntarse al contenedor.
-
-Con el script del repo:
 
 ```bash
 ./scripts/console.sh
 ```
 
-Equivale a:
+Si el server ya está corriendo, el script no lo reinicia: solo se adjunta.
 
-```bash
-docker compose up -d --wait
-docker compose attach server
-```
-
-Escribí el comando en la terminal:
+Ejemplos:
 
 ```text
 say hola
@@ -48,15 +53,15 @@ shutdown
 ```
 
 Para salir de la consola sin apagar el server: `Ctrl-P` y después `Ctrl-Q`.
+No uses `Ctrl-C`.
 
-Si `docker compose attach` no existe en tu versión:
+Fallback si `docker compose attach` no existe:
 
 ```bash
 docker attach $(docker compose ps -q server)
 ```
 
-Si el attach no toma input, recreá el contenedor para que tome `stdin_open` y
-`tty`:
+Si el attach no toma input, recreá el contenedor:
 
 ```bash
 docker compose up -d --force-recreate
