@@ -23,17 +23,18 @@ https://github.com/ferecece/speedrunlatam/releases/latest/download/server-templa
 El servidor necesita tres allocations:
 
 - juego: UDP/TCP
-- HTTP: TCP
+- descargas: TCP, servido por nginx
 - ASE: UDP en `puerto de juego + 123` (ej. `22003` → `22126`)
 
-El HTTP se configura con `SERVER_HTTP_PORT`. El puerto ASE lo deriva MTA
-automáticamente y solo hay que asignar la allocation.
+Las descargas se configuran con `SERVER_DOWNLOAD_PORT`. El HTTP interno de MTA
+queda en `22007` y no se asigna. El puerto ASE lo deriva MTA automáticamente y
+solo hay que asignar la allocation.
 
 ## Variables
 
 - `SERVER_NAME`: nombre visible en el navegador de servidores.
 - `SERVER_MAXPLAYERS`: cantidad máxima de jugadores. Default `70`.
 - `SERVER_FPSLIMIT`: FPS máximo de los clientes. Default `300`, `0` usa el ajuste del cliente.
-- `SERVER_HTTP_PORT`: puerto HTTP asignado.
+- `SERVER_DOWNLOAD_PORT`: puerto público de descargas (nginx).
 - `OWNER_EMAIL`: contacto del servidor. Opcional.
-- `HTTP_DOWNLOAD_URL`: URL externa de resources. Opcional.
+- `HTTP_DOWNLOAD_URL`: URL pública de descargas. Debe apuntar al puerto de descargas.
