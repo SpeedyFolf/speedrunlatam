@@ -23,15 +23,23 @@ docker compose up
 
 ## Consola del server
 
-El `compose.yaml` expone stdin y TTY, así que el server acepta comandos.
+`docker compose up` no reenvía stdin, solo logs. Para escribir comandos hay que
+adjuntarse al contenedor.
 
-Con el server en primer plano:
+Con el script del repo:
 
 ```bash
-docker compose up
+./scripts/console.sh
 ```
 
-Escribí el comando en la terminal. Ejemplos:
+Equivale a:
+
+```bash
+docker compose up -d --wait
+docker compose attach server
+```
+
+Escribí el comando en la terminal:
 
 ```text
 say hola
@@ -39,20 +47,19 @@ start editor
 shutdown
 ```
 
-En segundo plano:
-
-```bash
-docker compose up -d
-docker compose attach server
-```
-
-Para salir del attach sin apagar el server: `Ctrl-P` y después `Ctrl-Q`.
-`Ctrl-C` detiene el contenedor.
+Para salir de la consola sin apagar el server: `Ctrl-P` y después `Ctrl-Q`.
 
 Si `docker compose attach` no existe en tu versión:
 
 ```bash
 docker attach $(docker compose ps -q server)
+```
+
+Si el attach no toma input, recreá el contenedor para que tome `stdin_open` y
+`tty`:
+
+```bash
+docker compose up -d --force-recreate
 ```
 
 ## Editar mapas y resources
