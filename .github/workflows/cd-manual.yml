@@ -40,6 +40,45 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: API endpoint diagnostic
+        if: inputs.action == 'preflight'
+        env:
+          PTERODACTYL_URL: ${{ secrets.PTERODACTYL_URL }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import socket
+          import ssl
+          import urllib.parse
+
+          url = os.environ.get("PTERODACTYL_URL", "")
+          parsed = urllib.parse.urlparse(url)
+          host = parsed.hostname
+          port = parsed.port or (443 if parsed.scheme == "https" else 80)
+          print(f"scheme={parsed.scheme} port={port} host_len={len(host or '')}")
+          try:
+              infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+          except Exception as exc:
+              print("dns_error", type(exc).__name__, str(exc)[:200])
+              raise SystemExit(0)
+          ips = sorted({info[4][0] for info in infos})
+          print("resolved_ips", ips)
+          for ip in ips:
+              print("trying", ip)
+              try:
+                  sock = socket.create_connection((ip, port), timeout=10)
+                  print("tcp_ok", ip)
+                  if parsed.scheme == "https":
+                      context = ssl.create_default_context()
+                      tls = context.wrap_socket(sock, server_hostname=host)
+                      print("tls_ok", ip, tls.version())
+                      tls.close()
+                  else:
+                      sock.close()
+              except Exception as exc:
+                  print("connect_error", ip, type(exc).__name__, str(exc)[:200])
+          PY
+
       - name: Run deploy tool
         env:
           GITHUB_TOKEN: ${{ github.token }}
