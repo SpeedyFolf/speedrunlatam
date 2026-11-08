@@ -217,6 +217,46 @@
       "user_editable": true,
       "rules": "nullable|string",
       "field_type": "text"
+    },
+    {
+      "name": "Deploy Agent",
+      "description": "Activa el agente de actualización en caliente. 1 lo arranca en background; 0 lo desactiva. No hace nada hasta que GitHub Actions escribe un pedido en .deploy/request.json.",
+      "env_variable": "DEPLOY_AGENT",
+      "default_value": "1",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|in:0,1",
+      "field_type": "text"
+    },
+    {
+      "name": "Deploy Repository",
+      "description": "Repositorio de GitHub del que se aceptan releases. El agente rechaza cualquier otro repo.",
+      "env_variable": "DEPLOY_ALLOWED_REPO",
+      "default_value": "ferecece/speedrunlatam",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:120",
+      "field_type": "text"
+    },
+    {
+      "name": "Deploy Backup Keep",
+      "description": "Cantidad de snapshots de DB/ghosts/autologin y backups de código que se conservan.",
+      "env_variable": "DEPLOY_BACKUP_KEEP",
+      "default_value": "3",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|integer|between:1,20",
+      "field_type": "text"
+    },
+    {
+      "name": "Deploy Max Asset MB",
+      "description": "Tamaño máximo del bundle de actualización que el agente acepta descargar.",
+      "env_variable": "DEPLOY_MAX_ASSET_MB",
+      "default_value": "160",
+      "user_viewable": false,
+      "user_editable": true,
+      "rules": "required|integer|between:1,1024",
+      "field_type": "text"
     }
   ]
 }

@@ -1,10 +1,16 @@
 .env
 server-template.tar.gz
 .DS_Store
+dist/
+__pycache__/
+*.pyc
+.pytest_cache/
 
 # Local server runtime
 server/logs/
 server/ghosts_server/ghosts/
+server/.deploy/
+server/version.json
 server/mods/deathmatch/logs/
 server/mods/deathmatch/resource-cache/
 server/mods/deathmatch/backups/

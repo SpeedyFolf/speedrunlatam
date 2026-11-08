@@ -11,7 +11,7 @@ ghcr.io/ferecece/speedrunlatam:latest
 ## Estructura
 
 ```text
-docker/              Imagen runtime, entrypoint e instalador
+docker/              Imagen runtime, entrypoint, instalador y agente de deploy
 server/              Template del volumen del servidor
 pterodactyl/         Egg de Speedrun LATAM
 docs/                Desarrollo y despliegue
@@ -61,19 +61,28 @@ El instalador descarga el template desde GitHub Releases y conserva:
 - `neon-identity.keys`
 - `databases/`
 - `autologin/encryption_key.txt`
+- `race_ghost/ghosts/`
 - `ghosts_server/ghosts/`
+- `.deploy/` (estado y backups del agente)
 
 ## Actualizaciones
 
 Cada tag `v*`:
 
-1. GitHub Actions construye la imagen.
-2. GitHub Actions publica `server-template.tar.gz` en el release.
-3. En Pterodactyl, Reinstall ejecuta el instalador.
-4. El instalador hace backup y sincroniza los archivos administrados.
-5. Las cuentas, toptimes y ghosts quedan intactos.
+1. GitHub Actions construye la imagen y publica `server-template.tar.gz`,
+   `server-update.tar.gz` y `update.json`.
+2. Si `CD_ENABLED=true`, el job de deploy aplica el delta por la API del panel.
+3. El agente valida el bundle, hace un snapshot de DB/ghosts/autologin y aplica
+   los archivos.
+4. El panel recarga los resources con comandos MTA (`stop`, `refresh`, `start`,
+   `restart`) sin reiniciar la instancia.
+5. Un `power restart` corto solo es necesario si cambia el binario o
+   `mtaserver.conf.template`.
+6. Reinstall solo hace falta si cambia `docker/**` o en el primer rollout del
+   agente.
 
-No se debe editar el volumen de producción para cambios permanentes. Los cambios van en `server/` y se publican con un tag.
+No se debe editar el volumen de producción para cambios permanentes. Los cambios van en `server/` y se publican con un tag. La guía de CD está en
+[docs/cd.md](docs/cd.md).
 
 ## Primer uso
 

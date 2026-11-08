@@ -3,7 +3,7 @@ set -u
 
 cd /home/container || exit 1
 
-mkdir -p /home/container/logs /home/container/ghosts_server/ghosts
+mkdir -p /home/container/logs /home/container/ghosts_server/ghosts /home/container/.deploy
 
 # Per-deployment secrets that must never be committed.
 AUTOLOGIN_KEY="/home/container/mods/deathmatch/resources/[managers]/autologin/encryption_key.txt"
@@ -109,6 +109,27 @@ if [ -f /opt/ghosts_server/main.py ]; then
             /opt/ghosts-venv/bin/gunicorn --bind 127.0.0.1:5000 --workers 2 main:app \
             >>/home/container/logs/ghosts.log 2>&1
     ) &
+fi
+
+# Record the boot id so the update agent can distinguish a fresh boot from
+# a supervisor restart inside the same container.
+printf '%s-%s\n' "$(date +%s%N)" "$$" > /home/container/.deploy/boot_id
+
+# Start the update agent.  It is idle until the panel writes a request.
+if [ "${DEPLOY_AGENT:-1}" = "1" ]; then
+    export PYTHONPATH="/opt${PYTHONPATH:+:$PYTHONPATH}"
+    (
+        while true; do
+            PYTHONUNBUFFERED=1 python3 -m deploy_agent
+            rc=$?
+            if [ "$rc" -eq 0 ]; then
+                sleep 30
+            else
+                sleep 5
+            fi
+        done
+    ) &
+    echo "[entrypoint] update agent started"
 fi
 
 STARTUP="${STARTUP:-./mta-server64 --port 22003 --httpport 22007 -n}"
