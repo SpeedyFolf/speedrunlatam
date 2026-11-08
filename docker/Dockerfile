@@ -33,6 +33,8 @@ RUN python3 -m venv /opt/ghosts-venv \
 
 COPY entrypoint.sh /entrypoint.sh
 COPY install-server.sh /opt/install-server.sh
+COPY sync-excludes.txt /opt/sync-excludes.txt
+COPY deploy_agent /opt/deploy_agent
 COPY nginx/nginx.conf.template /opt/nginx/nginx.conf.template
 RUN chmod +x /entrypoint.sh /opt/install-server.sh
 

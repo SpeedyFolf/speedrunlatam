@@ -67,26 +67,15 @@ if [ -f "$TARGET/mta-server64" ]; then
 fi
 
 # Managed files are replaced. Runtime data and per-deployment secrets stay.
-# On a fresh install acl.xml/settings.xml do not exist yet, so they must come
-# from the template. On updates they are preserved.
-RSYNC_EXCLUDES=(
-    --exclude='/mods/deathmatch/registry.db'
-    --exclude='/mods/deathmatch/internal.db'
-    --exclude='/mods/deathmatch/banlist.xml'
-    --exclude='/mods/deathmatch/server-id.keys'
-    --exclude='/mods/deathmatch/neon-identity.keys'
-    --exclude='/mods/deathmatch/databases/'
-    --exclude='/mods/deathmatch/resource-cache/'
-    --exclude='/mods/deathmatch/logs/'
-    --exclude='/mods/deathmatch/backups/'
-    --exclude='/mods/deathmatch/dumps/'
-    --exclude='/mods/deathmatch/mtaserver.conf'
-    --exclude='*/autologin/encryption_key.txt'
-    --exclude='race_ghost/ghosts/'
-    --exclude='/ghosts_server/ghosts/'
-    --exclude='/logs/'
-    --exclude='/backups/'
-)
+# The shared exclude file is baked into the image and also used by the
+# hot-update agent. On a fresh install acl.xml/settings.xml do not exist yet,
+# so they must come from the template. On updates they are preserved.
+EXCLUDES_FILE="/opt/sync-excludes.txt"
+if [ ! -f "$EXCLUDES_FILE" ]; then
+    echo "[install] missing $EXCLUDES_FILE" >&2
+    exit 1
+fi
+RSYNC_EXCLUDES=(--exclude-from="$EXCLUDES_FILE")
 
 if [ -f "$TARGET/mods/deathmatch/acl.xml" ]; then
     RSYNC_EXCLUDES+=(
@@ -99,6 +88,71 @@ rsync -a --delete "${RSYNC_EXCLUDES[@]}" "$SRC/" "$TARGET/"
 
 mkdir -p "$TARGET/ghosts_server/ghosts" "$TARGET/logs"
 mkdir -p "$TARGET/mods/deathmatch/resources/[gamemodes]/[race]/[addons]/race_ghost/ghosts"
+mkdir -p "$TARGET/.deploy"
+
+# Record which release was installed. The agent uses this marker to reconcile
+# its current tag after a Reinstall. Old templates do not carry version.json,
+# so fall back to resolving the tag from the release URL redirect.
+TEMPLATE_TAG=""
+if [ -f "$SRC/version.json" ]; then
+    TEMPLATE_TAG=$(python3 - "$SRC/version.json" <<'PY'
+import json
+import sys
+
+try:
+    with open(sys.argv[1], encoding="utf-8") as handle:
+        print(json.load(handle).get("tag") or "")
+except (OSError, ValueError):
+    print("")
+PY
+)
+fi
+if [ -z "$TEMPLATE_TAG" ]; then
+    # A tag-specific URL already contains the tag.
+    TEMPLATE_TAG=$(printf '%s' "$URL" | sed -n 's#.*/releases/download/\([^/]*\)/.*#\1#p' || true)
+fi
+if [ -z "$TEMPLATE_TAG" ]; then
+    # "latest" redirects to a signed asset URL that does not contain the tag.
+    # Ask the GitHub API for the latest non-prerelease tag instead.
+    API_JSON=$(curl "${CURL_ARGS[@]}" -sS "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null || true)
+    TEMPLATE_TAG=$(printf '%s' "$API_JSON" | python3 -c '
+import json
+import sys
+
+try:
+    data = json.load(sys.stdin)
+    print(data.get("tag_name") or "")
+except (ValueError, OSError):
+    print("")
+' 2>/dev/null || true)
+fi
+if [ -z "$TEMPLATE_TAG" ]; then
+    EFFECTIVE_URL=$(curl "${CURL_ARGS[@]}" -sIL -o /dev/null -w '%{url_effective}' "$URL" 2>/dev/null || true)
+    TEMPLATE_TAG=$(printf '%s' "$EFFECTIVE_URL" | sed -n 's#.*/releases/download/\([^/]*\)/.*#\1#p' || true)
+fi
+if [ -z "$TEMPLATE_TAG" ]; then
+    TEMPLATE_TAG="unknown"
+fi
+
+python3 - "$TARGET/.deploy/installed.json" "$TEMPLATE_TAG" "$URL" <<'PY'
+import json
+import sys
+from datetime import datetime, timezone
+
+target, tag, url = sys.argv[1], sys.argv[2], sys.argv[3]
+payload = {
+    "schema": 1,
+    "tag": tag,
+    "source": "install",
+    "template_url": url,
+    "installed_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+}
+with open(target, "w", encoding="utf-8") as handle:
+    json.dump(payload, handle, indent=2, sort_keys=True)
+    handle.write("\n")
+PY
+
+echo "[install] installed tag: $TEMPLATE_TAG"
 
 if [ "$(id -u)" = "0" ]; then
     chown -R "${PUID:-999}:${PGID:-988}" "$TARGET"

@@ -1,0 +1,19 @@
+# Runtime data that must never be replaced by an update.
+# Used by install-server.sh (rsync --exclude-from) and by update-agent.py.
+/mods/deathmatch/registry.db
+/mods/deathmatch/internal.db
+/mods/deathmatch/banlist.xml
+/mods/deathmatch/server-id.keys
+/mods/deathmatch/neon-identity.keys
+/mods/deathmatch/databases/
+/mods/deathmatch/resource-cache/
+/mods/deathmatch/logs/
+/mods/deathmatch/backups/
+/mods/deathmatch/dumps/
+/mods/deathmatch/mtaserver.conf
+*/autologin/encryption_key.txt
+race_ghost/ghosts/
+/ghosts_server/ghosts/
+/logs/
+/backups/
+/.deploy/

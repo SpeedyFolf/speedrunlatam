@@ -1,0 +1,62 @@
+name: cd-manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Operation to run
+        required: true
+        type: choice
+        default: preflight
+        options:
+          - preflight
+          - deploy
+          - rollback
+      tag:
+        description: Release tag (required for deploy; optional for rollback)
+        required: false
+        type: string
+      allow_reinstall:
+        description: Allow a Pterodactyl Reinstall if the release changed docker/**
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 30
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run deploy tool
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PTERODACTYL_URL: ${{ secrets.PTERODACTYL_URL }}
+          PTERODACTYL_API_KEY: ${{ secrets.PTERODACTYL_API_KEY }}
+          PTERODACTYL_SERVER_ID: ${{ secrets.PTERODACTYL_SERVER_ID }}
+          DEPLOY_ANNOUNCE: ${{ vars.CD_ANNOUNCE || '0' }}
+          DEPLOY_DELAY_GAMEMODE: ${{ vars.CD_DELAY_GAMEMODE || '30' }}
+          DEPLOY_DELAY_RESOURCE: ${{ vars.CD_DELAY_RESOURCE || '10' }}
+          DEPLOY_DELAY_RESTART: ${{ vars.CD_DELAY_RESTART || '30' }}
+        run: |
+          ARGS=(--action "${{ inputs.action }}")
+          if [ -n "${{ inputs.tag }}" ]; then
+            ARGS+=(--tag "${{ inputs.tag }}")
+          fi
+          if [ "${{ inputs.allow_reinstall }}" = "true" ]; then
+            ARGS+=(--allow-reinstall)
+          fi
+          ARGS+=(--auto-rollback)
+          python3 scripts/deploy.py "${ARGS[@]}"

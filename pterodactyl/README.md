@@ -38,3 +38,32 @@ solo hay que asignar la allocation.
 - `SERVER_DOWNLOAD_PORT`: puerto público de descargas (nginx).
 - `OWNER_EMAIL`: contacto del servidor. Opcional.
 - `HTTP_DOWNLOAD_URL`: URL pública de descargas. Debe apuntar al puerto de descargas.
+- `DEPLOY_AGENT`: `1` arranca el agente de actualización en caliente; `0` lo apaga. Default `1`.
+- `DEPLOY_ALLOWED_REPO`: repo del que se aceptan releases. Default `ferecece/speedrunlatam`.
+- `DEPLOY_BACKUP_KEEP`: snapshots de DB/ghosts/autologin y backups de código a conservar. Default `3`.
+- `DEPLOY_MAX_ASSET_MB`: tamaño máximo del bundle de actualización. Default `160`.
+
+## Actualizaciones en caliente
+
+La imagen incluye `deploy_agent`, que corre en background y no hace nada hasta
+que el panel escribe un pedido en `.deploy/request.json`. El agente no abre
+puertos nuevos y no manda comandos a la consola: solo descarga, valida, hace
+backup y aplica archivos. Los comandos MTA los manda GitHub Actions por la API
+Client del panel.
+
+Para usar el CD en una instancia propia:
+
+1. Crear un usuario dedicado, agregarlo como subuser del server y crear una API
+   key Client con `control.console`, `control.restart`, `file.read-content`,
+   `file.create` y `file.update`.
+2. Cargar `PTERODACTYL_URL`, `PTERODACTYL_API_KEY` y `PTERODACTYL_SERVER_ID`
+   como secretos del repo de GitHub.
+3. Poner `CD_ENABLED=true` como variable del repo.
+4. Hacer un Reinstall inicial para que la imagen incluya el agente.
+
+Los detalles están en `docs/cd.md` del repositorio.
+
+El agente guarda los datos sensibles antes de cada deploy en
+`.deploy/backups/<fecha>-<tag>/sensitive/`: `registry.db`, `internal.db`,
+`databases/`, `race_ghost/ghosts/`, `ghosts_server/ghosts/` y la clave de
+autologin.

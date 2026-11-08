@@ -3,22 +3,97 @@ name: server-template
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to build, for example v1.6.0
+        required: true
+        type: string
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+          fetch-depth: 0
 
-      - name: Build template archive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Record tag
+        id: vars
+        run: echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Build release assets
         run: |
-          tar -czf server-template.tar.gz -C server .
+          PREVIOUS=$(git describe --tags --abbrev=0 --match 'v*' "${RELEASE_TAG}^" 2>/dev/null || true)
+          echo "building $RELEASE_TAG from ${PREVIOUS:-<none>}"
+          python3 scripts/build-release.py \
+            --tag "$RELEASE_TAG" \
+            --previous-tag "$PREVIOUS" \
+            --repo "$GITHUB_REPOSITORY" \
+            --out dist
+
+      - name: Upload manifest artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-manifest
+          path: dist/update.json
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: server-template.tar.gz
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: dist/*
+          prerelease: ${{ contains(env.RELEASE_TAG, '-') }}
           generate_release_notes: true
+
+  deploy:
+    needs: build
+    if: vars.CD_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-manifest
+          path: dist
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Deploy through the panel API
+        env:
+          PTERODACTYL_URL: ${{ secrets.PTERODACTYL_URL }}
+          PTERODACTYL_API_KEY: ${{ secrets.PTERODACTYL_API_KEY }}
+          PTERODACTYL_SERVER_ID: ${{ secrets.PTERODACTYL_SERVER_ID }}
+          DEPLOY_ANNOUNCE: ${{ vars.CD_ANNOUNCE || '0' }}
+          DEPLOY_DELAY_GAMEMODE: ${{ vars.CD_DELAY_GAMEMODE || '30' }}
+          DEPLOY_DELAY_RESOURCE: ${{ vars.CD_DELAY_RESOURCE || '10' }}
+          DEPLOY_DELAY_RESTART: ${{ vars.CD_DELAY_RESTART || '30' }}
+        run: |
+          python3 scripts/deploy.py \
+            --tag "${{ needs.build.outputs.tag }}" \
+            --manifest dist/update.json \
+            --auto-rollback
