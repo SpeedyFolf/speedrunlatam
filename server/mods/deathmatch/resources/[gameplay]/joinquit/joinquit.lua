@@ -1,3 +1,5 @@
+-- CD smoke test rc1: safe no-op
+
 local resourceName = getResourceName(getThisResource())
 local settingPrefix = string.format("*%s.", resourceName)
 
