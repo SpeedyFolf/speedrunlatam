@@ -120,6 +120,26 @@ class ReleaseTests(DeployTestCase):
                 allowed_paths={"mods/deathmatch/resources/x/link"},
             )
 
+    def test_extract_template_allows_parent_directories(self) -> None:
+        cfg = self.config()
+        path = self.root / "template.tar.gz"
+        with tarfile.open(path, "w:gz") as archive:
+            for rel in ("mods", "mods/deathmatch", "mods/deathmatch/resources", "x64"):
+                info = tarfile.TarInfo(rel)
+                info.type = tarfile.DIRTYPE
+                info.mode = 0o755
+                archive.addfile(info)
+            data = b"binary"
+            info = tarfile.TarInfo("x64/deathmatch.so")
+            info.size = len(data)
+            info.mode = 0o755
+            archive.addfile(info, io.BytesIO(data))
+        staging = self.root / "staging-template"
+        extracted = release.extract_asset(path, staging, cfg, allow_managed=True)
+        self.assertEqual(extracted, ["x64/deathmatch.so"])
+        self.assertTrue((staging / "mods/deathmatch/resources").is_dir())
+        self.assertEqual((staging / "x64/deathmatch.so").read_bytes(), b"binary")
+
     def test_verify_hashes(self) -> None:
         cfg = self.config()
         staging = self.root / "staging"

@@ -18,7 +18,9 @@ from .paths import (
     PathError,
     ensure_managed,
     is_managed,
+    is_managed_ancestor,
     is_runtime,
+    is_runtime_ancestor,
     is_under,
     normalize,
 )
@@ -289,9 +291,13 @@ def extract_asset(
                         is_under(rel, prefix) for prefix in allowed_prefixes
                     ):
                         raise DeployError("E_TAR", f"unexpected directory in bundle: {rel}")
-                    if allow_managed and not is_managed(rel):
-                        if not is_runtime(rel):
-                            raise DeployError("E_TAR", f"directory is not managed: {rel}")
+                    if allow_managed and not (
+                        is_managed(rel)
+                        or is_runtime(rel)
+                        or is_managed_ancestor(rel)
+                        or is_runtime_ancestor(rel)
+                    ):
+                        raise DeployError("E_TAR", f"directory is not managed: {rel}")
                         if rel.startswith(".deploy"):
                             raise DeployError("E_TAR", f"refusing to stage {rel}")
                     (staging / rel).mkdir(parents=True, exist_ok=True)

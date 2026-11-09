@@ -106,6 +106,28 @@ def is_resource_path(rel: str) -> bool:
     return is_under(rel, RESOURCE_ROOT)
 
 
+def _is_ancestor_of(rel: str, candidates: tuple[str, ...]) -> bool:
+    rel = normalize(rel).rstrip("/")
+    for candidate in candidates:
+        candidate = candidate.rstrip("/")
+        if candidate == rel or candidate.startswith(rel + "/"):
+            return True
+    return False
+
+
+def is_managed_ancestor(rel: str) -> bool:
+    """Whether rel is a parent directory of a managed path.
+
+    Full templates contain directory entries such as ``mods`` or ``x64`` that
+    are not managed paths themselves but are needed to create their children.
+    """
+    return _is_ancestor_of(rel, (*MANAGED_EXACT, *MANAGED_PREFIXES))
+
+
+def is_runtime_ancestor(rel: str) -> bool:
+    return _is_ancestor_of(rel, (*RUNTIME_EXACT, *RUNTIME_PREFIXES))
+
+
 def is_managed(rel: str) -> bool:
     """Whether a release is allowed to manage this path at all."""
     rel = normalize(rel)

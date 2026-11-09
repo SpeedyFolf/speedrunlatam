@@ -9,6 +9,10 @@ on:
         description: Release tag to build, for example v1.6.0
         required: true
         type: string
+      previous_tag:
+        description: Deployed tag to diff from (empty = latest reachable tag)
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -36,7 +40,10 @@ jobs:
 
       - name: Build release assets
         run: |
-          PREVIOUS=$(git describe --tags --abbrev=0 --match 'v*' "${RELEASE_TAG}^" 2>/dev/null || true)
+          PREVIOUS="${{ inputs.previous_tag }}"
+          if [ -z "$PREVIOUS" ]; then
+            PREVIOUS=$(git describe --tags --abbrev=0 --match 'v*' "${RELEASE_TAG}^" 2>/dev/null || true)
+          fi
           echo "building $RELEASE_TAG from ${PREVIOUS:-<none>}"
           python3 scripts/build-release.py \
             --tag "$RELEASE_TAG" \
