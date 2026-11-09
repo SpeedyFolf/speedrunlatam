@@ -259,6 +259,7 @@ class Options:
     poll_interval: float
     auto_rollback: bool
     allow_reinstall: bool
+    allow_image_current: bool
     dry_run: bool
     preflight_console: bool
 
@@ -342,6 +343,8 @@ class Deployer:
             "repo": self.opts.repo,
             **fields,
         }
+        if action == "prepare" and self.opts.allow_image_current:
+            payload["image_current"] = True
         self.api.write_file(
             "/.deploy/request.json",
             json.dumps(payload).encode("utf-8"),
@@ -480,6 +483,21 @@ class Deployer:
     # -- actions --------------------------------------------------------
     def deploy(self) -> int:
         mode = str(self.manifest.get("mode") or "")
+        if mode == "recreate" and self.opts.allow_image_current:
+            # The image was already updated (Reinstall). Rewrite the manifest
+            # for the agent that is already running in the container, which may
+            # predate the image_current request flag.
+            self.manifest = dict(self.manifest)
+            self.manifest["mode"] = (
+                "restart" if self.manifest.get("requires_process_restart") else "hot"
+            )
+            self.manifest["requires_container_recreate"] = False
+            self.manifest["image_current_override"] = True
+            mode = str(self.manifest["mode"])
+            self.note(
+                "docker/** changed, but the image is already current; "
+                "applying only the server-side changes"
+            )
         if mode in {"noop", "manual"}:
             self.note(f"nothing to deploy (mode={mode})")
             if self.manifest.get("changes", {}).get("manual"):
@@ -494,7 +512,8 @@ class Deployer:
             if not self.opts.allow_reinstall:
                 raise DeployFailure(
                     "this release changed docker/** and requires a Reinstall; "
-                    "run again with --allow-reinstall if you accept the downtime"
+                    "run again with --allow-reinstall if you accept the downtime, "
+                    "or --allow-image-current if the Reinstall was already done"
                 )
             self.note("calling Pterodactyl Reinstall")
             self.api.reinstall()
@@ -633,6 +652,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--poll-interval", type=float, default=3.0)
     parser.add_argument("--auto-rollback", action="store_true")
     parser.add_argument("--allow-reinstall", action="store_true")
+    parser.add_argument("--allow-image-current", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--preflight-console", action="store_true")
     return parser
@@ -674,6 +694,7 @@ def main(argv: list[str] | None = None) -> int:
         poll_interval=args.poll_interval,
         auto_rollback=args.auto_rollback,
         allow_reinstall=args.allow_reinstall,
+        allow_image_current=args.allow_image_current,
         dry_run=args.dry_run,
         preflight_console=args.preflight_console,
     )

@@ -109,6 +109,7 @@ def options(**overrides) -> Options:
         poll_interval=0.01,
         auto_rollback=False,
         allow_reinstall=False,
+        allow_image_current=False,
         dry_run=False,
         preflight_console=False,
     )
@@ -153,6 +154,29 @@ class DeployOrchestrationTests(DeployTestCase):
         deployer = Deployer(api, manifest, options())  # type: ignore[arg-type]
         self.assertEqual(deployer.deploy(), 0)
         self.assertEqual(api.commands, [])
+
+    def test_recreate_can_use_current_image(self) -> None:
+        plan = {
+            "mode": "hot",
+            "requires_process_restart": False,
+            "commands_before_apply": [],
+            "commands_after_apply": ["restart joinquit"],
+            "resources": {"gamemodes": []},
+        }
+        manifest = {
+            "tag": "v1.1.0",
+            "mode": "recreate",
+            "requires_container_recreate": True,
+        }
+        api = FakeApi(plan)
+        deployer = Deployer(
+            api,
+            manifest,
+            options(allow_image_current=True),
+        )  # type: ignore[arg-type]
+        self.assertEqual(deployer.deploy(), 0)
+        self.assertEqual(api.commands, ["restart joinquit"])
+        self.assertEqual(api.power_signals, [])
 
     def test_rollback(self) -> None:
         plan = {

@@ -117,7 +117,10 @@ class Config:
 
     @property
     def server_log(self) -> Path:
-        return self.logs_dir / "server.log"
+        # MTA runs from mods/deathmatch, so <logfile>logs/server.log</logfile>
+        # resolves there. The container-level logs/ directory is for the agent,
+        # nginx and the ghosts API.
+        return self.target / "mods/deathmatch/logs/server.log"
 
     @property
     def sync_excludes(self) -> Path:
