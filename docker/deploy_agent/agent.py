@@ -332,11 +332,17 @@ class Agent:
         previous_tag = str(manifest.get("previous_tag") or "") or None
 
         if manifest.get("mode") == "recreate" or manifest.get("requires_container_recreate"):
-            raise DeployError(
-                "E_RECREATE_REQUIRED",
-                "This release changed the container image (docker/**). "
-                "Reinstall the server to apply it.",
-            )
+            if request.get("image_current"):
+                manifest = dict(manifest)
+                manifest["mode"] = "hot"
+                manifest["requires_container_recreate"] = False
+                log.info("image_current override: applying server changes without Reinstall")
+            else:
+                raise DeployError(
+                    "E_RECREATE_REQUIRED",
+                    "This release changed the container image (docker/**). "
+                    "Reinstall the server to apply it.",
+                )
 
         force_full = False
         reasons: list[str] = []

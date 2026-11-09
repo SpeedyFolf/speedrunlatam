@@ -55,7 +55,8 @@ class AgentFlowTests(DeployTestCase):
         cfg.current_path.write_text(
             json.dumps({"schema": 1, "tag": "v1.0.0"}), encoding="utf-8"
         )
-        (cfg.logs_dir / "server.log").write_text("", encoding="utf-8")
+        (cfg.server_log.parent).mkdir(parents=True, exist_ok=True)
+        cfg.server_log.write_text("", encoding="utf-8")
         return cfg
 
     def _manifest(self, cfg, *, mode: str, changes: dict, asset: bytes, files: dict | None = None, template: bytes | None = None):
@@ -127,7 +128,7 @@ class AgentFlowTests(DeployTestCase):
         self.assertEqual(agent.store.current()["tag"], "v1.1.0")
         self.assertEqual(agent.store.version()["tag"], "v1.1.0")
 
-        with (cfg.logs_dir / "server.log").open("a", encoding="utf-8") as handle:
+        with cfg.server_log.open("a", encoding="utf-8") as handle:
             handle.write("Resource 'race' started\n")
         agent.handle_verify({"id": "d1", "action": "verify"})
         status = agent.store.status()
@@ -179,7 +180,7 @@ class AgentFlowTests(DeployTestCase):
         self.assertEqual(agent.store.status()["phase"], "awaiting_restart")
 
         offset = agent.boot_offset
-        with (cfg.logs_dir / "server.log").open("a", encoding="utf-8") as handle:
+        with cfg.server_log.open("a", encoding="utf-8") as handle:
             handle.write("Server started and is ready to accept connections!\n")
             handle.write("Resource 'race' started\n")
         agent.boot_offset = offset
@@ -289,6 +290,33 @@ class AgentFlowTests(DeployTestCase):
                 }
             )
         self.assertEqual(raised.exception.code, "E_RECREATE_REQUIRED")
+
+    def test_recreate_can_be_overridden_when_image_is_current(self) -> None:
+        cfg = self._cfg_with_tree()
+        asset = self._tar("server-update.tar.gz", {RACE_FILE: b"-- new\n"})
+        self._manifest(
+            cfg,
+            mode="recreate",
+            changes={"modified": [RACE_FILE], "added": [], "deleted": []},
+            asset=asset,
+            files={RACE_FILE: sha256_bytes(b"-- new\n")},
+        )
+        agent = Agent(cfg)
+        agent.handle_prepare(
+            {
+                "schema": 1,
+                "id": "x2",
+                "action": "prepare",
+                "repo": "test/repo",
+                "tag": "v1.1.0",
+                "manifest_path": ".deploy/download/update.json",
+                "image_current": True,
+            }
+        )
+        status = agent.store.status()
+        self.assertEqual(status["phase"], "prepared")
+        self.assertFalse(status["plan"]["requires_container_recreate"])
+        self.assertEqual(status["plan"]["commands_after_apply"], ["restart race"])
 
     def test_full_fallback_for_unknown_tag(self) -> None:
         cfg = self.config()

@@ -21,6 +21,11 @@ on:
         required: false
         type: boolean
         default: false
+      allow_image_current:
+        description: The container image was already updated; apply only server-side changes
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -96,6 +101,9 @@ jobs:
           fi
           if [ "${{ inputs.allow_reinstall }}" = "true" ]; then
             ARGS+=(--allow-reinstall)
+          fi
+          if [ "${{ inputs.allow_image_current }}" = "true" ]; then
+            ARGS+=(--allow-image-current)
           fi
           ARGS+=(--auto-rollback)
           python3 scripts/deploy.py "${ARGS[@]}"

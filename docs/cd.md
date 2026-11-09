@@ -60,6 +60,7 @@ En GitHub → Settings → Secrets and variables → Actions → Variables:
 | `CD_DELAY_GAMEMODE` | `30` | Segundos si cambia un gamemode |
 | `CD_DELAY_RESOURCE` | `10` | Segundos si solo cambian resources normales |
 | `CD_DELAY_RESTART` | `30` | Segundos antes de un `power restart` |
+| `CD_IMAGE_CURRENT` | `false` | `true` solo para el primer release posterior a un Reinstall: el diff incluye `docker/**` pero la imagen ya está actualizada |
 
 Mientras no haya usuarios, dejar `CD_ANNOUNCE=0`. Cuando haya jugadores,
 poner `1` y ajustar los delays.
@@ -78,6 +79,10 @@ El agente vive en la imagen. La primera vez hace falta **un Reinstall**:
    el primer RC tiene como `previous_tag` el último release estable instalado y
    se aplica como delta; si primero creás un estable, el RC puede necesitar el
    template completo.
+7. El primer release posterior al Reinstall incluye en su diff los cambios de
+   `docker/**` del rollout. Como la imagen ya se instaló, poné
+   `CD_IMAGE_CURRENT=true` para ese tag. Después volvelo a `false`: los releases
+   siguientes ya diffean contra el RC y no ven `docker/**`.
 
 Después de eso, los cambios de resources se aplican en caliente.
 
@@ -98,7 +103,7 @@ Después de eso, los cambios de resources se aplican en caliente.
    - `refresh` si hubo altas/bajas,
    - `start` de resources nuevos,
    - `restart` de resources modificados, con el gamemode al final.
-5. El agente verifica `logs/server.log` y marca `done` o `failed`.
+5. El agente verifica `mods/deathmatch/logs/server.log` y marca `done` o `failed`.
 6. El job publica un resumen en GitHub Actions.
 
 Si el plan pide `requires_process_restart` (cambió `mta-server64`, `x64/**` o
@@ -180,7 +185,7 @@ En cada RC verificar:
 
 - `docker inspect` del contenedor: `StartedAt` no cambia en hot.
 - PID de MTA: no cambia en hot.
-- `logs/server.log`: aparece el resource reiniciado.
+- `mods/deathmatch/logs/server.log`: aparece el resource reiniciado.
 - Conteos de `maptimes` y `accounts` contra el baseline.
 - `.deploy/backups/<fecha>-<tag>/` contiene el snapshot.
 
@@ -199,7 +204,7 @@ releases y el cliente de la API.
 - **`E_RECREATE_REQUIRED`**: el release cambió `docker/**`. Hacer Reinstall.
 - **`E_BASE_MISMATCH`**: el server está en un tag que no es el `previous_tag`
   del release. El agente intenta full template si existe; si no, Reinstall.
-- **`E_VERIFY`**: el resource no arrancó. Mirar `logs/server.log` y
+- **`E_VERIFY`**: el resource no arrancó. Mirar `mods/deathmatch/logs/server.log` y
   `logs/update-agent.log`; usar rollback.
 - **El job no corre**: `CD_ENABLED` no está en `true` o faltan secretos.
 - **El agente no está**: el contenedor es anterior al rollout; Reinstall una vez.
