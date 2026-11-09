@@ -41,7 +41,9 @@ Windows.
    "MTA Server64.exe" --config editor.conf
    ```
 
-6. En el cliente, entra al server `127.0.0.1:22010` desde la pestaña LAN.
+6. En el cliente de San Andreas Online agregá el server a mano con
+   `127.0.0.1:22010` y conectate. La UI de SA:O no tiene pestaña LAN ni lista
+   sola los servers locales: hay que ingresar IP y puerto manualmente.
 7. Crea el mapa y usa **Test** para probarlo con el `race` del template.
 
 El template solo aporta los resources del server. El cliente se instala aparte
@@ -49,8 +51,7 @@ con San Andreas Online. El template sale de cada tag `v*` y trae los mismos
 resources que producción. Si necesitas un cambio que todavía no salió en un
 release, usa el repo.
 
-Usa siempre `MTA Server64.exe`. No uses **Host Game** ni **Map Editor** del menú
-principal. Usa la misma build de cliente y server.
+Usa siempre `MTA Server64.exe` y la misma build de cliente y server.
 
 No hace falta saber Git: puedes adjuntar el `.zip` de tu mapa en el issue.
 
