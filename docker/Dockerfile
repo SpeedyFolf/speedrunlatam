@@ -41,7 +41,10 @@ RUN chmod +x /entrypoint.sh /opt/install-server.sh
 # Wings runs the server process with the configured pterodactyl user (999:988).
 # The installation container runs as root, which is required to read Wings'
 # 0700 installation directory mounted at /mnt/install. Do not set USER here.
-ENV USER=container HOME=/home/container
+# MTA reads its console via getwchar(). With the C/POSIX locale any non-ASCII
+# byte leaves stdin permanently broken until the process restarts, so keep the
+# server process in a UTF-8 locale.
+ENV USER=container HOME=/home/container LANG=C.UTF-8
 WORKDIR /home/container
 
 STOPSIGNAL SIGTERM

@@ -8,7 +8,15 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
 from . import DeployTestCase
-from deploy import Deployer, Options, PterodactylClient
+from deploy import (
+    Deployer,
+    DeployFailure,
+    Options,
+    PterodactylClient,
+    console_command,
+)
+
+SERVER_LOG = "/mods/deathmatch/logs/server.log"
 
 
 class FakeApi:
@@ -23,6 +31,7 @@ class FakeApi:
         self.restart = restart
         self.status: dict[str, Any] = {}
         self.online = True
+        self.console_ok = True
         self.writes: list[str] = []
 
     def ensure_online(self, timeout: int = 300) -> None:
@@ -76,8 +85,14 @@ class FakeApi:
             return json.dumps(self.status).encode("utf-8")
         return self.files.get(path)
 
-    def send_command(self, command: str) -> None:
+    def send_command(self, command: str) -> str:
         self.commands.append(command)
+        if self.console_ok and command.startswith("say "):
+            log = self.files.get(SERVER_LOG, b"")
+            self.files[SERVER_LOG] = (
+                log + f"CONSOLECHAT: {command[4:]}\n".encode("utf-8")
+            )
+        return command
 
     def power(self, signal: str) -> None:
         self.power_signals.append(signal)
@@ -112,6 +127,7 @@ def options(**overrides) -> Options:
         allow_image_current=False,
         dry_run=False,
         preflight_console=False,
+        console_check=False,
     )
     values.update(overrides)
     return Options(**values)
@@ -177,6 +193,54 @@ class DeployOrchestrationTests(DeployTestCase):
         self.assertEqual(deployer.deploy(), 0)
         self.assertEqual(api.commands, ["restart joinquit"])
         self.assertEqual(api.power_signals, [])
+
+    def test_hot_deploy_checks_console(self) -> None:
+        plan = {
+            "mode": "hot",
+            "requires_process_restart": False,
+            "commands_before_apply": [],
+            "commands_after_apply": ["restart joinquit"],
+            "resources": {"gamemodes": []},
+        }
+        manifest = {"tag": "v1.1.0", "mode": "hot"}
+        api = FakeApi(plan)
+        deployer = Deployer(
+            api,
+            manifest,
+            options(console_check=True, console_check_timeout=1),
+        )  # type: ignore[arg-type]
+        self.assertEqual(deployer.deploy(), 0)
+        self.assertEqual(api.commands[0], "say [deploy] console ok")
+        self.assertIn("restart joinquit", api.commands)
+        self.assertEqual(api.power_signals, [])
+
+    def test_dead_console_fails_before_apply(self) -> None:
+        plan = {
+            "mode": "hot",
+            "requires_process_restart": False,
+            "commands_before_apply": [],
+            "commands_after_apply": ["restart joinquit"],
+            "resources": {"gamemodes": []},
+        }
+        manifest = {"tag": "v1.1.0", "mode": "hot"}
+        api = FakeApi(plan)
+        api.console_ok = False
+        deployer = Deployer(
+            api,
+            manifest,
+            options(console_check=True, console_check_timeout=0),
+        )  # type: ignore[arg-type]
+        with self.assertRaises(DeployFailure) as ctx:
+            deployer.deploy()
+        self.assertIn("console input", str(ctx.exception))
+        self.assertNotIn("restart joinquit", api.commands)
+        self.assertEqual(api.power_signals, [])
+
+    def test_console_command_strips_non_ascii(self) -> None:
+        self.assertEqual(
+            console_command("say Actualización en 10s"),
+            "say Actualizacion en 10s",
+        )
 
     def test_rollback(self) -> None:
         plan = {
@@ -281,9 +345,12 @@ class ApiClientTests(DeployTestCase):
         client.write_file("/.deploy/ping.json", b'{"ok":true}')
         self.assertEqual(client.read_file("/.deploy/ping.json"), b'{"ok":true}')
         self.assertIsNone(client.read_file("/.deploy/missing.json"))
-        client.send_command("say test")
+        self.assertEqual(client.send_command("say test"), "say test")
+        self.assertEqual(
+            client.send_command("say Actualización"), "say Actualizacion"
+        )
         client.power("restart")
-        self.assertEqual(HttpHandler.commands, ["say test"])
+        self.assertEqual(HttpHandler.commands, ["say test", "say Actualizacion"])
         self.assertEqual(HttpHandler.power, ["restart"])
 
     def test_write_creates_parent_on_404(self) -> None:

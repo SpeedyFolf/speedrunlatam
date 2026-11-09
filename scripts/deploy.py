@@ -16,6 +16,7 @@ import json
 import os
 import sys
 import time
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -28,6 +29,24 @@ DEFAULT_REPO = "ferecece/speedrunlatam"
 DEFAULT_TIMEOUT = 900
 JSON_ACCEPT = "application/vnd.pterodactyl.v1+json"
 RETRY_STATUS = {429, 500, 502, 503, 504}
+SERVER_LOG = "/mods/deathmatch/logs/server.log"
+CONSOLE_MARKER = "[deploy] console ok"
+
+
+def console_command(command: str) -> str:
+    """Strip non-ASCII from a console command.
+
+    MTA reads stdin with getwchar(). Under the C/POSIX locale a non-ASCII byte
+    makes it fail with EILSEQ and stdin stays broken until the process is
+    restarted, so a single accented announce can kill the console for every
+    later command (restart, stop, shutdown...). The image now runs with a
+    UTF-8 locale, but keep commands ASCII as a second line of defence.
+    """
+    return (
+        unicodedata.normalize("NFKD", command)
+        .encode("ascii", "ignore")
+        .decode("ascii")
+    )
 
 
 class ApiError(RuntimeError):
@@ -182,8 +201,10 @@ class PterodactylClient:
     def power(self, signal: str) -> None:
         self._request("POST", self._url("/power"), json_body={"signal": signal})
 
-    def send_command(self, command: str) -> None:
-        self._request("POST", self._url("/command"), json_body={"command": command})
+    def send_command(self, command: str) -> str:
+        safe = console_command(command)
+        self._request("POST", self._url("/command"), json_body={"command": safe})
+        return safe
 
     def reinstall(self) -> None:
         self._request("POST", self._url("/settings/reinstall"), json_body={})
@@ -262,6 +283,8 @@ class Options:
     allow_image_current: bool
     dry_run: bool
     preflight_console: bool
+    console_check: bool = True
+    console_check_timeout: int = 20
 
 
 def env_flag(name: str, default: bool) -> bool:
@@ -396,10 +419,10 @@ class Deployer:
 
     def _execute(self, commands: list[str]) -> None:
         for command in commands:
-            print(f"[mta] {command}")
-            self.api.send_command(command)
+            sent = self.api.send_command(command)
+            print(f"[mta] {sent}")
             time.sleep(max(self.opts.command_delay, 0.2))
-            if command == "refresh":
+            if sent.strip() == "refresh":
                 time.sleep(2)
 
     def _recover(self, plan: dict[str, Any]) -> None:
@@ -428,11 +451,47 @@ class Deployer:
         delay = self._delay()
         if delay <= 0:
             return
+        # Keep the console command ASCII: see console_command().
         self.api.send_command(
-            f"say [deploy] Actualización en {delay}s. El server sigue online."
+            f"say [deploy] Actualizacion en {delay}s. El server sigue online."
         )
         self.note(f"announced {delay}s before reload")
         time.sleep(delay)
+
+    def _console_log(self) -> bytes:
+        try:
+            return self.api.read_file(SERVER_LOG) or b""
+        except ApiError as exc:
+            if exc.status in {404, 500}:
+                return b""
+            raise
+
+    def _check_console(self, timeout: int | None = None) -> None:
+        """Fail fast when MTA is not consuming console input.
+
+        MTA logs `CONSOLECHAT: <text>` for a console `say`, so the marker only
+        appears once the command has actually been read and executed. Without
+        this check a broken console waits for the 120s verify timeout, rolls
+        back and waits another 120s.
+        """
+        limit = self.opts.console_check_timeout if timeout is None else timeout
+        before = self._console_log()
+        offset = len(before)
+        sent = self.api.send_command(f"say {CONSOLE_MARKER}")
+        print(f"[console] {sent}")
+        deadline = time.monotonic() + limit
+        while time.monotonic() < deadline:
+            current = self._console_log()
+            chunk = current[offset:] if len(current) >= offset else current
+            if CONSOLE_MARKER.encode("ascii").lower() in chunk.lower():
+                print("[console] input ok")
+                return
+            time.sleep(1)
+        raise DeployFailure(
+            "console input is not reaching MTA (server.log did not record the "
+            "marker); the server process needs a restart or the container is "
+            "missing a UTF-8 locale"
+        )
 
     def _wait_agent_ready(self, timeout: int = 60) -> None:
         deadline = time.monotonic() + timeout
@@ -530,8 +589,6 @@ class Deployer:
         self.api.write_file("/.deploy/download/update.json", manifest_json)
         self.note("manifest staged on the server volume")
 
-        self._announce()
-
         deploy_id = str(uuid.uuid4())
         self._write_request(
             deploy_id,
@@ -548,6 +605,13 @@ class Deployer:
         plan = status.get("plan") or {}
         if plan.get("requires_container_recreate"):
             raise DeployFailure("agent says a container recreate is required", status)
+
+        # A process restart regenerates the console, so only hot deploys need a
+        # working console before we touch files.
+        if self.opts.console_check and not plan.get("requires_process_restart"):
+            self._check_console()
+
+        self._announce()
 
         try:
             if plan.get("requires_process_restart"):
@@ -628,7 +692,7 @@ class Deployer:
         print("[preflight] file write/read: ok")
         if self.opts.preflight_console:
             self.api.ensure_online(self.opts.timeout)
-            self.api.send_command("say [deploy] preflight ok")
+            self._check_console()
             print("[preflight] console command: ok")
         return 0
 
@@ -655,6 +719,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--allow-image-current", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--preflight-console", action="store_true")
+    parser.add_argument(
+        "--skip-console-check",
+        dest="skip_console_check",
+        action="store_true",
+        help="skip the pre-apply console health check (hot deploys only)",
+    )
     return parser
 
 
@@ -697,6 +767,7 @@ def main(argv: list[str] | None = None) -> int:
         allow_image_current=args.allow_image_current,
         dry_run=args.dry_run,
         preflight_console=args.preflight_console,
+        console_check=not args.skip_console_check,
     )
 
     api = PterodactylClient(args.url, args.api_key, args.server)
