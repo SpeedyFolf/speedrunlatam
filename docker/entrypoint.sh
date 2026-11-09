@@ -3,6 +3,11 @@ set -u
 
 cd /home/container || exit 1
 
+# Keep MTA's console in UTF-8 even if the panel injects an empty LANG. A
+# non-ASCII byte under the C locale makes getwchar() fail forever and the
+# console stops accepting commands until the process is restarted.
+export LANG="${LANG:-C.UTF-8}"
+
 mkdir -p /home/container/logs /home/container/ghosts_server/ghosts /home/container/.deploy
 
 # Per-deployment secrets that must never be committed.

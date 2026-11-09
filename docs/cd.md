@@ -97,7 +97,7 @@ Después de eso, los cambios de resources se aplican en caliente.
    - hace un snapshot de DB, ghosts y autologin,
    - hace backup de los archivos que va a tocar,
    - calcula el plan de resources y escribe `status.json`.
-4. El job lee el plan y ejecuta:
+4. El job verifica que MTA esté leyendo la consola y ejecuta:
    - `stop` de resources eliminados,
    - `apply` de archivos,
    - `refresh` si hubo altas/bajas,
@@ -105,6 +105,25 @@ Después de eso, los cambios de resources se aplican en caliente.
    - `restart` de resources modificados, con el gamemode al final.
 5. El agente verifica `mods/deathmatch/logs/server.log` y marca `done` o `failed`.
 6. El job publica un resumen en GitHub Actions.
+
+### Consola y locale
+
+MTA lee la consola con `getwchar()`. Si el proceso corre con el locale `C`/POSIX
+(contenedor sin `LANG`), un solo byte no-ASCII en un comando —por ejemplo la
+`ó` de un `say`— hace que `getwchar()` falle con `EILSEQ` y deja `stdin` roto:
+los comandos siguientes (`restart`, `stop`, `shutdown`) quedan encolados y no
+se ejecutan hasta reiniciar el proceso.
+
+La imagen fija `LANG=C.UTF-8` y el entrypoint lo fuerza si el panel manda
+`LANG` vacío. Además, `scripts/deploy.py`:
+
+- convierte todos los comandos de consola a ASCII (`console_command`), y
+- hace un health check antes de aplicar: manda `say [deploy] console ok` y
+  espera ver `CONSOLECHAT` en `server.log`. Si no aparece en 20s, falla antes
+  de tocar archivos, en vez de esperar el timeout de verificación y el rollback.
+
+El health check se saltea cuando el plan pide `requires_process_restart`,
+porque el reinicio regenera la consola.
 
 Si el plan pide `requires_process_restart` (cambió `mta-server64`, `x64/**` o
 `mtaserver.conf.template`), el job hace `power restart`. El contenedor no se
@@ -206,6 +225,9 @@ releases y el cliente de la API.
   del release. El agente intenta full template si existe; si no, Reinstall.
 - **`E_VERIFY`**: el resource no arrancó. Mirar `mods/deathmatch/logs/server.log` y
   `logs/update-agent.log`; usar rollback.
+- **La consola no responde**: el proceso quedó con `stdin` roto (locale `C` y
+  un comando no-ASCII). Verificar que `LANG` sea UTF-8 y reiniciar el proceso.
+  El deploy ahora lo detecta con el health check antes de aplicar.
 - **El job no corre**: `CD_ENABLED` no está en `true` o faltan secretos.
 - **El agente no está**: el contenedor es anterior al rollout; Reinstall una vez.
 - **No se puede escribir `.deploy`**: revisar permisos del volumen; el agente

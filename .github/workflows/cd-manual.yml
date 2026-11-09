@@ -96,6 +96,9 @@ jobs:
           DEPLOY_DELAY_RESTART: ${{ vars.CD_DELAY_RESTART || '30' }}
         run: |
           ARGS=(--action "${{ inputs.action }}")
+          if [ "${{ inputs.action }}" = "preflight" ]; then
+            ARGS+=(--preflight-console)
+          fi
           if [ -n "${{ inputs.tag }}" ]; then
             ARGS+=(--tag "${{ inputs.tag }}")
           fi
