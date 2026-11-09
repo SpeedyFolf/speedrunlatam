@@ -520,7 +520,13 @@ class Agent:
             raise
 
         offset = log_size(self.cfg.server_log)
+        apply_result = {
+            "written": len(result.get("written", [])),
+            "deleted": len(result.get("deleted", [])),
+            "backup": state.get("backup"),
+        }
         state["verify_offset"] = offset
+        state["apply"] = apply_result
         self.store.write_state(state)
         self.store.write_current(
             {
@@ -538,11 +544,7 @@ class Agent:
             "tag": state.get("tag"),
             "plan": plan,
             "verify_offset": offset,
-            "result": {
-                "written": len(result.get("written", [])),
-                "deleted": len(result.get("deleted", [])),
-                "backup": state.get("backup"),
-            },
+            "result": dict(apply_result),
         }
         if plan.get("requires_process_restart"):
             self.store.write_status(
@@ -621,11 +623,15 @@ class Agent:
         result: verify.VerifyResult,
     ) -> None:
         plan = state.get("plan") or {}
+        applied = state.get("apply") or {}
         common = {
             "id": request_id,
             "tag": state.get("tag"),
             "plan": plan,
             "result": {
+                "written": applied.get("written", 0),
+                "deleted": applied.get("deleted", 0),
+                "backup": applied.get("backup") or state.get("backup"),
                 "found": result.found,
                 "missing": result.missing,
                 "failures": result.failures,
@@ -698,7 +704,7 @@ class Agent:
             tag=state.get("tag") or current.get("tag"),
             plan=state.get("plan"),
         )
-        backup.rollback(self.cfg, backup_dir)
+        restored = backup.rollback(self.cfg, backup_dir)
 
         previous_tag = (
             current.get("previous_tag")
@@ -725,6 +731,11 @@ class Agent:
                 "plan": rollback_plan,
                 "force_full": False,
                 "verify_offset": log_size(self.cfg.server_log),
+                "apply": {
+                    "written": len(restored),
+                    "deleted": 0,
+                    "backup": str(backup_rel),
+                },
             }
         )
         self.store.write_state(state)
@@ -734,7 +745,11 @@ class Agent:
             id=request_id,
             tag=previous_tag,
             plan=rollback_plan,
-            result={"backup": str(backup_rel)},
+            result={
+                "written": len(restored),
+                "deleted": 0,
+                "backup": str(backup_rel),
+            },
         )
         self._cleanup_staging()
 

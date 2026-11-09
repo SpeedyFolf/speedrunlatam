@@ -124,6 +124,7 @@ class AgentFlowTests(DeployTestCase):
         agent.handle_apply({"id": "d1", "action": "apply"})
         status = agent.store.status()
         self.assertEqual(status["phase"], "applied")
+        self.assertEqual(status["result"]["written"], 1)
         self.assertEqual((self.root / RACE_FILE).read_text(), "-- new\n")
         self.assertEqual(agent.store.current()["tag"], "v1.1.0")
         self.assertEqual(agent.store.version()["tag"], "v1.1.0")
@@ -134,6 +135,7 @@ class AgentFlowTests(DeployTestCase):
         status = agent.store.status()
         self.assertEqual(status["phase"], "done")
         self.assertEqual(status["result"]["found"], ["race"])
+        self.assertEqual(status["result"]["written"], 1)
 
         current_backup = agent.store.current()["backup"]
         self.assertTrue((self.root / current_backup / "journal.json").is_file())

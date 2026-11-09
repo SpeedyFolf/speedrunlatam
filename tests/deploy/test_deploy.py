@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import threading
 import unittest
@@ -241,6 +243,52 @@ class DeployOrchestrationTests(DeployTestCase):
             console_command("say Actualización en 10s"),
             "say Actualizacion en 10s",
         )
+
+    def test_summary_keeps_apply_counts_and_verify_result(self) -> None:
+        manifest = {
+            "tag": "v1.1.0",
+            "mode": "hot",
+            "changes": {"modified": ["a.lua"], "added": [], "deleted": []},
+        }
+        deployer = Deployer(FakeApi({}), manifest, options())  # type: ignore[arg-type]
+        status = {
+            "plan": {
+                "requires_process_restart": False,
+                "resources": {"restart": ["joinquit"]},
+            },
+            "result": {
+                "written": 1,
+                "deleted": 0,
+                "found": ["joinquit"],
+                "missing": [],
+                "failures": [],
+            },
+        }
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            deployer._summary("Deployed v1.1.0", status)
+        output = buffer.getvalue()
+        self.assertIn("written=1 deleted=0", output)
+        self.assertIn("verified: joinquit", output)
+
+    def test_summary_falls_back_to_manifest_counts(self) -> None:
+        manifest = {
+            "tag": "v1.1.0",
+            "mode": "hot",
+            "changes": {
+                "modified": ["a.lua", "b.lua"],
+                "added": [],
+                "deleted": [],
+            },
+        }
+        deployer = Deployer(FakeApi({}), manifest, options())  # type: ignore[arg-type]
+        status = {"plan": {}, "result": {"found": ["joinquit"]}}
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            deployer._summary("Deployed v1.1.0", status)
+        output = buffer.getvalue()
+        self.assertIn("files: modified=2 added=0 deleted=0", output)
+        self.assertIn("verified: joinquit", output)
 
     def test_rollback(self) -> None:
         plan = {

@@ -524,10 +524,30 @@ class Deployer:
                         lines.append(f"- {key}: " + ", ".join(resources[key]))
             result = status.get("result") or {}
             if result:
-                lines.append(
-                    f"- result: written={result.get('written', 0)} "
-                    f"deleted={result.get('deleted', 0)}"
-                )
+                if "written" in result or "deleted" in result:
+                    lines.append(
+                        f"- result: written={result.get('written', 0)} "
+                        f"deleted={result.get('deleted', 0)}"
+                    )
+                else:
+                    changes = self.manifest.get("changes") or {}
+                    lines.append(
+                        "- files: "
+                        f"modified={len(changes.get('modified') or [])} "
+                        f"added={len(changes.get('added') or [])} "
+                        f"deleted={len(changes.get('deleted') or [])}"
+                    )
+                found = result.get("found") or []
+                if found or result.get("missing") or result.get("failures"):
+                    lines.append(
+                        "- verified: " + (", ".join(found) if found else "none")
+                    )
+                    if result.get("missing"):
+                        lines.append("- missing: " + ", ".join(result["missing"]))
+                    if result.get("failures"):
+                        lines.append(
+                            "- failures: " + ", ".join(result["failures"])
+                        )
         lines.extend(f"- {step}" for step in self.steps)
         text = "\n".join(lines) + "\n"
         print(text)
