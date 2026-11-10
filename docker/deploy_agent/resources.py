@@ -241,12 +241,14 @@ def delta_plan(
     manifest: dict[str, Any],
     current_root: Path,
     staging_root: Path,
+    running: Iterable[str] | None = None,
 ) -> dict[str, Any]:
     changes = manifest.get("changes") or {}
     modified = [normalize(p) for p in changes.get("modified", [])]
     added = [normalize(p) for p in changes.get("added", [])]
     deleted = [normalize(p) for p in changes.get("deleted", [])]
     changed_paths = modified + added
+    running_set = set(running or ())
 
     manifest_mode = str(manifest.get("mode") or "hot")
     plan = _base_plan(manifest_mode)
@@ -331,20 +333,18 @@ def delta_plan(
         _finish_expected(plan, autostart)
         return plan
 
-    stop = set(removed_resources)
-    available = autostart | included
-    start = added_resources & available
-    restart = changed_resources & available
+    stop = removed_resources & running_set
+    # Added resources are only loaded by refresh. Do not start resources
+    # that were not running before the deploy; MTA/mapmanager/gamemode owns
+    # that decision. Restart only resources that were already running.
+    restart = changed_resources & running_set
 
     plan["resources"]["stop"] = _ordered(stop, gamemodes, gamemodes_first=True)
-    plan["resources"]["start"] = _ordered(start, gamemodes)
+    plan["resources"]["start"] = []
     plan["resources"]["restart"] = _ordered(restart, gamemodes)
 
     plan["commands_before_apply"] = [f"stop {name}" for name in plan["resources"]["stop"]]
-    after: list[str] = []
-    if plan["resources"]["added"] or plan["resources"]["removed"]:
-        after.append("refresh")
-    after.extend(f"start {name}" for name in plan["resources"]["start"])
+    after: list[str] = ["refresh"]
     after.extend(f"restart {name}" for name in plan["resources"]["restart"])
     plan["commands_after_apply"] = after
 

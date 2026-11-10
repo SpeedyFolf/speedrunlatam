@@ -92,6 +92,8 @@ class AgentFlowTests(DeployTestCase):
 
     def test_hot_prepare_apply_verify_rollback(self) -> None:
         cfg = self._cfg_with_tree()
+        with cfg.server_log.open("a", encoding="utf-8") as handle:
+            handle.write("start: Resource 'race' started\n")
         new_body = b"-- new\n"
         asset = self._tar(
             "server-update.tar.gz",
@@ -118,7 +120,7 @@ class AgentFlowTests(DeployTestCase):
         self.assertEqual(status["phase"], "prepared")
         self.assertFalse(status["plan"]["requires_process_restart"])
         self.assertEqual(status["plan"]["resources"]["changed"], ["race"])
-        self.assertEqual(status["plan"]["commands_after_apply"], ["restart race"])
+        self.assertEqual(status["plan"]["commands_after_apply"], ["refresh", "restart race"])
         self.assertTrue((self.root / RACE_FILE).read_text() == "old\n")
 
         agent.handle_apply({"id": "d1", "action": "apply"})
@@ -191,6 +193,8 @@ class AgentFlowTests(DeployTestCase):
 
     def test_deletion_only_release(self) -> None:
         cfg = self._cfg_with_tree()
+        with cfg.server_log.open("a", encoding="utf-8") as handle:
+            handle.write("start: Resource 'oldmod' started\n")
         old = self.root / "mods/deathmatch/resources/[gameplay]/oldmod"
         old.mkdir(parents=True)
         (old / "meta.xml").write_text('<meta><info name="oldmod" /></meta>', encoding="utf-8")
@@ -295,6 +299,8 @@ class AgentFlowTests(DeployTestCase):
 
     def test_recreate_can_be_overridden_when_image_is_current(self) -> None:
         cfg = self._cfg_with_tree()
+        with cfg.server_log.open("a", encoding="utf-8") as handle:
+            handle.write("start: Resource 'race' started\n")
         asset = self._tar("server-update.tar.gz", {RACE_FILE: b"-- new\n"})
         self._manifest(
             cfg,
@@ -318,7 +324,7 @@ class AgentFlowTests(DeployTestCase):
         status = agent.store.status()
         self.assertEqual(status["phase"], "prepared")
         self.assertFalse(status["plan"]["requires_container_recreate"])
-        self.assertEqual(status["plan"]["commands_after_apply"], ["restart race"])
+        self.assertEqual(status["plan"]["commands_after_apply"], ["refresh", "restart race"])
 
     def test_full_fallback_for_unknown_tag(self) -> None:
         cfg = self.config()

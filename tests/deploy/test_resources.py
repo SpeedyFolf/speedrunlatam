@@ -80,17 +80,44 @@ class ResourcePlanTests(DeployTestCase):
                 ],
             },
         }
-        plan = resources.delta_plan(manifest, current, staging)
+        plan = resources.delta_plan(manifest, current, staging, running={"race", "joinquit", "oldmod"})
         self.assertFalse(plan["requires_process_restart"])
         self.assertEqual(plan["resources"]["changed"], ["race"])
         self.assertEqual(plan["resources"]["added"], ["newmod"])
         self.assertEqual(plan["resources"]["removed"], ["oldmod"])
+        self.assertEqual(plan["resources"]["start"], [])
         self.assertEqual(plan["commands_before_apply"], ["stop oldmod"])
         self.assertEqual(
             plan["commands_after_apply"],
-            ["refresh", "start newmod", "restart race"],
+            ["refresh", "restart race"],
         )
-        self.assertEqual(plan["expected_resources"], ["newmod", "race"])
+        self.assertEqual(plan["expected_resources"], ["race"])
+
+    def test_added_resource_is_only_refreshed(self) -> None:
+        current = self.root / "current"
+        staging = self.root / "staging"
+        make_resource(current, "mods/deathmatch/resources/[gamemodes]/[race]/race", kind="gamemode")
+        shutil.copytree(current, staging)
+        make_resource(staging, "mods/deathmatch/resources/[gameplay]/newmod")
+        make_conf(staging, {"race": {"startup": "1", "protected": "0"}})
+
+        manifest = {
+            "mode": "hot",
+            "changes": {
+                "modified": [],
+                "added": [
+                    "mods/deathmatch/resources/[gameplay]/newmod/meta.xml",
+                    "mods/deathmatch/resources/[gameplay]/newmod/server.lua",
+                ],
+                "deleted": [],
+            },
+        }
+        plan = resources.delta_plan(manifest, current, staging, running={"race"})
+        self.assertEqual(plan["resources"]["added"], ["newmod"])
+        self.assertEqual(plan["resources"]["start"], [])
+        self.assertEqual(plan["resources"]["restart"], [])
+        self.assertEqual(plan["commands_after_apply"], ["refresh"])
+        self.assertEqual(plan["expected_resources"], [])
 
     def test_changed_included_resource_is_restarted(self) -> None:
         current = self.root / "current"
@@ -120,12 +147,12 @@ class ResourcePlanTests(DeployTestCase):
                 "deleted": [],
             },
         }
-        plan = resources.delta_plan(manifest, current, staging)
+        plan = resources.delta_plan(manifest, current, staging, running={"killmessages"})
         self.assertFalse(plan["requires_process_restart"])
         self.assertEqual(plan["resources"]["changed"], ["killmessages"])
         self.assertIn("killmessages", plan["resources"]["included"])
         self.assertEqual(plan["resources"]["restart"], ["killmessages"])
-        self.assertEqual(plan["commands_after_apply"], ["restart killmessages"])
+        self.assertEqual(plan["commands_after_apply"], ["refresh", "restart killmessages"])
         self.assertEqual(plan["expected_resources"], ["killmessages"])
 
     def test_protected_forces_restart(self) -> None:

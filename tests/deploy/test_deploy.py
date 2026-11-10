@@ -141,14 +141,14 @@ class DeployOrchestrationTests(DeployTestCase):
             "mode": "hot",
             "requires_process_restart": False,
             "commands_before_apply": ["stop oldmod"],
-            "commands_after_apply": ["refresh", "start newmod", "restart race"],
+            "commands_after_apply": ["refresh", "restart race"],
             "resources": {"gamemodes": ["race"]},
         }
         manifest = {"tag": "v1.1.0", "mode": "hot", "resources": {"gamemodes": ["race"]}}
         api = FakeApi(plan)
         deployer = Deployer(api, manifest, options())  # type: ignore[arg-type]
         self.assertEqual(deployer.deploy(), 0)
-        self.assertEqual(api.commands, ["stop oldmod", "refresh", "start newmod", "restart race"])
+        self.assertEqual(api.commands, ["stop oldmod", "refresh", "restart race"])
         self.assertEqual(api.power_signals, [])
 
     def test_restart_deploy(self) -> None:

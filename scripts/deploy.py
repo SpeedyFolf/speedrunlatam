@@ -435,7 +435,9 @@ class Deployer:
         resources = plan.get("resources") or {}
         commands = ["refresh"]
         seen: set[str] = set()
-        for key, verb in (("stop", "start"), ("start", "start"), ("restart", "restart")):
+        # Only resources that were stopped because they were running must be
+        # started again. Added resources are never started by the agent.
+        for key, verb in (("stop", "start"), ("restart", "restart")):
             for name in resources.get(key) or []:
                 if name in seen:
                     continue

@@ -51,6 +51,36 @@ def _tail(path: Path, max_bytes: int = 1024 * 1024) -> str:
         return ""
 
 
+def running_resources(cfg: Config) -> set[str]:
+    """Return resources that are currently running according to server.log.
+
+    The deploy agent runs outside MTA, so it has no direct getResourceState().
+    MTA writes explicit start/stop lines for every resource; scanning the log
+    from oldest to newest and keeping the last state is enough for a hot deploy.
+    """
+    data = _tail(cfg.server_log, 32 * 1024 * 1024)
+    state: dict[str, bool] = {}
+    start_re = re.compile(
+        r"(?:(?:startResource|start):\s*Resource\s+'([^']+)'\s+(?:has\s+been\s+)?(?:started|restarted)"
+        r"|Resource\s+'([^']+)'\s+(?:has\s+been\s+)?(?:started|restarted))",
+        re.IGNORECASE,
+    )
+    stop_re = re.compile(
+        r"(?:stop:\s*Resource\s+'([^']+)'\s+stopping"
+        r"|Stopping\s+([A-Za-z0-9_.-]+)\s*$)",
+        re.IGNORECASE,
+    )
+    for line in data.splitlines():
+        match = start_re.search(line)
+        if match:
+            state[match.group(1) or match.group(2)] = True
+            continue
+        match = stop_re.search(line)
+        if match:
+            state[match.group(1) or match.group(2)] = False
+    return {name for name, running in state.items() if running}
+
+
 def wait_ready(cfg: Config, offset: int, timeout: int) -> bool:
     """Wait for MTA's ready line after the given log offset."""
     deadline = time.monotonic() + timeout

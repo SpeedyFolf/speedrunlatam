@@ -428,7 +428,12 @@ class Agent:
                     )
                 if not changes.get("deleted"):
                     raise DeployError("E_EMPTY", "nothing to apply")
-            plan = resources.delta_plan(manifest, self.cfg.target, staging)
+            plan = resources.delta_plan(
+                manifest,
+                self.cfg.target,
+                staging,
+                running=verify.running_resources(self.cfg),
+            )
 
         resources.validate_plan(plan)
         if plan.get("requires_container_recreate"):
