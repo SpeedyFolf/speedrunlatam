@@ -47,20 +47,21 @@ El install script:
 
 El camino normal es en caliente. Al pushear un tag `v*`:
 
-1. GitHub Actions construye la imagen, `server-template.tar.gz`,
-   `server-update.tar.gz` y `update.json`.
-2. Si `CD_ENABLED=true`, el job de deploy llama a la API del panel.
+1. GitHub Actions construye la imagen (solo si cambió `docker/**`),
+   `server-template.tar.gz`, `server-update.tar.gz` y `update.json`.
+2. El workflow **no despliega**. El deploy se corre a mano desde GitHub →
+   Actions → **cd-manual** (`action=deploy`, `tag=<tag>`).
 3. El agente del contenedor valida y aplica el delta, y el panel recarga los
    resources con `stop`/`refresh`/`start`/`restart`.
 4. El job verifica y publica el resumen.
 
 No hace falta Reinstall para cambios de resources. Tampoco para cambios de
-`mta-server64`, `x64/**` o `mtaserver.conf.template`: en esos casos el job hace
-un `power restart` corto y el entrypoint regenera `mtaserver.conf`.
+`mta-server64`, `x64/**` o `mtaserver.conf.template`: en esos casos el deploy
+hace un `power restart` corto y el entrypoint regenera `mtaserver.conf`.
 
 Sí hace falta Reinstall cuando cambia `docker/**` (imagen, entrypoint, servidor
-de descargas, ghosts_server) o en el primer rollout del agente. El job falla con
-`E_RECREATE_REQUIRED` en ese caso.
+de descargas, ghosts_server) o en el primer rollout del agente. Después del
+Reinstall, corré **cd-manual** con `allow_image_current=true`.
 
 La configuración de la API key, secretos, variables y rollback está en
 [cd.md](cd.md).
@@ -71,8 +72,8 @@ La configuración de la API key, secretos, variables y rollback está en
 2. Reinstall una vez para que el contenedor tenga `/opt/deploy_agent`.
 3. Crear los secretos `PTERODACTYL_URL`, `PTERODACTYL_API_KEY` y
    `PTERODACTYL_SERVER_ID`.
-4. Poner `CD_ENABLED=true`.
-5. Probar con un tag pre-release (`-rc1`) antes del estable.
+4. Probar con un tag pre-release (`-rc1`) publicando los assets y después
+   corriendo **cd-manual** (`action=deploy`, `tag=<tag>`) antes del estable.
 
 ### Backups
 

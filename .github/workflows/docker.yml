@@ -45,7 +45,7 @@ jobs:
           fi
 
           echo "checking docker changes in ${RANGE}"
-          if git diff --quiet "$RANGE" -- docker .github/workflows/docker.yml; then
+          if git diff --quiet "$RANGE" -- docker; then
             echo "docker=false" >> "$GITHUB_OUTPUT"
           else
             echo "docker=true" >> "$GITHUB_OUTPUT"

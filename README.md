@@ -69,9 +69,10 @@ El instalador descarga el template desde GitHub Releases y conserva:
 
 Cada tag `v*`:
 
-1. GitHub Actions construye la imagen y publica `server-template.tar.gz`,
-   `server-update.tar.gz` y `update.json`.
-2. Si `CD_ENABLED=true`, el job de deploy aplica el delta por la API del panel.
+1. GitHub Actions construye la imagen (solo si cambió `docker/**`) y publica
+   `server-template.tar.gz`, `server-update.tar.gz` y `update.json`.
+2. El tag **no despliega solo**. El deploy se corre a mano desde GitHub →
+   Actions → **cd-manual** (`action=deploy`, `tag=<tag>`).
 3. El agente valida el bundle, hace un snapshot de DB/ghosts/autologin y aplica
    los archivos.
 4. El panel recarga los resources con comandos MTA (`stop`, `refresh`, `start`,
