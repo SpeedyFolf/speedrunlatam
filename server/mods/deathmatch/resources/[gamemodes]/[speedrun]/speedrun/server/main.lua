@@ -6,7 +6,7 @@
 local LOBBY = { x = 2488.0, y = -1666.0, z = 13.35, rot = 0 } -- Grove Street, dimension 0
 local LOADING_DELAY_MS = 1000
 local COUNTDOWN_SECONDS = 3
-local RESTART_DELAY_MS = 5000
+local RESTART_DELAY_MS = 3000
 local RESPAWN_NOW_MS = 50
 local LOBBY_RESPAWN_MS = 3000
 local RESULTS_MS = 12000
@@ -390,10 +390,8 @@ local function go()
         if isActive(player) and Instances.has(player) then Instances.notifyGo(player, roundInfo.goTick) end
     end
     Ambient.activateAll()
-    local missionName = getResourceName(roundInfo.resource)
-    local respect = roundInfo.def.respect or 5
-    tellRound("sr:go", roundInfo.goTick, 0, missionName, respect)
-    for player in pairs(spectators) do sendTo(player, "sr:go", roundInfo.goTick, 0, missionName, respect) end
+    tellRound("sr:go", roundInfo.goTick, 0)
+    for player in pairs(spectators) do sendTo(player, "sr:go", roundInfo.goTick, 0) end
     timers.tick = setTimer(tick, TICK_MS, 0)
 end
 
@@ -506,8 +504,7 @@ local function handleFailure(player, reason)
 
     round:fail(player, now())
     srLog("fail", nameOf(player), reason)
-    -- Al morir, el GXT de falla termina un poco antes del respawn para que no quede en pantalla.
-    sendTo(player, "sr:failed", reason, reason == "death" and (RESTART_DELAY_MS - 500) or nil)
+    sendTo(player, "sr:failed", reason)
 
     playerTimers[player] = setTimer(function()
         playerTimers[player] = nil
@@ -643,8 +640,7 @@ addEventHandler("sr:clientReady", resourceRoot, function()
     Ambient.resend(player)
     -- Reenvia el estado del reloj (sirve a quien esta en la ronda pero cargo tarde, y a espectadores).
     if round.state == "running" and roundInfo.goTick then
-        sendTo(player, "sr:go", roundInfo.goTick, now() - roundInfo.goTick,
-            getResourceName(roundInfo.resource), roundInfo.def.respect or 5)
+        sendTo(player, "sr:go", roundInfo.goTick, now() - roundInfo.goTick)
     elseif round.state == "countdown" and roundInfo.countdownValue then
         sendTo(player, "sr:countdown", roundInfo.countdownValue)
     end

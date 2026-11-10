@@ -33,7 +33,7 @@ Ambos se cargan desde `speedrun/meta.xml`:
 | `scene:freddy_dead` | Escena de Freddy muerto; skip con tecla. |
 | `return_burger_shot` | Volver a Burger Shot con OG Loc. |
 | `scene:burger_shot` | Escena final; skip con tecla. |
-| `passed` | `reportCompleted`; el gamemode muestra `M_PASSR` y el tune nativo via `srShowMissionBigText`. |
+| `passed` | `reportCompleted` + `M_PASSR`/tune. |
 
 ## Skip
 

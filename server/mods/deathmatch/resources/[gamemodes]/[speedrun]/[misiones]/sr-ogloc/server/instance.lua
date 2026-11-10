@@ -143,7 +143,6 @@ end)
 local DEF = {
     id = "ogloc",
     title = "OG Loc",
-    respect = 5,
     populationStage = "postCleaningTheHood",
     test = true,
     playerState = {
