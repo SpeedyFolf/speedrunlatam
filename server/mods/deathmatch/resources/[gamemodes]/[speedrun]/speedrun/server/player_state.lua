@@ -28,6 +28,7 @@ function applyPlayerState(player, ps, dim)
     PlayerState.applyStats(player, ps.stats, ps.maxHealthStat)
     setElementHealth(player, ps.health or 100)
     setPedArmor(player, ps.armor or 0)
+    if type(ps.money) == "number" then setPlayerMoney(player, math.floor(ps.money)) end
 
     if type(ps.weapons) == "table" then
         for i, w in ipairs(ps.weapons) do

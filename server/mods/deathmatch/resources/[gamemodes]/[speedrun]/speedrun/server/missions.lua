@@ -29,6 +29,7 @@ function Missions.validate(def)
     end
     if ps.stats ~= nil and type(ps.stats) ~= "table" then return false, "playerState.stats invalido" end
     if ps.weapons ~= nil and type(ps.weapons) ~= "table" then return false, "playerState.weapons invalido" end
+    if ps.money ~= nil and (not isNumber(ps.money) or ps.money < 0) then return false, "playerState.money invalido" end
     return true
 end
 
