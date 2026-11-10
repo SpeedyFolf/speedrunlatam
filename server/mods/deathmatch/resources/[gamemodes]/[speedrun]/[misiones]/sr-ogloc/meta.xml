@@ -1,0 +1,13 @@
+<meta>
+    <info author="MTA Neon" name="OG Loc" description="Speedrun de la mision OG Loc (SMOKE1)" version="0.1.0" type="map" gamemodes="speedrun" speedrun_test="true" />
+    <oop>true</oop>
+
+    <script src="shared.lua" type="shared" />
+    <script src="server/stages.lua" type="server" />
+    <script src="server/instance.lua" type="server" />
+    <script src="client.lua" type="client" cache="false" />
+
+    <export function="srCreateInstance" type="server" />
+    <export function="srDestroyInstance" type="server" />
+    <export function="srInstanceGo" type="server" />
+</meta>
