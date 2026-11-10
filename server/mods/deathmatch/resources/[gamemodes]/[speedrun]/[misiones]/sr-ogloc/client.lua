@@ -22,6 +22,23 @@ local function showText(key, duration)
     return key and ensureText() and textApi("showMissionText", key, duration or 7000, 1)
 end
 
+-- Contrato del gamemode: muestra el GXT grande de la mision. El gamemode lo
+-- llama al fallar / cumplir; la mision solo presta el lease GXT y el tune nativo.
+function srShowMissionBigText(key, duration, number)
+    if not ensureText() then return false end
+    local ms = tonumber(duration) or 5000
+    local ok
+    if number ~= nil then
+        ok = textApi("showMissionBigText", key, ms, 1, tonumber(number))
+    else
+        ok = textApi("showMissionBigText", key, ms, 1)
+    end
+    if ok and key == "M_PASSR" and type(playMissionPassedTune) == "function" then
+        pcall(playMissionPassedTune, 1)
+    end
+    return ok
+end
+
 local function releaseAudioSlot()
     local audio = state.audio
     state.audio = nil
@@ -733,8 +750,6 @@ addEventHandler("ogl:stage", resourceRoot, function(token, stage, payload)
     elseif stage == "failed" then
         clearAudio()
         fadeCamera(true, 0.5)
-        if payload.textKey then showText(payload.textKey, 5000) end
-        textApi("showMissionBigText", "M_FAIL", 5000, 1)
     end
 end)
 
@@ -747,11 +762,9 @@ addEventHandler("ogl:travelReleased", resourceRoot, function(token)
 end)
 
 addEvent("ogl:passed", true)
-addEventHandler("ogl:passed", resourceRoot, function(token, respect)
+addEventHandler("ogl:passed", resourceRoot, function(token)
     if not isCurrent(token) then return end
     clearObjective()
-    textApi("showMissionBigText", "M_PASSR", 5000, 1, tonumber(respect) or 5)
-    if type(playMissionPassedTune) == "function" then pcall(playMissionPassedTune, 1) end
 end)
 
 addEvent("ogl:cleanup", true)

@@ -4,21 +4,15 @@ SR = SR or {}
 SR.running = false        -- hay una ronda en curso (reloj visible)
 SR.spectating = false
 SR.resultsVisible = false
+SR.missionResource = nil  -- resource de la mision en curso (export srShowMissionBigText)
+SR.passRespect = 5        -- numero de respeto para M_PASSR
 
 local FONT_BIG = "bankgothic"
 local FONT_TITLE = "pricedown"
 local FONT_SMALL = "default-bold"
--- Fuente de los carteles de mision cumplida / fallida, como en GTA SA. MTA la trae integrada
--- (MTA/cgui/pricedown.ttf): tiene ¡ y vocales con tilde, pero no "º".
-local FONT_BANNER = "pricedown"
-local BANNER_SCALE = 4
-local COLOR_PASSED = { 225, 160, 30 }   -- dorado de "MISIÓN SUPERADA!"
-local COLOR_FAILED = { 180, 25, 29 }    -- rojo de "MISIÓN FALLIDA!"
-local SOUND_PASSED = "audio/mission_accomplished.mp3"  -- copia del de race (race no corre junto a speedrun)
+local MISSION_TEXT_MS = 5000
 local COUNTDOWN_STEP_MS = 1000
 local GO_SHOW_MS = 1000
-local FAILED_SHOW_MS = 4000
-local FINISHED_SHOW_MS = 4000
 local NOTICE_SHOW_MS = 6000
 local NOTICE_MAX = 5
 
@@ -55,37 +49,44 @@ end
 SR.drawText = drawText
 SR.ui = ui
 
--- Cartel grande al estilo GTA SA: Pricedown con borde negro grueso (8 direcciones).
-local function drawBanner(text, y1, y2, rgb)
-    local o = math.max(2, math.floor(ui(3)))
-    local black = tocolor(0, 0, 0, 255)
-    local scale = ui(BANNER_SCALE)
-    for dx = -o, o, o do
-        for dy = -o, o, o do
-            if dx ~= 0 or dy ~= 0 then
-                dxDrawText(text, dx, y1 + dy, sw + dx, y2 + dy, black, scale, FONT_BANNER, "center", "center", false, false, false)
-            end
+-- El gamemode manda que mostrar; la mision presta el lease GXT y el tune nativo.
+local function missionBigText(key, number, duration)
+    local res = SR.missionResource
+    if not res then return false end
+    local ms = tonumber(duration) or MISSION_TEXT_MS
+    local fn = function()
+        if number ~= nil then
+            return exports[res]:srShowMissionBigText(key, ms, number)
         end
+        return exports[res]:srShowMissionBigText(key, ms)
     end
-    dxDrawText(text, 0, y1, sw, y2, tocolor(rgb[1], rgb[2], rgb[3], 255), scale, FONT_BANNER, "center", "center", false, false, false)
+    local ok, result = pcall(fn)
+    if not ok or result ~= true then
+        outputDebugString(("sr:missionBigText %s fallo (res=%s ok=%s result=%s)"):format(
+            tostring(key), tostring(res), tostring(ok), tostring(result)), 2)
+    end
+    return ok and result == true
 end
 
 function SR.resetRound()
     countdown, goUntil, localStart = nil, 0, nil
     finishedMs, finishedUntil, failedUntil = nil, 0, 0
     SR.running = false
+    SR.missionResource = nil
+    SR.passRespect = 5
 end
 
 -- La ronda termino (lo llama results.lua): el reloj se apaga.
--- Los carteles de falla / cumplida no se tocan: results.lua espera a que terminen.
+-- El GXT de falla / cumplida no se toca: results.lua espera a que termine.
 function SR.endRound()
     countdown, goUntil, localStart = nil, 0, nil
     SR.running = false
 end
 
--- Milisegundos que le faltan al cartel de falla / mision cumplida para cumplir su tiempo minimo.
-function SR.bannerRemainingMs()
+-- Milisegundos que le faltan al GXT de falla / mision cumplida para cumplir su tiempo minimo.
+function SR.missionTextRemainingMs()
     local now = getTickCount()
+
     return math.max(0, failedUntil - now, finishedMs and (finishedUntil - now) or 0)
 end
 
@@ -99,25 +100,30 @@ end)
 
 -- serverStartTick: referencia del servidor (informativa). elapsedMs: cuanto lleva el reloj al recibirlo
 -- (0 en el inicio normal; mayor para quien entra a mitad de ronda).
-addEventHandler("sr:go", resourceRoot, function(serverStartTick, elapsedMs)
+-- missionResource: resource de la mision (export srShowMissionBigText). respect: numero para M_PASSR.
+addEventHandler("sr:go", resourceRoot, function(serverStartTick, elapsedMs, missionResource, respect)
     countdown = nil
     SR.running = true
     finishedMs = nil
+    SR.missionResource = type(missionResource) == "string" and missionResource or SR.missionResource
+    SR.passRespect = tonumber(respect) or SR.passRespect
     localStart = getTickCount() - (tonumber(elapsedMs) or 0)
     if (tonumber(elapsedMs) or 0) == 0 then goUntil = getTickCount() + GO_SHOW_MS end
 end)
 
-addEventHandler("sr:failed", resourceRoot, function(reasonKey)
+addEventHandler("sr:failed", resourceRoot, function(reasonKey, textMs)
+    local ms = tonumber(textMs) or MISSION_TEXT_MS
     failedReason = reasonKey
-    failedUntil = getTickCount() + FAILED_SHOW_MS
+    failedUntil = getTickCount() + ms
+    missionBigText("M_FAIL", nil, ms)
 end)
 
 addEventHandler("sr:finished", resourceRoot, function(timeMs, position)
     finishedMs = timeMs
     finishedPos = position
-    finishedUntil = getTickCount() + FINISHED_SHOW_MS
+    finishedUntil = getTickCount() + MISSION_TEXT_MS
     failedUntil = 0
-    playSound(SOUND_PASSED)
+    missionBigText("M_PASSR", SR.passRespect)
 end)
 
 addEventHandler("sr:notice", resourceRoot, function(text)
@@ -152,19 +158,15 @@ addEventHandler("onClientRender", root, function()
         drawText("¡YA!", 0, sh * 0.25, sw, sh * 0.5, tocolor(120, 255, 120, 255), ui(5), FONT_TITLE)
     end
 
-    -- Falla
-    if now < failedUntil then
-        drawBanner("¡Misión fallida!", sh * 0.3, sh * 0.45, COLOR_FAILED)
-        if failedReason == "death" then
-            drawText("Moriste. La misión se reinicia; el reloj sigue.", 0, sh * 0.45, sw, sh * 0.5,
-                tocolor(255, 190, 190, 255), ui(1.3), FONT_SMALL)
-        end
+    -- Falla: el cartel grande lo pone el GXT de la mision.
+    if now < failedUntil and failedReason == "death" then
+        drawText("Moriste. La misión se reinicia; el reloj sigue.", 0, sh * 0.64, sw, sh * 0.70,
+            tocolor(255, 190, 190, 255), ui(1.3), FONT_SMALL)
     end
 
-    -- Mision cumplida
+    -- Mision cumplida: GXT de la mision + tiempo/puesto del gamemode.
     if now < finishedUntil and finishedMs then
-        drawBanner("¡Misión cumplida!", sh * 0.3, sh * 0.45, COLOR_PASSED)
-        drawText(("%s  (%dº)"):format(Results.formatTime(finishedMs), finishedPos), 0, sh * 0.45, sw, sh * 0.52,
+        drawText(("%s  (%dº)"):format(Results.formatTime(finishedMs), finishedPos), 0, sh * 0.64, sw, sh * 0.72,
             tocolor(255, 255, 255, 255), ui(1.8), FONT_BIG)
     end
 

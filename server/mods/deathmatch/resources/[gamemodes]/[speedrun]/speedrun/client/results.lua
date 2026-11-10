@@ -23,8 +23,8 @@ addEventHandler("sr:results", resourceRoot, function(rankedRows, missionTitle, r
     rows = rankedRows
     title = tostring(missionTitle or "")
     record = type(recordRow) == "table" and recordRow or nil
-    -- Si hay un cartel de falla / cumplida a medias, la tabla espera a que cumpla su tiempo.
-    showAt = getTickCount() + (SR.bannerRemainingMs and SR.bannerRemainingMs() or 0)
+    -- Si hay un GXT de falla / cumplida a medias, la tabla espera a que cumpla su tiempo.
+    showAt = getTickCount() + (SR.missionTextRemainingMs and SR.missionTextRemainingMs() or 0)
     shownYet = false
     SR.resultsVisible = true
     if SR.endRound then SR.endRound() end
