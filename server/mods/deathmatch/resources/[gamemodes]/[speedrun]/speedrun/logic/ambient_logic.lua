@@ -2,10 +2,10 @@
 -- Las usan server/ambient.lua (validar y crear) y client/ambient.lua (proponer).
 AmbientLogic = {}
 
-AmbientLogic.MAX_VEHICLES = 8
-AmbientLogic.MAX_PEDS = 12
-AmbientLogic.PROPOSE_RADIUS = 150   -- un candidato tiene que estar a esta distancia del jugador que lo propone
-AmbientLogic.DESPAWN_RADIUS = 220   -- mas lejos que esto, se borra
+AmbientLogic.MAX_VEHICLES = 25
+AmbientLogic.MAX_PEDS = 40
+AmbientLogic.PROPOSE_RADIUS = 180   -- un candidato tiene que estar a esta distancia del jugador que lo propone
+AmbientLogic.DESPAWN_RADIUS = 250   -- mas lejos que esto, se borra
 AmbientLogic.MIN_SEPARATION = 5     -- candidatos a menos de esto de otro se descartan
 AmbientLogic.VEHICLE_MIN_PLAYER_DIST = 25 -- un auto no puede aparecer pegado al jugador que lo propone
 AmbientLogic.PED_MIN_PLAYER_DIST = 5

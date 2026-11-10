@@ -9,13 +9,13 @@
 -- conductores de policia.
 
 local L = AmbientLogic
-local PROPOSE_EVERY_MS = 2000
+local PROPOSE_EVERY_MS = 250
 local READY_CHECK_MS = 250
 local READY_TIMEOUT_MS = 10000
 local DIAG_EVERY_MS = 15000
-local VEHICLE_TRIES = 2 -- autos que se proponen como maximo por pedido
-local VEHICLE_QUERIES = 4 -- consultas de lugar a GTA por pedido (native-vehicle-traffic reintenta hasta 25)
-local PED_TRIES = 3     -- candidatos de peaton por pedido
+local VEHICLE_TRIES = 4 -- autos que se proponen como maximo por pedido
+local VEHICLE_QUERIES = 25 -- consultas de lugar a GTA por pedido (native-vehicle-traffic reintenta hasta 25)
+local PED_TRIES = 8     -- candidatos de peaton por pedido
 local TASK_ATTEMPTS = 3 -- intentos de darle la tarea a un NPC antes de devolverlo al servidor
 local TASK_RETRY_MS = 500
 

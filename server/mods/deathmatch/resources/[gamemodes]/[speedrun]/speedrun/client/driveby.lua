@@ -79,30 +79,102 @@ local function canFire()
 end
 
 local function aimData(vehicle, kind)
-    local cx, cy, cz, lx, ly, lz = getCameraMatrix()
-    local dx, dy, dz = lx - cx, ly - cy, lz - cz
-    local length = math.sqrt(dx * dx + dy * dy + dz * dz)
-    if length <= 0.0001 then return nil end
-    dx, dy, dz = dx / length, dy / length, dz / length
-
     local _, _, rz = getElementRotation(vehicle)
     local rad = math.rad(rz)
     local forwardX, forwardY = -math.sin(rad), math.cos(rad)
     local rightX, rightY = math.cos(rad), math.sin(rad)
 
-    if kind == "car" then
-        local side = (dx * rightX + dy * rightY) >= 0 and 1 or -1
-        return { x = rightX * side, y = rightY * side, z = 0, side = side,
+    local lookLeft = getPedControlState("vehicle_look_left") == true
+    local lookRight = getPedControlState("vehicle_look_right") == true
+
+    if lookLeft and not lookRight then
+        -- Q: mirar/disparar a la izquierda.
+        return { x = -rightX, y = -rightY, z = 0, side = -1,
+                 rightX = rightX, rightY = rightY }
+    elseif lookRight and not lookLeft then
+        -- E: mirar/disparar a la derecha.
+        return { x = rightX, y = rightY, z = 0, side = 1,
                  rightX = rightX, rightY = rightY }
     end
 
-    -- Moto/bici: se permite lateral y adelante, no hacia atras.
-    local forwardDot = dx * forwardX + dy * forwardY
-    if forwardDot < DriveBy.bikeMinForwardDot then
+    -- Ninguna tecla (adelante) o Q+E (atras): solo dispara la moto/bici, adelante.
+    if kind == "bike" then
         return { x = forwardX, y = forwardY, z = 0, side = 0,
                  rightX = rightX, rightY = rightY }
     end
-    return { x = dx, y = dy, z = dz, side = 0, rightX = rightX, rightY = rightY }
+    return nil
+end
+
+-- Devuelve el objetivo visible mas cercano al rayo (auto-aim), peds y vehiculos.
+local function aimAssist(ox, oy, oz, aim, range, vehicle)
+    local dim = getElementDimension(localPlayer)
+    local bestEl, bestDist = nil, nil
+
+    local function consider(el, radius, sampleZ)
+        if el == localPlayer or el == vehicle then return end
+        if getElementDimension(el) ~= dim or not isElementStreamedIn(el) then return end
+        local elType = getElementType(el)
+        if elType == "ped" and isPedDead(el) then return end
+        if elType == "vehicle" and isVehicleBlown(el) then return end
+
+        local px, py, pz = getElementPosition(el)
+        local dx, dy, dz = px - ox, py - oy, pz - oz
+        local dist = math.sqrt(dx * dx + dy * dy + dz * dz)
+        if dist > range then return end
+        local proj = dx * aim.x + dy * aim.y + dz * aim.z
+        if proj <= 0 then return end
+        local perpSq = dist * dist - proj * proj
+        if perpSq > radius * radius then return end
+
+        -- Linea de vision: no debe haber un muro entre el origen y el objetivo.
+        local losHit, _, _, _, losEl = processLineOfSight(
+            ox, oy, oz, px, py, pz + sampleZ, true, true, true, true,
+            false, false, false, false, vehicle)
+        if (not losHit) or (losEl == el) then
+            if not bestDist or dist < bestDist then
+                bestEl, bestDist = el, dist
+            end
+        end
+    end
+
+    for _, ped in ipairs(getElementsByType("ped")) do
+        consider(ped, DriveBy.aimAssistRadius, 0.7)
+    end
+    for _, veh in ipairs(getElementsByType("vehicle")) do
+        consider(veh, DriveBy.aimAssistVehicleRadius, 0.5)
+    end
+
+    return bestEl
+end
+
+-- Animacion de apuntado del jugador segun el lado (izq/der/delante).
+local aimAnimKey = nil
+local function aimAnimFrom(aim)
+    if aim.side == 0 then return "front" end
+    return aim.side > 0 and "right" or "left"
+end
+
+local function playAimAnim(key)
+    if key == "front" then
+        setPedAnimation(localPlayer, "PLAYER_DVBYS", "Plyr_DrivebyFwd", -1, true, false, false, false)
+    elseif key == "right" then
+        setPedAnimation(localPlayer, "ped", "Driveby_R", -1, true, false, false, false)
+    else
+        setPedAnimation(localPlayer, "ped", "Driveby_L", -1, true, false, false, false)
+    end
+end
+
+local function setAimAnim(key)
+    if key == aimAnimKey then return end
+    aimAnimKey = key
+    playAimAnim(key)
+end
+
+local function stopAimAnim()
+    if aimAnimKey then
+        aimAnimKey = nil
+        setPedAnimation(localPlayer, false)
+    end
 end
 
 local function fireShot()
@@ -146,6 +218,17 @@ local function fireShot()
         impactX, impactY, impactZ = hx or ex, hy or ey, hz or ez
     end
 
+    -- Auto-aim: si el rayo no impactó nada, enganchar el objetivo más cercano
+    -- (ped o vehículo) al rayo.
+    if not target then
+        local assist = aimAssist(ox, oy, oz, aim, cfg.range, vehicle)
+        if assist then
+            target = assist
+            local tx, ty, tz = getElementPosition(assist)
+            impactX, impactY, impactZ = tx, ty, tz
+        end
+    end
+
     fxAddGunshot(ox, oy, oz, aim.x, aim.y, aim.z, true)
     local sfx = cfg.sfx
     if sfx and sfx.ids then
@@ -159,8 +242,13 @@ local function fireShot()
             pcall(setSoundVolume, sound, 0.8)
         end
     end
-    if type(setPedAimTarget) == "function" then
-        pcall(setPedAimTarget, localPlayer, impactX, impactY, impactZ)
+
+    -- Recoil: breve sacudida de disparo; después se re-aplica el apuntado.
+    setPedAnimation(localPlayer, "ped", "SHOT_partial", -1, false, false, false, false)
+    if aimAnimKey then
+        setTimer(function()
+            if aimAnimKey and wasPressed then playAimAnim(aimAnimKey) end
+        end, 320, 1)
     end
 
     triggerServerEvent("speedrun:drivebyShot", resourceRoot, {
@@ -177,12 +265,14 @@ end
 addEventHandler("onClientRender", root, function()
     if not isElement(localPlayer) or isPedDead(localPlayer) then
         wasPressed = false
+        stopAimAnim()
         return
     end
     ensureFireControl()
     local pressed = isPedInVehicle(localPlayer) and getPedControlState("vehicle_fire") == true
     if not pressed then
         wasPressed = false
+        stopAimAnim()
         return
     end
     if not wasPressed then
@@ -192,8 +282,17 @@ addEventHandler("onClientRender", root, function()
     if not canFire() then return end
     local cfg = currentConfig()
     if not cfg then return end
+    local vehicle = getPedOccupiedVehicle(localPlayer)
+    local kind = vehicleKind(vehicle)
+    local aim = aimData(vehicle, kind)
+    if not aim then
+        -- Auto sin mirar a un costado (o Q+E hacia atras): no dispara.
+        stopAimAnim()
+        return
+    end
+    setAimAnim(aimAnimFrom(aim))
     local now = getTickCount()
-    if now - lastShotAt < cfg.interval then return end
+    if now - lastShotAt < DriveBy.effectiveInterval(cfg, kind) then return end
     lastShotAt = now
     fireShot()
 end)
@@ -223,12 +322,15 @@ end)
 
 addEventHandler("onClientPlayerVehicleExit", localPlayer, function()
     wasPressed = false
+    stopAimAnim()
 end)
 
 addEventHandler("onClientPlayerWasted", localPlayer, function()
     wasPressed = false
+    stopAimAnim()
 end)
 
 addEventHandler("onClientResourceStop", resourceRoot, function()
     wasPressed = false
+    stopAimAnim()
 end)

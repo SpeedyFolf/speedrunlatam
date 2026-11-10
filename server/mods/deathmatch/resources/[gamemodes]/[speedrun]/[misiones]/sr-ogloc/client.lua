@@ -22,6 +22,37 @@ local function showText(key, duration)
     return key and ensureText() and textApi("showMissionText", key, duration or 7000, 1)
 end
 
+-- HUD del jugador: se oculta durante las cutscenes de archivo y se restaura al salir.
+local HUD_COMPONENTS = {"radar", "health", "armour", "money", "weapon", "ammo",
+                        "clock", "area_name", "vehicle_name", "breath", "wanted", "crosshair"}
+local savedHud = nil
+local function setHudHidden(hidden)
+    local changed = false
+    if hidden then
+        if not savedHud then
+            savedHud = {}
+            for _, component in ipairs(HUD_COMPONENTS) do
+                local ok, visible = pcall(isPlayerHudComponentVisible, component)
+                -- Si no se puede consultar, asumimos visible para no dejarlo oculto al restaurar.
+                savedHud[component] = (not ok) or (visible ~= false)
+                pcall(setPlayerHudComponentVisible, component, false)
+            end
+            changed = true
+        end
+    elseif savedHud then
+        for component, visible in pairs(savedHud) do
+            pcall(setPlayerHudComponentVisible, component, visible)
+        end
+        savedHud = nil
+        changed = true
+    end
+    if not changed then return end
+    local speedrun = getResourceFromName("speedrun")
+    if speedrun and getResourceState(speedrun) == "running" then
+        pcall(function() exports["speedrun"]:setMissionHudHidden(hidden == true) end)
+    end
+end
+
 -- Contrato del gamemode: muestra el GXT grande de la mision. El gamemode lo
 -- llama al fallar / cumplir; la mision solo presta el lease GXT y el tune nativo.
 function srShowMissionBigText(key, duration, number)
@@ -141,7 +172,8 @@ local function setObjective(objective)
     -- locate (4.0 para vehiculo/casa/burger, 1.2 para el timbre). El cilindro
     -- es nuestra visualizacion; lo pintamos rojo como los markers de mision.
     local size = tonumber(objective.markerSize) or 3
-    state.marker = createMarker(objective[1], objective[2], objective[3] - 1, "cylinder", size, 255, 0, 0, 110)
+    -- objective[3] es Z de script (el piso); no restar 1.0.
+    state.marker = createMarker(objective[1], objective[2], objective[3], "cylinder", size, 255, 0, 0, 110)
     state.blip = createBlip(objective[1], objective[2], objective[3], 0, 2, 255, 220, 80, 255)
     if isElement(state.marker) then setElementDimension(state.marker, state.dim) end
     if isElement(state.blip) then setElementDimension(state.blip, state.dim) end
@@ -243,6 +275,39 @@ local function clearTimers()
     state.timers = {}
 end
 
+-- Skip de cutscene de archivo: se pide al server (autoridad del lider) una sola
+-- vez; si el jugador clickea durante la carga, queda pendiente hasta el start.
+local function requestCutsceneSkip(scene)
+    if not scene or scene.skipApplied then return end
+    if not scene.started then scene.skipPending = true return end
+    if localPlayer ~= scene.leader then return end
+    local now = getTickCount()
+    if scene.skipRequestedAt and now - scene.skipRequestedAt < 1000 then return end
+    scene.skipRequestedAt = now
+    triggerServerEvent("ogl:skipRequest", resourceRoot, scene.id)
+end
+
+local function attachCutsceneInput(scene)
+    if not scene or scene.inputAttached then return end
+    scene.inputAttached = true
+    scene.onSkipKey = function(button, press)
+        if not press then return end
+        if button == "space" or button == "enter" or button == "f" then requestCutsceneSkip(scene) end
+    end
+    scene.onSkipClick = function(button, press)
+        if button == "left" and press == "down" then requestCutsceneSkip(scene) end
+    end
+    addEventHandler("onClientKey", root, scene.onSkipKey)
+    addEventHandler("onClientClick", root, scene.onSkipClick)
+end
+
+local function detachCutsceneInput(scene)
+    if not scene or not scene.inputAttached then return end
+    scene.inputAttached = false
+    if scene.onSkipKey then removeEventHandler("onClientKey", root, scene.onSkipKey) scene.onSkipKey = nil end
+    if scene.onSkipClick then removeEventHandler("onClientClick", root, scene.onSkipClick) scene.onSkipClick = nil end
+end
+
 local function cleanup()
     clearTimers()
     clearAudio()
@@ -250,10 +315,12 @@ local function cleanup()
     releaseCamera()
     fadeCamera(true, 0)
     if state.cutscene then
+        detachCutsceneInput(state.cutscene)
         if isTimer(state.cutscene.timer) then killTimer(state.cutscene.timer) end
         if isTimer(state.cutscene.fadeTimer) then killTimer(state.cutscene.fadeTimer) end
         pcall(releaseFileCutscene, state.cutscene.token)
     end
+    setHudHidden(false)
     if state.text then textApi("releaseMissionText") end
     state = {active = false, timers = {}, text = false, cutscene = nil, camera = nil, marker = nil, blip = nil,
              audio = nil, audioGeneration = 0, token = nil, dim = 0}
@@ -289,6 +356,8 @@ addEventHandler("ogl:fileCutscene", resourceRoot, function(token, id, name, lead
     triggerServerEvent("ogl:cutsceneProbe", resourceRoot, id, name, "requested")
     local scene = {id = id, token = cutToken, requestedAt = getTickCount(), leader = leader}
     state.cutscene = scene
+    attachCutsceneInput(scene)
+    setHudHidden(true)
     scene.timer = setTimer(function()
         if state.cutscene ~= scene then return end
         if not scene.started then
@@ -301,17 +370,17 @@ addEventHandler("ogl:fileCutscene", resourceRoot, function(token, id, name, lead
                     -- pantalla quedaba negra durante SMOKE1B.
                     local faded = fadeFileCutscene(cutToken, true, 1.0, 0, 0, 0)
                     if not faded then fadeCamera(true, 0.5) end
+                    if scene.skipPending then requestCutsceneSkip(scene) end
                 end
             elseif getTickCount() - scene.requestedAt > 60000 then
                 killTimer(scene.timer)
                 releaseFileCutscene(cutToken)
                 state.cutscene = nil
+                detachCutsceneInput(scene)
+                setHudHidden(false)
                 reportBarrier(id, false, "chargement cutscene timeout")
             end
         else
-            if localPlayer == leader and isFileCutsceneSkipInputPressed(cutToken) then
-                triggerServerEvent("ogl:skipRequest", resourceRoot, id)
-            end
             if isFileCutsceneFinished(cutToken) then
                 triggerServerEvent("ogl:cutsceneProbe", resourceRoot, id, name, "finished")
                 killTimer(scene.timer)
@@ -330,6 +399,8 @@ addEventHandler("ogl:fileCutscene", resourceRoot, function(token, id, name, lead
                 local function releaseAfterFade(keepBlack)
                     local released, result = pcall(releaseFileCutscene, cutToken, keepBlack == true)
                     state.cutscene = nil
+                    detachCutsceneInput(scene)
+                    setHudHidden(false)
                     reportBarrierNextFrame(id, released and result == true, "releaseFileCutscene refuse", function()
                         if state.transition then
                             triggerServerEvent("ogl:cutsceneProbe", resourceRoot, id, name, "released",
@@ -361,6 +432,8 @@ addEventHandler("ogl:fileCutscene", resourceRoot, function(token, id, name, lead
                 killTimer(scene.timer)
                 pcall(releaseFileCutscene, cutToken, false)
                 state.cutscene = nil
+                detachCutsceneInput(scene)
+                setHudHidden(false)
                 reportBarrier(id, false, "lecture cutscene timeout")
             end
         end
@@ -370,7 +443,21 @@ end)
 addEvent("ogl:skipCutscene", true)
 addEventHandler("ogl:skipCutscene", resourceRoot, function(token, id)
     if not isCurrent(token) then return end
-    if state.cutscene and state.cutscene.id == id then pcall(skipFileCutscene, state.cutscene.token) end
+    local scene = state.cutscene
+    if scene and scene.id == id and not scene.skipApplied then
+        scene.skipApplied = true
+        pcall(skipFileCutscene, scene.token)
+    end
+end)
+
+-- El edge nativo de GTA dura un frame: consultarlo por render y no cada 50 ms.
+addEventHandler("onClientRender", root, function()
+    local scene = state.cutscene
+    if not scene or not scene.started or scene.skipApplied then return end
+    if localPlayer ~= scene.leader then return end
+    if type(isFileCutsceneSkipInputPressed) == "function" and isFileCutsceneSkipInputPressed(scene.token) then
+        requestCutsceneSkip(scene)
+    end
 end)
 
 local scenes = {
@@ -381,10 +468,12 @@ local scenes = {
         camera = {2461.7, -1273.7, 30.0}, target = {2470.1, -1277.1, 30.7}, text = "SMK1_04", duration = 5000,
     },
     freddy_dead = {
-        camera = {2299.3, -1490.6, 22.8}, target = {2290.4, -1490.2, 22.3}, text = "SMK1_13", duration = 6500,
+        camera = {2299.3, -1490.6, 22.8}, target = {2255.6, -1493.3, 38.3},
+        oglocAim = {2299.3, -1490.6, 22.8}, text = "SMK1_13", duration = 6500,
     },
     burger_shot = {
-        camera = {790.2, -1627.0, 16.0}, target = {783.2, -1630.3, 12.2}, duration = 6500,
+        camera = {776.7145, -1637.2482, 14.0840}, target = {777.5906, -1636.7693, 14.1398},
+        oglocWalk = {792.1, -1626.0, 12.4}, duration = 6500,
     },
 }
 
@@ -400,26 +489,37 @@ local function setSceneAnimation(ped, block, animation, duration, looped)
     setPedAnimation(ped, block, animation, duration or -1, looped == true, false, true, false, 250)
 end
 
-local function stageSceneActors(name, actors)
+local function sceneTimer(sceneTimers, ms, fn)
+    local timer = setTimer(fn, ms, 1)
+    if sceneTimers then sceneTimers[#sceneTimers + 1] = timer end
+    return rememberTimer(timer)
+end
+
+local function stageSceneActors(name, actors, sceneTimers)
     actors = type(actors) == "table" and actors or {}
     if name == "freddys_house_arrival" then
         setSceneAnimation(actors.ogloc, "CAR_CHAT", "CAR_Sc1_BR")
-        rememberTimer(setTimer(function()
+        sceneTimer(sceneTimers, 2500, function()
             setSceneAnimation(localPlayer, "CAR_CHAT", "CAR_Sc1_FL")
             setSceneAnimation(actors.sweet, "CAR_CHAT", "CAR_Sc1_BL")
-        end, 2500, 1))
-        rememberTimer(setTimer(function()
+        end)
+        sceneTimer(sceneTimers, 9000, function()
             setSceneAnimation(actors.smoke, "CAR_CHAT", "CAR_Sc1_FR")
-        end, 9000, 1))
+        end)
     elseif name == "doorbell" then
         setSceneAnimation(localPlayer, "CRIB", "CRIB_Use_Switch", 800, false)
-        rememberTimer(setTimer(function()
+        sceneTimer(sceneTimers, 1200, function()
             setSceneAnimation(actors.ogloc, "GANGS", "prtial_gngtlkE", 2500, false)
-        end, 1200, 1))
-        rememberTimer(setTimer(function()
+        end)
+        sceneTimer(sceneTimers, 9000, function()
             setSceneAnimation(actors.ogloc, "MISC", "bng_wndw", 3500, false)
             setSceneAnimation(localPlayer, "RAPPING", "Laugh_01", 3500, false)
-        end, 9000, 1))
+        end)
+    elseif name == "freddy_dead" then
+        local aim = scenes.freddy_dead.oglocAim
+        if aim and isElement(actors.ogloc) and type(setPedAimTarget) == "function" then
+            pcall(setPedAimTarget, actors.ogloc, aim[1], aim[2], aim[3])
+        end
     end
 end
 
@@ -439,21 +539,53 @@ addEventHandler("ogl:scene", resourceRoot, function(token, id, name, leader, pay
     payload = type(payload) == "table" and payload or {}
     local actors = payload.actors
     clearObjective()
+    setHudHidden(true)
+
+    -- Timers de animacion de la escena: se cancelan al terminar/skipear para
+    -- que no disparen sobre el jugador que ya volvio a la PCJ.
+    local sceneTimers = {}
+    local function cancelSceneTimers()
+        for _, timer in ipairs(sceneTimers) do if isTimer(timer) then killTimer(timer) end end
+        sceneTimers = {}
+    end
+
+    -- El skip se acepta desde que llega la escena, incluso durante el fade.
+    local pendingSceneSkip = false
+    local earlyKey, earlyClick
+    local function removeEarlyInput()
+        if earlyKey then removeEventHandler("onClientKey", root, earlyKey) earlyKey = nil end
+        if earlyClick then removeEventHandler("onClientClick", root, earlyClick) earlyClick = nil end
+    end
+    earlyKey = function(button, press)
+        if press and (button == "space" or button == "enter" or button == "f") then pendingSceneSkip = true end
+    end
+    earlyClick = function(button, press)
+        if button == "left" and press == "down" then pendingSceneSkip = true end
+    end
+    addEventHandler("onClientKey", root, earlyKey)
+    addEventHandler("onClientClick", root, earlyClick)
 
     -- Escenas que arrancan desde juego visible: fundimos a negro antes de
-    -- cambiar la camara/actores. Las que ya vienen de un teardown negro
-    -- (doorbell, freddy_dead) no necesitan otro fade-out y arrancan directo.
+    -- cambiar la camara/actores. `doorbell` y `freddy_dead` ya vienen de un
+    -- teardown/corte y arrancan directo con la camara fija.
     local needsFadeOut = name == "freddys_house_arrival" or name == "burger_shot"
     local delay = needsFadeOut and 500 or 0
     if needsFadeOut then fadeCamera(false, 0.5) end
 
     rememberTimer(setTimer(function()
-        if not state.active then return end
+        if not state.active then
+            removeEarlyInput()
+            setHudHidden(false)
+            return
+        end
         if not fixedCamera(scene.camera, scene.target) then
+            removeEarlyInput()
+            setHudHidden(false)
             return reportBarrier(id, false, "camera refusee")
         end
         local function beginScenePresentation()
-            stageSceneActors(name, actors)
+            removeEarlyInput()
+            stageSceneActors(name, actors, sceneTimers)
             local sceneDone = false
             local onKey
             local onClick
@@ -465,6 +597,7 @@ addEventHandler("ogl:scene", resourceRoot, function(token, id, name, leader, pay
                 if not state.active or sceneDone then return end
                 sceneDone = true
                 stopInput()
+                cancelSceneTimers()
                 clearAudio()
                 -- Fundir a negro ANTES de soltar camara/actores y avisar al
                 -- server: el callback del barrier suele teleportar al jugador
@@ -474,27 +607,34 @@ addEventHandler("ogl:scene", resourceRoot, function(token, id, name, leader, pay
                     if not state.active then return end
                     clearSceneActors(actors)
                     releaseCamera()
+                    setHudHidden(false)
                     reportBarrier(id, true)
                 end, 500, 1))
             end
             local function failSceneAudio(reason)
                 if not state.active or sceneDone then return end
                 sceneDone = true
+                cancelSceneTimers()
                 clearAudio()
                 clearSceneActors(actors)
                 releaseCamera()
                 stopInput()
+                setHudHidden(false)
                 reportBarrier(id, false, "audio de scene: " .. tostring(reason))
             end
             onKey = function(button, press)
                 if not press or sceneDone then return end
-                if button == "space" or button == "return" or button == "f" then finishScene() end
+                if button == "space" or button == "enter" or button == "f" then finishScene() end
             end
             onClick = function(button, press)
                 if button == "left" and press == "down" then finishScene() end
             end
             addEventHandler("onClientKey", root, onKey)
             addEventHandler("onClientClick", root, onClick)
+            if pendingSceneSkip then
+                pendingSceneSkip = false
+                return finishScene()
+            end
             local audio = OGL.audio[sceneAudio[name]]
             if audio then
                 local function finishSceneAudio()
@@ -682,9 +822,9 @@ addEventHandler("ogl:stage", resourceRoot, function(token, stage, payload)
         -- mismo tick y no debe verse el salto.
         fadeCamera(false, 0)
     elseif stage == "doorbell" then
-        -- El server ya nos saco del Glendale; esperamos el sync, corregimos
-        -- la Z (el punto SCM original queda medio enterrado) y limpiamos
-        -- cualquier resto de animacion de vehiculo antes de revelar.
+        -- El server ya nos saco del Glendale y puso la Z correcta. Aca solo
+        -- limpiamos restos de animacion de vehiculo/driveby antes de revelar;
+        -- la Z la manda el server, no el cliente (getGroundPosition no es fiable).
         rememberTimer(setTimer(function()
             if not state.active or state.stage ~= "doorbell" then return end
             if isPedInVehicle(localPlayer) then removePedFromVehicle(localPlayer) end
@@ -693,11 +833,6 @@ addEventHandler("ogl:stage", resourceRoot, function(token, stage, payload)
             -- justo cuando el server saca al jugador del vehiculo.
             if type(setPedDoingGangDriveby) == "function" then
                 setPedDoingGangDriveby(localPlayer, false)
-            end
-            local x, y, z = getElementPosition(localPlayer)
-            local ground = getGroundPosition(x, y, z + 2.0)
-            if type(ground) == "number" and ground > 0 then
-                setElementPosition(localPlayer, x, y, ground + 0.05)
             end
             fadeCamera(true, 0.5)
         end, 150, 1))
@@ -780,6 +915,12 @@ addEventHandler("ogl:cleanup", resourceRoot, function(token, id, report)
         end, 50, 1)
     end
 end)
+-- La copia se destruyo del lado server (endInstance/quit): limpiar el cliente.
+addEvent("srogloc:end", true)
+addEventHandler("srogloc:end", resourceRoot, function(token)
+    if isCurrent(token) then cleanup() end
+end)
+
 addEventHandler("onClientResourceStart", resourceRoot, function()
     triggerServerEvent("srogloc:clientReady", resourceRoot)
 end)

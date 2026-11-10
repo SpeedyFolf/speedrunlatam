@@ -10,6 +10,7 @@
     <script src="logic/ambient_logic.lua" type="shared" />
     <script src="shared/population_stages.lua" type="shared" />
     <script src="shared/driveby.lua" type="shared" />
+    <script src="logic/wanted_rules.lua" type="shared" />
 
     <script src="logic/player_stats.lua" type="server" />
     <script src="server/missions.lua" type="server" />
@@ -17,6 +18,7 @@
     <script src="server/driveby.lua" type="server" />
     <script src="server/instances.lua" type="server" />
     <script src="server/ambient.lua" type="server" />
+    <script src="server/wanted.lua" type="server" />
     <script src="server/records.lua" type="server" />
     <script src="server/vote.lua" type="server" />
     <script src="server/main.lua" type="server" />
@@ -27,8 +29,7 @@
     <script src="client/native.lua" type="client" />
     <script src="client/driveby.lua" type="client" />
     <script src="client/ambient.lua" type="client" />
-
-    <file src="audio/mission_accomplished.mp3" />
+    <script src="client/wanted.lua" type="client" />
 
     <export function="registerMission" type="server" />
     <export function="reportCompleted" type="server" />
@@ -36,4 +37,5 @@
     <export function="getPlayerDimension" type="server" />
     <export function="prepareActor" type="client" />
     <export function="loadPopulationStage" type="client" />
+    <export function="setMissionHudHidden" type="client" />
 </meta>

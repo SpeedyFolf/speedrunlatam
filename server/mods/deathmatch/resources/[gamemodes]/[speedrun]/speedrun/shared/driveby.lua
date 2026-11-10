@@ -19,4 +19,18 @@ DriveBy = {
     fireOriginSide = 1.60,
     fireOriginBikeForward = 0.80,
     muzzleSide = 1.20,
+    -- Auto-aim: radio perpendicular al rayo (en metros) para enganchar al
+    -- objetivo mas cercano cuando el tiro iria al aire.
+    aimAssistRadius = 1.5,        -- peds
+    aimAssistVehicleRadius = 2.5, -- vehiculos
+    -- La moto/bici dispara un toque mas rapido.
+    bikeIntervalScale = 0.8,
 }
+
+-- Intervalo efectivo de disparo segun el tipo de vehiculo.
+function DriveBy.effectiveInterval(cfg, kind)
+    if kind == "bike" then
+        return math.floor(cfg.interval * DriveBy.bikeIntervalScale)
+    end
+    return cfg.interval
+end

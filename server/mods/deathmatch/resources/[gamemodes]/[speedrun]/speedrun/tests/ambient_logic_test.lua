@@ -22,8 +22,8 @@ end)
 test("normalizeVehicle rejects bad shapes, far, police and cops", function()
   local _, why = A.normalizeVehicle(veh(0 / 0, 0), 0, 0, 13); assertEq(why, "shape")
   _, why = A.normalizeVehicle(veh(math.huge, 0), 0, 0, 13); assertEq(why, "shape")
-  _, why = A.normalizeVehicle(veh(151, 0), 0, 0, 13); assertEq(why, "far")
-  assertEq(A.normalizeVehicle(veh(150, 0), 0, 0, 13) ~= nil, true)
+  _, why = A.normalizeVehicle(veh(A.PROPOSE_RADIUS + 1, 0), 0, 0, 13); assertEq(why, "far")
+  assertEq(A.normalizeVehicle(veh(A.PROPOSE_RADIUS, 0), 0, 0, 13) ~= nil, true)
   _, why = A.normalizeVehicle(veh(30, 0, { model = 596 }), 0, 0, 13); assertEq(why, "model")
   _, why = A.normalizeVehicle(veh(30, 0, { model = 399 }), 0, 0, 13); assertEq(why, "model")
   _, why = A.normalizeVehicle(veh(30, 0, { model = 410.5 }), 0, 0, 13); assertEq(why, "model")
@@ -44,7 +44,7 @@ end)
 test("acceptBatch respects cap and 5 m separation", function()
   local occupied = { { x = 0, y = 20 } }
   local list = { veh(10, 0), veh(12, 0), veh(30, 0), veh(0, 22), veh(50, 0) }
-  local accepted, rejected = A.acceptBatch(list, A.normalizeVehicle, 6, A.MAX_VEHICLES, occupied, 0, -100, 13)
+  local accepted, rejected = A.acceptBatch(list, A.normalizeVehicle, A.MAX_VEHICLES - 2, A.MAX_VEHICLES, occupied, 0, -100, 13)
   -- room = 2: (10,0) ok, (12,0) too close, (30,0) ok, the rest over the cap / too close
   assertEq(#accepted, 2); assertEq(rejected, 3)
   assertEq(accepted[1].x, 10); assertEq(accepted[2].x, 30)
@@ -66,7 +66,7 @@ test("acceptBatch trims oversized proposals", function()
 end)
 
 test("selectDespawn picks entries beyond the radius, highest index first", function()
-  local entries = { { x = 0, y = 0, z = 0 }, { x = 221, y = 0, z = 0 }, { x = 100, y = 0, z = 0 }, { x = 0, y = 300, z = 0 } }
+  local entries = { { x = 0, y = 0, z = 0 }, { x = A.DESPAWN_RADIUS + 1, y = 0, z = 0 }, { x = 100, y = 0, z = 0 }, { x = 0, y = A.DESPAWN_RADIUS + 50, z = 0 } }
   local out = A.selectDespawn(entries, 0, 0, 0, A.DESPAWN_RADIUS)
   assertEq(#out, 2); assertEq(out[1], 4); assertEq(out[2], 2)
   assertEq(#A.selectDespawn({ { x = 220, y = 0, z = 0 } }, 0, 0, 0, 220), 0)

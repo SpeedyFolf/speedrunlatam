@@ -106,6 +106,8 @@ local function createFor(player, dim)
     srLog("start", getPlayerName(player), "dim=" .. dim, "mission=" .. tostring(def.id), "token=" .. token)
     -- Ambiente propio de la copia (server/ambient.lua): poblacion de la etapa, trafico y peatones.
     Ambient.startCopy(player, dim, def.populationStage)
+    -- Wanted/policia dimension-aware (server/wanted.lua): habilitar en la copia.
+    if type(setNativeWantedEnabled) == "function" then setNativeWantedEnabled(player, true) end
     return true
 end
 
@@ -135,6 +137,9 @@ end
 
 -- Destruye la copia y libera la dimension. No mueve al jugador.
 function Instances.endInstance(player)
+    -- Wanted/policia: apagar y limpiar al terminar (o al abandonar) la copia.
+    if type(setNativeWantedEnabled) == "function" then setNativeWantedEnabled(player, false) end
+    if type(clearNativeWanted) == "function" then clearNativeWanted(player) end
     Ambient.stopCopy(player)
     local inst = instances[player]
     if inst then

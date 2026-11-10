@@ -516,6 +516,16 @@ local function handleFailure(player, reason)
     return true
 end
 
+-- Arresto del wanted dimension-aware (server/wanted.lua): falla la corrida en
+-- vez del outcome por defecto (comisaria, multa, armas). Devolver false cancela
+-- ese outcome; el speedrun ya reinicia la copia.
+addEventHandler("onNativePlayerArrested", root, function()
+    local player = source
+    if not isElement(player) then return false end
+    handleFailure(player, "arrested")
+    return false
+end)
+
 local function finishPlayer(player)
     local ms = round:finish(player, now())
     if not ms then return false end
@@ -551,9 +561,27 @@ end
 -- Exports de servidor para las misiones
 ---------------------------------------------------------------------------
 function reportCompleted(player, token)
-    if not roundRunning() or sourceResource ~= roundInfo.resource then return false end
-    if not isElement(player) or not Instances.isCurrentToken(player, token) then return false end
-    if not isActive(player) then return false end
+    if not roundRunning() then
+        srLog("complete_reject", nameOf(player), "no_round")
+        return false
+    end
+    if sourceResource ~= roundInfo.resource then
+        local caller = (sourceResource and getResourceName(sourceResource)) or tostring(sourceResource)
+        srLog("complete_reject", nameOf(player), "wrong_res", "caller=" .. caller)
+        return false
+    end
+    if not isElement(player) then
+        srLog("complete_reject", "?", "no_player")
+        return false
+    end
+    if not Instances.isCurrentToken(player, token) then
+        srLog("complete_reject", nameOf(player), "token")
+        return false
+    end
+    if not isActive(player) then
+        srLog("complete_reject", nameOf(player), "inactive")
+        return false
+    end
     return finishPlayer(player)
 end
 

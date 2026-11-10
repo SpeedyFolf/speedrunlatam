@@ -9,6 +9,21 @@ addEvent("ogl:cleanupDone", true)
 
 local function createMission(inst)
 local mission = inst
+-- Las coordenadas de set_char_coordinates del SCM son Z de script; para un
+-- ped/jugador en MTA hay que sumar 1.0. No aplica a camaras ni vehiculos.
+local SCM_PED_Z = 1.0
+local function pedZ(z) return z + SCM_PED_Z end
+-- Snap al piso real cuando la Z del SCM no coincide (porches/escalones).
+-- Ojo: getGroundPosition es client-only, asi que en este script (server) el
+-- snap nunca se hace y siempre equivale a pedZ(z). El branch queda por si en
+-- el futuro se resuelve con un round-trip al cliente.
+local function pedGroundZ(x, y, z)
+    if type(getGroundPosition) == "function" then
+        local ground = getGroundPosition(x, y, z + 2.0)
+        if type(ground) == "number" and ground > 0 then return ground + SCM_PED_Z end
+    end
+    return pedZ(z)
+end
 local failMission
 local beginPoliceCutscene, beginHouseScene, setupChase, startNextRecording, beginCombat, beginBurgerReturn, passMission
 local placeVehicle
@@ -21,6 +36,13 @@ end
 local function rememberTimer(timer)
     mission.timers[#mission.timers + 1] = timer
     return timer
+end
+
+local function stopReturnFollow()
+    if mission and mission.returnFollow and isTimer(mission.returnFollow) then
+        killTimer(mission.returnFollow)
+    end
+    if mission then mission.returnFollow = nil end
 end
 
 local function participants()
@@ -275,6 +297,7 @@ end
 failMission = function(reason, textKey)
     if not mission or mission.finishing then return end
     mission.finishing = true
+    stopReturnFollow()
     setStage("failed", {reason = reason, textKey = textKey})
     trace("failure_requested", {reason = reason, textKey = textKey})
     Instance.reportFailed(mission, reason)
@@ -347,6 +370,41 @@ local function allNear(x, y, z, radius)
         if not isElement(player) then return false end
         local px, py, pz = getElementPosition(player)
         if getDistanceBetweenPoints3D(px, py, pz, x, y, z) > radius then return false end
+    end
+    return true
+end
+
+-- Distancia minima (2D) del punto (mx,my) al segmento (ax,ay)-(bx,by).
+local function segmentDistance2D(ax, ay, bx, by, mx, my)
+    local dx, dy = bx - ax, by - ay
+    local lenSq = dx * dx + dy * dy
+    if lenSq <= 0.0001 then
+        return math.sqrt((mx - ax) * (mx - ax) + (my - ay) * (my - ay))
+    end
+    local t = ((mx - ax) * dx + (my - ay) * dy) / lenSq
+    if t < 0 then t = 0 elseif t > 1 then t = 1 end
+    local px, py = ax + t * dx, ay + t * dy
+    return math.sqrt((mx - px) * (mx - px) + (my - py) * (my - py))
+end
+
+-- Como allNear, pero mira el tramo recorrido desde el tick anterior: a alta
+-- velocidad el auto puede saltar el radio de 4 m entre dos ticks de 250 ms.
+-- Solo usa el tramo si el tick anterior fue del mismo stage (evita falsos
+-- segmentos tras un teletransporte de cutscene).
+local function allNearSwept(x, y, z, radius)
+    mission.lastPos = mission.lastPos or {}
+    for player in pairs(mission.players) do
+        if not isElement(player) then return false end
+        local px, py, pz = getElementPosition(player)
+        local prev = mission.lastPos[player]
+        local d
+        if prev and prev.stage == mission.stage then
+            d = segmentDistance2D(prev.x, prev.y, px, py, x, y)
+        else
+            d = math.sqrt((px - x) * (px - x) + (py - y) * (py - y))
+        end
+        mission.lastPos[player] = {x = px, y = py, z = pz, stage = mission.stage}
+        if d > radius or math.abs(pz - z) > radius + 8 then return false end
     end
     return true
 end
@@ -619,19 +677,23 @@ beginHouseScene = function()
         -- la pantalla ya negra y recien despues colocamos a los jugadores.
         rememberTimer(setTimer(function()
             if not mission or mission.finishing or mission.stage ~= "scene:freddys_house_arrival" then return end
+            local exit = OGL.scenes.houseArrival.leaderExit
             local index = 0
             for _, player in ipairs(exits) do
                 index = index + 1
                 if isElement(player) then
-                    setElementPosition(player, 2457.4 - (index - 1), -1286.1 - (index - 1), 23.0)
-                    setElementRotation(player, 0, 0, 230.2)
+                    setElementPosition(player, exit[1] - (index - 1), exit[2] - (index - 1),
+                                       pedGroundZ(exit[1] - (index - 1), exit[2] - (index - 1), exit[3]))
+                    setElementRotation(player, 0, 0, exit[4])
+                    setPedAnimation(player, false)
                     setElementFrozen(player, false)
                     toggleAllControls(player, true, true, true)
                 end
             end
             if isElement(mission.ogloc) then
-                setElementPosition(mission.ogloc, 2467.8, -1277.1, 28.9)
+                setElementPosition(mission.ogloc, 2467.8, -1277.1, pedGroundZ(2467.8, -1277.1, 28.9))
                 setElementRotation(mission.ogloc, 0, 0, 230.2)
+                setPedAnimation(mission.ogloc, false)
             end
             setStage("doorbell", {objective = OGL.doorbell, textKey = "SMK1_03"})
             if mission.headless then
@@ -639,7 +701,8 @@ beginHouseScene = function()
             elseif mission.transition then
                 transitionCheckpoint("doorbell_controls", "foot_all", function()
                     if not mission or mission.stage ~= "doorbell" then return end
-                    setElementPosition(mission.leader, OGL.doorbell[1], OGL.doorbell[2], OGL.doorbell[3])
+                    setElementPosition(mission.leader, OGL.doorbell[1], OGL.doorbell[2],
+                                       pedGroundZ(OGL.doorbell[1], OGL.doorbell[2], OGL.doorbell[3]))
                     setElementVelocity(mission.leader, 0, 0, 0)
                 end)
             end
@@ -710,12 +773,15 @@ setupChase = function()
         local participantIndex = 0
         for player in pairs(mission.players) do
             participantIndex = participantIndex + 1
-            setElementPosition(player, 2468.0, -1278.5 - (participantIndex - 1), 29.1)
+            setElementPosition(player, 2468.0, -1278.5 - (participantIndex - 1),
+                               pedGroundZ(2468.0, -1278.5 - (participantIndex - 1), 29.1))
             setElementRotation(player, 0, 0, 269.4)
+            setPedAnimation(player, false)
         end
         if isElement(mission.ogloc) then
-            setElementPosition(mission.ogloc, 2467.4, -1275.8, 28.8)
+            setElementPosition(mission.ogloc, 2467.4, -1275.8, pedGroundZ(2467.4, -1275.8, 28.8))
             setElementRotation(mission.ogloc, 0, 0, 282.8)
+            setPedAnimation(mission.ogloc, false)
         end
         awaitVehiclePlacements(placementHandles, function()
             barrier("scene", "doorbell", function()
@@ -783,8 +849,203 @@ local function startObstacleRecordings(callback)
     end)
 end
 
+local function createReturnProtection()
+    if not mission or not isElement(mission.ogloc) then return false end
+    if mission.cohorts.return_trip then return true end
+    local handle, reason = exports["native-task-runtime"]:createNativeTaskCohort(mission.leader, {
+        members = {{ped = mission.ogloc, missionActor = true,
+                    suffersCriticalHits = false, canBeDraggedOut = false, onlyDamagedByPlayer = true,
+                    neverTargeted = true, task = {type = "none"}}},
+    }, {fallbackOwners = {}})
+    if not handle then
+        failMission("cohorte de protection du retour refusee: " .. tostring(reason))
+        return false
+    end
+    mission.cohorts.return_trip = handle
+    return true
+end
+
+local function headingTo(fromX, fromY, toX, toY)
+    return math.deg(math.atan2(fromX - toX, toY - fromY))
+end
+
+local function startReturnFollow()
+    stopReturnFollow()
+    mission.returnFollow = setTimer(function()
+        if not mission or mission.finishing or mission.stage ~= "return_burger_shot" then
+            stopReturnFollow()
+            return
+        end
+        if not isElement(mission.ogloc) or not isElement(mission.leader) then return end
+        local vehicle = getPedOccupiedVehicle(mission.leader)
+        if vehicle then
+            if getPedOccupiedVehicle(mission.ogloc) ~= vehicle then
+                local maxSeat = 3
+                if type(getVehicleMaxPassengers) == "function" then
+                    maxSeat = tonumber(getVehicleMaxPassengers(vehicle)) or 3
+                end
+                for seat = 1, maxSeat do
+                    if not getVehicleOccupant(vehicle, seat) then
+                        if pcall(warpPedIntoVehicle, mission.ogloc, vehicle, seat) then return end
+                    end
+                end
+                local px, py, pz = getElementPosition(mission.leader)
+                setElementPosition(mission.ogloc, px + 1.2, py + 1.2, pz)
+            end
+        else
+            local px, py, pz = getElementPosition(mission.leader)
+            local ox, oy, oz = getElementPosition(mission.ogloc)
+            if getDistanceBetweenPoints3D(px, py, pz, ox, oy, oz) > 12 then
+                setElementPosition(mission.ogloc, px + 1.2, py + 1.2, pz)
+            end
+        end
+    end, 1000, 0)
+    rememberTimer(mission.returnFollow)
+end
+
+local function beginFreddyDeath(reason)
+    if not mission or mission.finishing or mission.freddyDeath then return end
+    mission.freddyDeath = true
+    trace("freddy_death", {reason = tostring(reason), stage = tostring(mission.stage)})
+
+    local saved = {}
+    for player in pairs(mission.players) do
+        if isElement(player) then
+            local x, y, z = getElementPosition(player)
+            local _, _, rz = getElementRotation(player)
+            saved[player] = {x = x, y = y, z = z, rz = rz}
+        end
+    end
+    local oglocSaved
+    if isElement(mission.ogloc) then
+        local x, y, z = getElementPosition(mission.ogloc)
+        local _, _, rz = getElementRotation(mission.ogloc)
+        oglocSaved = {x = x, y = y, z = z, rz = rz}
+    end
+
+    -- La chase termina: no se sigue reproduciendo ni disparando.
+    for _, handle in pairs(mission.playbacks or {}) do cancelPlayback(handle) end
+    mission.playbacks = {}
+    local cohortNames = {}
+    for name in pairs(mission.cohorts or {}) do cohortNames[#cohortNames + 1] = name end
+    for _, name in ipairs(cohortNames) do cancelCohort(name) end
+    for _, ped in ipairs(mission.goons or {}) do if isElement(ped) then destroyElement(ped) end end
+    mission.goons = {}
+
+    -- Todos a pie: la PCJ desaparece a proposito.
+    if isElement(mission.freddy) and not isPedDead(mission.freddy) then
+        setElementHealth(mission.freddy, 0)
+    end
+    for player in pairs(mission.players) do
+        if isElement(player) then
+            if isPedInVehicle(player) then removePedFromVehicle(player) end
+            setElementFrozen(player, true)
+            toggleAllControls(player, false, true, true)
+        end
+    end
+    if isElement(mission.ogloc) then
+        if isPedInVehicle(mission.ogloc) then removePedFromVehicle(mission.ogloc) end
+        giveWeapon(mission.ogloc, 32, 30000, true)
+        setElementFrozen(mission.ogloc, true)
+    end
+    for _, bike in pairs(mission.playerBikes or {}) do if isElement(bike) then destroyElement(bike) end end
+    mission.playerBikes = {}
+    if isElement(mission.freddyBike) then destroyElement(mission.freddyBike) end
+    mission.freddyBike = nil
+
+    -- La escena siempre usa la cancha; al volver se restaura el lugar de la muerte.
+    local scene = OGL.scenes.freddyDead
+    for player in pairs(mission.players) do
+        if isElement(player) then
+            setElementPosition(player, scene.leader[1], scene.leader[2],
+                               pedGroundZ(scene.leader[1], scene.leader[2], scene.leader[3]))
+            setElementRotation(player, 0, 0, scene.leader[4])
+            setPedAnimation(player, false)
+        end
+    end
+    if isElement(mission.ogloc) then
+        setElementPosition(mission.ogloc, scene.ogloc[1], scene.ogloc[2],
+                           pedGroundZ(scene.ogloc[1], scene.ogloc[2], scene.ogloc[3]))
+        setElementRotation(mission.ogloc, 0, 0, scene.ogloc[4])
+        setPedAnimation(mission.ogloc, false)
+        setElementFrozen(mission.ogloc, false)
+        local aim = scene.oglocAim
+        if aim and type(setPedAimTarget) == "function" then
+            pcall(setPedAimTarget, mission.ogloc, aim[1], aim[2], aim[3])
+        end
+    end
+
+    setStage("freddy_dead_prepare")
+    barrier("scene", "freddy_dead", function()
+        for player, state in pairs(saved) do
+            if isElement(player) then
+                setElementPosition(player, state.x, state.y, state.z)
+                setElementRotation(player, 0, 0, state.rz)
+                setElementFrozen(player, false)
+                toggleAllControls(player, true, true, true)
+            end
+        end
+        if isElement(mission.ogloc) then
+            local base = saved[mission.leader] or oglocSaved
+            if base then
+                setElementPosition(mission.ogloc, base.x + 1.2, base.y + 1.2, base.z)
+                setElementRotation(mission.ogloc, 0, 0, headingTo(base.x + 1.2, base.y + 1.2, base.x, base.y))
+            end
+            setElementFrozen(mission.ogloc, false)
+        end
+        if not createReturnProtection() then return end
+        setStage("return_burger_shot", {objective = OGL.burgerShot, textKey = "SMK1_13"})
+        if isAutoAdvance() then
+            local function goToBurger()
+                if not mission or mission.stage ~= "return_burger_shot" then return end
+                if isElement(mission.leader) then
+                    setElementPosition(mission.leader, OGL.burgerShot[1], OGL.burgerShot[2],
+                                       pedGroundZ(OGL.burgerShot[1], OGL.burgerShot[2], OGL.burgerShot[3]))
+                end
+                if isElement(mission.ogloc) then
+                    local walk = OGL.scenes.burgerShot.oglocWalk
+                    setElementPosition(mission.ogloc, walk[1], walk[2], pedGroundZ(walk[1], walk[2], walk[3]))
+                end
+            end
+            if mission.headless then
+                goToBurger()
+            elseif mission.transition then
+                transitionCheckpoint("return_controls", "foot_all", goToBurger)
+            end
+        else
+            startReturnFollow()
+        end
+    end, {actors = {ogloc = mission.ogloc}})
+end
+
+-- Detecta la muerte de Freddy o la destruccion de una PCJ (la de Freddy o la de
+-- un jugador) durante la chase o el combate, y deriva a la escena de muerte en
+-- vez de fallar la mision. Devuelve true si derivo, false si el fallo no es por
+-- muerte/PCJ y debe seguir el camino de failMission.
+local function redirectFreddyDeath()
+    if not mission or mission.finishing or mission.freddyDeath then return false end
+    local stage = mission.stage
+    if not (stage == "basketball_combat" or (stage and stage:find("^chase_"))) then return false end
+    if isElement(mission.freddy) and isPedDead(mission.freddy) then
+        beginFreddyDeath("freddy")
+        return true
+    end
+    if not isElement(mission.freddyBike) or isVehicleBlown(mission.freddyBike) then
+        beginFreddyDeath("freddy_bike")
+        return true
+    end
+    for _, bike in pairs(mission.playerBikes or {}) do
+        if not isElement(bike) or isVehicleBlown(bike) then
+            beginFreddyDeath("player_bike")
+            return true
+        end
+    end
+    return false
+end
+
 startNextRecording = function()
     if not mission or mission.finishing then return end
+    if redirectFreddyDeath() then return end
     mission.recordingIndex = mission.recordingIndex + 1
     local recordingId = OGL.chaseRecordings[mission.recordingIndex]
     if not recordingId then return beginCombat() end
@@ -815,11 +1076,14 @@ startNextRecording = function()
 end
 
 beginCombat = function()
+    if redirectFreddyDeath() then return end
     cancelCohort("freddy")
     if isPedInVehicle(mission.freddy) then removePedFromVehicle(mission.freddy) end
     if isPedInVehicle(mission.ogloc) then removePedFromVehicle(mission.ogloc) end
-    setElementPosition(mission.freddy, 2300.3, -1502.8, 24.3)
-    setElementPosition(mission.ogloc, 2295.3, -1491.3, 22.3)
+    setElementPosition(mission.freddy, 2300.3, -1502.8, pedGroundZ(2300.3, -1502.8, 24.3))
+    setElementPosition(mission.ogloc, 2295.3, -1491.3, pedGroundZ(2295.3, -1491.3, 22.3))
+    setPedAnimation(mission.freddy, false)
+    setPedAnimation(mission.ogloc, false)
     mission.goons = {}
     for _, p in ipairs(OGL.goons) do
         local ped = createScmPed(OGL.models.goon, p)
@@ -860,7 +1124,7 @@ beginBurgerReturn = function()
     setStage("freddy_dead_prepare")
     cancelCohort("combat")
     for _, ped in ipairs(mission.goons or {}) do if isElement(ped) then destroyElement(ped) end end
-    setElementPosition(mission.ogloc, 2295.3, -1491.3, 22.3)
+    setElementPosition(mission.ogloc, 2295.3, -1491.3, pedGroundZ(2295.3, -1491.3, 22.3))
     local leaderBike = mission.playerBikes[mission.leader]
     if not isElement(leaderBike) then return failMission("PCJ-600 du leader absente", "SMK1_14") end
     local function createReturnProtection()
@@ -910,11 +1174,12 @@ end
 passMission = function()
     if not mission or mission.finishing then return end
     mission.finishing = true
+    stopReturnFollow()
     setStage("passed", {respect = 5})
     trace("mission_passed", {respect = 5, recordings = #OGL.chaseRecordings})
     Instance.send(mission, "ogl:passed", 5)
-    Instance.reportCompleted(mission)
-    trace("PASS", {respect = 5, recordings = #OGL.chaseRecordings})
+    local completed = Instance.reportCompleted(mission)
+    trace("PASS", {respect = 5, recordings = #OGL.chaseRecordings, accepted = completed == true})
     outputServerLog("[og-loc] PASS: SMOKE1, 11 chase recordings, dynamic 06FD and co-op return completed")
     rememberTimer(setTimer(function() clearMission(true) end, 5000, 1))
 end
@@ -935,20 +1200,16 @@ local function validateMission()
         return failMission("OG Loc tue", "SMK1_05")
     end
     if mission.stage == "drive_police" then
-        if travelOccupantsReady(false) and allNear(OGL.police[1], OGL.police[2], OGL.police[3], 4) then
+        if travelOccupantsReady(false) and allNearSwept(OGL.police[1], OGL.police[2], OGL.police[3], 4) then
             beginPoliceCutscene()
         end
     elseif mission.stage == "drive_house" then
-        if travelOccupantsReady(true) and allNear(OGL.house[1], OGL.house[2], OGL.house[3], 4) then beginHouseScene() end
+        if travelOccupantsReady(true) and allNearSwept(OGL.house[1], OGL.house[2], OGL.house[3], 4) then beginHouseScene() end
     elseif mission.stage == "doorbell" then
         if leaderAtDoorbell() then setupChase() end
     elseif mission.stage and mission.stage:find("^chase_") then
+        if redirectFreddyDeath() then return end
         local recordingId = tonumber(mission.stage:match("^chase_recording:(%d+)$"))
-        if recordingId and recordingId >= 30 and recordingId <= 40 then
-            for _, bike in pairs(mission.playerBikes or {}) do
-                if not isElement(bike) or isVehicleBlown(bike) then return failMission("PCJ-600 detruite", "SMK1_14") end
-            end
-        end
         if recordingId and recordingId >= 30 and recordingId <= 40 and isElement(mission.freddy) and
             not isPedDead(mission.freddy) and not isAutoAdvance() then
             local x, y = getElementPosition(mission.leader)
@@ -960,10 +1221,18 @@ local function validateMission()
             end
         end
     elseif mission.stage == "basketball_combat" then
-        if isPedDead(mission.freddy) then return beginBurgerReturn() end
+        if redirectFreddyDeath() then return end
     elseif mission.stage == "return_burger_shot" and
         elementNear(mission.leader, OGL.burgerShot[1], OGL.burgerShot[2], OGL.burgerShot[3], 4) and
         elementNear(mission.ogloc, OGL.burgerShot[1], OGL.burgerShot[2], OGL.burgerShot[3], 4) then
+        stopReturnFollow()
+        if isPedInVehicle(mission.leader) then removePedFromVehicle(mission.leader) end
+        if isPedInVehicle(mission.ogloc) then removePedFromVehicle(mission.ogloc) end
+        local walk = OGL.scenes.burgerShot.oglocWalk
+        setElementPosition(mission.ogloc, walk[1], walk[2], pedGroundZ(walk[1], walk[2], walk[3]))
+        local px, py = getElementPosition(mission.leader)
+        setElementRotation(mission.leader, 0, 0, headingTo(px, py, walk[1], walk[2]))
+        setElementRotation(mission.ogloc, 0, 0, headingTo(walk[1], walk[2], px, py))
         barrier("scene", "burger_shot", passMission, {actors = {ogloc = mission.ogloc}})
     end
 end
@@ -1413,7 +1682,10 @@ addEventHandler("onNativeTaskCohortStateChange", root, function(state, data)
     if state == "active" and data.sample and mission.cohortStates[name] == "active" then return end
     mission.cohortStates[name] = state
     trace("cohort", {name = name, state = state, reason = data.reason})
-    if state == "failed" then return failMission("cohorte " .. name .. ": " .. tostring(data.reason)) end
+    if state == "failed" then
+        if redirectFreddyDeath() then return end
+        return failMission("cohorte " .. name .. ": " .. tostring(data.reason))
+    end
     if name == "freddy" and state == "active" and mission.stage == "chase_wait_authority" then
         startNextRecording()
     elseif name == "combat" and state == "active" and isAutoAdvance() then
@@ -1445,7 +1717,10 @@ addEventHandler("onNativeRecordedVehiclePlaybackStateChange", root, function(sta
     end
     trace("playback", {name = key, recordingId = data.recordingId, state = state, speed = data.speed,
                        distance = data.distance, elapsed = data.elapsed, reason = data.reason})
-    if state == "failed" then return failMission("playback " .. key .. ": " .. tostring(data.reason)) end
+    if state == "failed" then
+        if redirectFreddyDeath() then return end
+        return failMission("playback " .. key .. ": " .. tostring(data.reason))
+    end
     if key == "main" and state == "completed" then
         mission.playbacks.main = nil
         startNextRecording()

@@ -6,6 +6,7 @@ SR.spectating = false
 SR.resultsVisible = false
 SR.missionResource = nil  -- resource de la mision en curso (export srShowMissionBigText)
 SR.passRespect = 5        -- numero de respeto para M_PASSR
+SR.hudHidden = false      -- una cutscene pidio ocultar todo el HUD
 
 local FONT_BIG = "bankgothic"
 local FONT_TITLE = "pricedown"
@@ -49,6 +50,11 @@ end
 SR.drawText = drawText
 SR.ui = ui
 
+-- Export para que una mision oculte el HUD del gamemode durante una cutscene.
+function setMissionHudHidden(hidden)
+    SR.hudHidden = hidden == true
+end
+
 -- El gamemode manda que mostrar; la mision presta el lease GXT y el tune nativo.
 local function missionBigText(key, number, duration)
     local res = SR.missionResource
@@ -74,6 +80,7 @@ function SR.resetRound()
     SR.running = false
     SR.missionResource = nil
     SR.passRespect = 5
+    SR.hudHidden = false
 end
 
 -- La ronda termino (lo llama results.lua): el reloj se apaga.
@@ -137,6 +144,7 @@ addEventHandler("onClientResourceStart", resourceRoot, function()
 end)
 
 addEventHandler("onClientRender", root, function()
+    if SR.hudHidden then return end
     local now = getTickCount()
     local cx = sw / 2
 

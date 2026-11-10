@@ -66,7 +66,7 @@ addEventHandler("speedrun:drivebyShot", resourceRoot, function(data)
     end
 
     local now = getTickCount()
-    if now - (lastShot[player] or 0) < cfg.interval then return end
+    if now - (lastShot[player] or 0) < DriveBy.effectiveInterval(cfg, kind) then return end
 
     local total = getPedTotalAmmo(player, 4) or 0
     if total <= 0 then return logDenied(player, "sin ammo") end
@@ -133,10 +133,26 @@ addEventHandler("speedrun:drivebyShot", resourceRoot, function(data)
         if targetType == "player" or targetType == "ped" then
             damage = cfg.damage * factor
             applyPedDamage(target, damage)
+            if targetType == "ped" then
+                -- Animacion de balazo (flinch); retainPedState restaura la tarea previa (wander).
+                setPedAnimation(target, "ped", "DAM_stomach_frmFT", -1, false, false, false, false, 250, true)
+            end
+            -- Wanted dimension-aware: reportar el balazo (el dano es manual, no
+            -- dispara onPlayerWeaponFire, asi que el wanted no lo ve solo).
+            if type(reportNativeCrime) == "function" and NativeWantedRules then
+                local isCop = targetType == "ped" and
+                    NativeWantedRules.pedClassForModel(getElementModel(target)) == "cop"
+                reportNativeCrime(player, isCop and NativeWantedRules.crime.SHOOT_COP or
+                    NativeWantedRules.crime.SHOOT_PED, target)
+            end
         else
             damage = cfg.vehicleDamage * factor
             local health = getElementHealth(target) or 0
             setElementHealth(target, math.max(0, health - damage))
+            if type(reportNativeCrime) == "function" and NativeWantedRules and
+                NativeWantedRules.lawVehicles[getElementModel(target)] then
+                reportNativeCrime(player, NativeWantedRules.crime.DAMAGE_COP_CAR, target)
+            end
         end
     end
 
