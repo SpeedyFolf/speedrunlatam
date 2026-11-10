@@ -50,14 +50,15 @@ SR.drawText = drawText
 SR.ui = ui
 
 -- El gamemode manda que mostrar; la mision presta el lease GXT y el tune nativo.
-local function missionBigText(key, number)
+local function missionBigText(key, number, duration)
     local res = SR.missionResource
     if not res then return false end
+    local ms = tonumber(duration) or MISSION_TEXT_MS
     local fn = function()
         if number ~= nil then
-            return exports[res]:srShowMissionBigText(key, MISSION_TEXT_MS, number)
+            return exports[res]:srShowMissionBigText(key, ms, number)
         end
-        return exports[res]:srShowMissionBigText(key, MISSION_TEXT_MS)
+        return exports[res]:srShowMissionBigText(key, ms)
     end
     local ok, result = pcall(fn)
     if not ok or result ~= true then
@@ -110,10 +111,11 @@ addEventHandler("sr:go", resourceRoot, function(serverStartTick, elapsedMs, miss
     if (tonumber(elapsedMs) or 0) == 0 then goUntil = getTickCount() + GO_SHOW_MS end
 end)
 
-addEventHandler("sr:failed", resourceRoot, function(reasonKey)
+addEventHandler("sr:failed", resourceRoot, function(reasonKey, textMs)
+    local ms = tonumber(textMs) or MISSION_TEXT_MS
     failedReason = reasonKey
-    failedUntil = getTickCount() + MISSION_TEXT_MS
-    missionBigText("M_FAIL")
+    failedUntil = getTickCount() + ms
+    missionBigText("M_FAIL", nil, ms)
 end)
 
 addEventHandler("sr:finished", resourceRoot, function(timeMs, position)

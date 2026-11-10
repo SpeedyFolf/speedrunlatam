@@ -506,7 +506,8 @@ local function handleFailure(player, reason)
 
     round:fail(player, now())
     srLog("fail", nameOf(player), reason)
-    sendTo(player, "sr:failed", reason)
+    -- Al morir, el GXT de falla termina un poco antes del respawn para que no quede en pantalla.
+    sendTo(player, "sr:failed", reason, reason == "death" and (RESTART_DELAY_MS - 500) or nil)
 
     playerTimers[player] = setTimer(function()
         playerTimers[player] = nil
