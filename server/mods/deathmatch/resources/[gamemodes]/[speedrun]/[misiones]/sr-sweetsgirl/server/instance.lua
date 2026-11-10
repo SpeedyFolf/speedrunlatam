@@ -331,6 +331,7 @@ end)
 local DEF = {
     id = SW5.MISSION_ID,
     title = SW5.TITLE,
+    respect = 7,
     populationStage = SW5.POPULATION_STAGE,
     playerState = SW5.PLAYER_STATE,
 }

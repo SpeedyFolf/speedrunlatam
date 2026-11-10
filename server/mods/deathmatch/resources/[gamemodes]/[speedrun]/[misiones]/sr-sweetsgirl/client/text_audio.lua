@@ -25,6 +25,8 @@ local P = Sw5Logic.AUDIO_PLAYER
 local POLL_MS = 100
 
 local textOwned = false
+local textReleaseTimer = nil
+local bigTextUntil = 0
 local missingLogged = {}  -- [clave o "audio:"..clave] = true: un aviso por clave y por copia
 local queue = {}          -- secuencias esperando
 local current = nil       -- secuencia que suena
@@ -72,6 +74,26 @@ function TextAudio.showHelp(key)
     if not ok and not missingLogged[key] then
         missingLogged[key] = true
         report("text_missing", key)
+    end
+    return ok
+end
+
+-- Contrato del gamemode: GXT grande de la mision (M_FAIL / M_PASSR) y el tune
+-- nativo de mision cumplida. El gamemode decide cuando; la mision presta el lease.
+function srShowMissionBigText(key, duration, number)
+    if not ensureText() then return false end
+    local ms = tonumber(duration) or 5000
+    local ok
+    if number ~= nil then
+        ok = api("showMissionBigText", key, ms, 1, tonumber(number)) == true
+    else
+        ok = api("showMissionBigText", key, ms, 1) == true
+    end
+    if ok then
+        bigTextUntil = getTickCount() + ms
+        if key == "M_PASSR" and type(playMissionPassedTune) == "function" then
+            pcall(playMissionPassedTune, 1)
+        end
     end
     return ok
 end
@@ -320,7 +342,19 @@ end
 ---------------------------------------------------------------------------
 function TextAudio.start()
     missingLogged = {}
+    if isTimer(textReleaseTimer) then killTimer(textReleaseTimer) end
+    textReleaseTimer = nil
     ensureText()
+end
+
+-- El GXT grande puede seguir visible cuando el gamemode ya cerro la copia
+-- (sr5:end a los 2 s). Postergamos el release para no cortar M_PASSR/M_FAIL.
+local function releaseOwnedText()
+    if not textOwned then return end
+    api("clearMissionTexts")
+    api("clearMissionHelp")
+    api("releaseMissionText")
+    textOwned = false
 end
 
 function TextAudio.stop()
@@ -344,9 +378,15 @@ function TextAudio.stop()
     end
     speakers = {}
     if textOwned then
-        api("clearMissionTexts")
-        api("clearMissionHelp")
-        api("releaseMissionText")
-        textOwned = false
+        local wait = bigTextUntil - getTickCount()
+        if wait > 0 then
+            if isTimer(textReleaseTimer) then killTimer(textReleaseTimer) end
+            textReleaseTimer = setTimer(function()
+                textReleaseTimer = nil
+                releaseOwnedText()
+            end, wait, 1)
+        else
+            releaseOwnedText()
+        end
     end
 end
