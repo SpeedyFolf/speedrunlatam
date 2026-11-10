@@ -160,13 +160,13 @@ addEventHandler("onClientRender", root, function()
 
     -- Falla: el cartel grande lo pone el GXT de la mision.
     if now < failedUntil and failedReason == "death" then
-        drawText("Moriste. La misión se reinicia; el reloj sigue.", 0, sh * 0.5, sw, sh * 0.56,
+        drawText("Moriste. La misión se reinicia; el reloj sigue.", 0, sh * 0.64, sw, sh * 0.70,
             tocolor(255, 190, 190, 255), ui(1.3), FONT_SMALL)
     end
 
     -- Mision cumplida: GXT de la mision + tiempo/puesto del gamemode.
     if now < finishedUntil and finishedMs then
-        drawText(("%s  (%dº)"):format(Results.formatTime(finishedMs), finishedPos), 0, sh * 0.5, sw, sh * 0.58,
+        drawText(("%s  (%dº)"):format(Results.formatTime(finishedMs), finishedPos), 0, sh * 0.64, sw, sh * 0.72,
             tocolor(255, 255, 255, 255), ui(1.8), FONT_BIG)
     end
 

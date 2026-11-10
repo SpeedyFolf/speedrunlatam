@@ -6,7 +6,7 @@
 local LOBBY = { x = 2488.0, y = -1666.0, z = 13.35, rot = 0 } -- Grove Street, dimension 0
 local LOADING_DELAY_MS = 1000
 local COUNTDOWN_SECONDS = 3
-local RESTART_DELAY_MS = 3000
+local RESTART_DELAY_MS = 5000
 local RESPAWN_NOW_MS = 50
 local LOBBY_RESPAWN_MS = 3000
 local RESULTS_MS = 12000
