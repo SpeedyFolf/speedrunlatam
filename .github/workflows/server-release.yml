@@ -51,6 +51,38 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --out dist
 
+      - name: Summarize release manifest
+        id: manifest
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+
+          manifest = json.load(open("dist/update.json", encoding="utf-8"))
+          docker = bool(manifest.get("docker_changed"))
+          changes = manifest.get("changes") or {}
+          docker_files = sorted(
+              path
+              for key in ("modified", "added", "deleted")
+              for path in (changes.get(key) or [])
+              if path == "docker" or path.startswith("docker/") or path == ".github/workflows/docker.yml"
+          )
+          lines = [
+              f"previous_tag: `{manifest.get('previous_tag')}`",
+              f"mode: `{manifest.get('mode')}`",
+              f"docker_changed: `{docker}`",
+          ]
+          if docker_files:
+              lines.append("docker files:")
+              lines.extend(f"- `{path}`" for path in docker_files)
+          text = "\n".join(lines) + "\n"
+          print(text)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as handle:
+              handle.write("## Release manifest\n" + text)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"docker_changed={str(docker).lower()}\n")
+          PY
+
       - name: Upload manifest artifact
         uses: actions/upload-artifact@v4
         with:
@@ -95,6 +127,44 @@ jobs:
         with:
           name: release-manifest
           path: dist
+
+      - name: Read release manifest
+        id: manifest
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+
+          manifest = json.load(open("dist/update.json", encoding="utf-8"))
+          docker = bool(manifest.get("docker_changed"))
+          changes = manifest.get("changes") or {}
+          docker_files = sorted(
+              path
+              for key in ("modified", "added", "deleted")
+              for path in (changes.get(key) or [])
+              if path == "docker" or path.startswith("docker/") or path == ".github/workflows/docker.yml"
+          )
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"docker_changed={str(docker).lower()}\n")
+          with open("/tmp/docker-files.txt", "w", encoding="utf-8") as handle:
+              handle.write("\n".join(docker_files))
+          PY
+
+      - name: Explain image requirement
+        if: steps.manifest.outputs.docker_changed == 'true'
+        run: |
+          {
+            echo "## This release includes docker/** changes"
+            echo
+            echo 'The running container image must be updated before a hot deploy:'
+            echo '1. Wait for the `docker` workflow to publish `ghcr.io/ferecece/speedrunlatam:latest`.'
+            echo '2. Reinstall the server in Pterodactyl.'
+            echo '3. Rerun this workflow (or `cd-manual deploy`) with `allow_image_current=true` / `CD_IMAGE_CURRENT=true`.'
+            echo
+            echo '```text'
+            cat /tmp/docker-files.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/setup-python@v5
         with:
