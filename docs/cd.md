@@ -1,4 +1,4 @@
-# Deploy continuo (CD)
+# Deploy (manual desde Actions)
 
 Esta guía es para cualquiera que toque el server. La idea es que sepas **qué
 pasa cuando creás un tag** y qué tenés que hacer (o no hacer) según el tipo de
@@ -6,15 +6,21 @@ cambio.
 
 Regla corta:
 
-- Tocaste **`server/`** (resources, configs): tag + automático, sin Reinstall.
-- Tocaste **`docker/`** (imagen): hace falta **un Reinstall**. No hay forma de
-  actualizar la imagen del contenedor por archivos.
+- Tocaste **`server/`** (resources, configs): tag para publicar los assets y
+  después **deploy manual** desde Actions; sin Reinstall.
+- Tocaste **`docker/`** (imagen): tag, esperar la imagen, **Reinstall** y
+  después deploy manual con `allow_image_current`. No hay forma de actualizar la
+  imagen del contenedor por archivos.
+
+El tag ya **no despliega solo**. El workflow `server-template` solo construye y
+publica `server-template.tar.gz`, `server-update.tar.gz` y `update.json`. El
+deploy se dispara a mano desde **Actions → cd-manual**.
 
 ## Lo primero: ¿qué toqué?
 
 | Cambio | Qué hace el CD | Downtime |
 | --- | --- | --- |
-| `server/mods/deathmatch/resources/**` (resource normal) | Aplica el delta y hace `restart <resource>` | No |
+| `server/mods/deathmatch/resources/**` (resource normal) | El deploy manual aplica el delta y hace `restart <resource>` | No |
 | Gamemode (`speedrun`, `race`) | `restart` del gamemode al final del plan | No |
 | Resource protegido (`resourcebrowser`, `resourcemanager`) | `power restart` | Segundos |
 | `mta-server64`, `x64/**`, `mtaserver.conf.template` | `power restart` (regenera `mtaserver.conf`) | Segundos |
@@ -35,9 +41,10 @@ Hace:
    - `server-update.tar.gz`: solo los archivos que cambiaron desde el tag
      anterior.
    - `update.json`: el manifest que le dice al agente qué hacer.
-2. Si `CD_ENABLED=true`, el job de deploy escribe el pedido en `.deploy/` por la
-   API del panel y manda los comandos MTA (`stop`, `refresh`, `start`,
-   `restart`) también por la API.
+2. **No despliega solo.** El deploy se corre a mano desde el workflow
+   **cd-manual**, que escribe el pedido en `.deploy/` por la API del panel y
+   manda los comandos MTA (`stop`, `refresh`, `start`, `restart`) también por la
+   API.
 3. El agente del contenedor descarga el delta, valida SHA256 y rutas, hace
    snapshot de datos, backup del código y aplica los archivos.
 4. Verifica `mods/deathmatch/logs/server.log` y marca `done` o `failed`.
@@ -76,23 +83,17 @@ variables → Actions → Variables**:
 
 | Variable | Default | Para qué |
 | --- | --- | --- |
-| `CD_ENABLED` | `false` | Habilita el job de deploy automático en tags |
 | `CD_ANNOUNCE` | `0` | `1` manda un `say` y espera antes de recargar |
 | `CD_DELAY_GAMEMODE` | `30` | Segundos de espera si cambia un gamemode |
 | `CD_DELAY_RESOURCE` | `10` | Segundos de espera si solo cambian resources |
 | `CD_DELAY_RESTART` | `30` | Segundos de espera antes de un `power restart` |
-| `CD_IMAGE_CURRENT` | `false` | Ver abajo. Solo para releases que cambian `docker/**` |
 
-`CD_IMAGE_CURRENT=true` significa: **“ya reinstalé la imagen de este release,
-no me pidas otro Reinstall”**. El deploy reescribe el manifest a `hot`/`restart`
-y aplica solo los archivos del server.
+`CD_ENABLED` ya no se usa: no hay deploy automático. `CD_IMAGE_CURRENT` tampoco:
+para un release que cambia `docker/**`, usá el input `allow_image_current` del
+workflow **cd-manual** después de reinstalar la imagen.
 
-Dejarla en `true` permanentemente es peligroso: un release futuro con
-`docker/**` se aplicaría contra la imagen vieja y quedarías con el agente o el
-entrypoint desactualizados sin darte cuenta. Por eso está en `false`.
-
-Estado actual del repo: `CD_ENABLED=true`, `CD_ANNOUNCE=1`,
-`CD_IMAGE_CURRENT=false`.
+Estado actual del repo: `CD_ANNOUNCE=1`. No hace falta configurar nada más para
+que un tag solo publique los assets.
 
 ## El caso normal: cambio de resources
 
@@ -103,11 +104,13 @@ Estado actual del repo: `CD_ENABLED=true`, `CD_ANNOUNCE=1`,
    git tag -a v1.7.0 -m "v1.7.0"
    git push origin v1.7.0
    ```
-   El tag tiene que estar sobre `main`; el job de deploy lo verifica y se niega
-   si no.
+   El tag tiene que estar sobre `main`; el workflow **cd-manual** lo verifica y
+   se niega si no.
 3. GitHub → Actions → workflow **server-template**. El job `build` publica los
-   assets y el job `deploy` aplica el cambio.
-4. En el log del deploy vas a ver algo así:
+   assets. Ese workflow **no despliega**.
+4. GitHub → Actions → workflow **cd-manual** → `action=deploy`,
+   `tag=v1.7.0`. Recién ahí se aplica el cambio.
+5. En el log del deploy vas a ver algo así:
    ```text
    [agent] prepare: prepared v1.7.0 prepared
    [console] input ok
@@ -118,7 +121,7 @@ Estado actual del repo: `CD_ENABLED=true`, `CD_ANNOUNCE=1`,
    ## Deployed v1.7.0
    - process restart: no
    ```
-5. Si querés confirmar en el server: `mods/deathmatch/logs/server.log` muestra
+6. Si querés confirmar en el server: `mods/deathmatch/logs/server.log` muestra
    el resource reiniciado y `/.deploy/current.json` queda con el tag nuevo.
 
 No hay que tocar ninguna variable para un release de resources.
@@ -129,19 +132,14 @@ El agente vive en la imagen, así que este caso tiene dos fases:
 
 1. Mergeá y creá el tag como siempre.
 2. Esperá a que el workflow **docker** termine de publicar
-   `ghcr.io/ferecece/speedrunlatam:latest`.
-3. El job de deploy va a fallar con:
-   ```text
-   this release changed docker/** and requires a Reinstall
-   ```
-   Es lo esperado: no puede aplicar la imagen por archivos.
-4. Hacé **Reinstall** del server en el panel. Es el único downtime grande.
-5. Volvé a correr el deploy con `allow_image_current`:
-   - Manual: workflow **cd-manual** → `action=deploy`, `tag=<tag>`,
+   `ghcr.io/ferecece/speedrunlatam:latest`. El workflow solo reconstruye la
+   imagen si cambió `docker/**`; un cambio de CI no la reconstruye.
+3. Hacé **Reinstall** del server en el panel con la imagen `latest`. Es el único
+   downtime grande.
+4. Deploy manual con `allow_image_current=true`:
+   - GitHub → Actions → **cd-manual** → `action=deploy`, `tag=<tag>`,
      `allow_image_current=true`.
-   - O poné `CD_IMAGE_CURRENT=true` justo para ese release y volvelo a `false`
-     después.
-6. Verificá que el contenedor arrancó con la imagen nueva y que
+5. Verificá que el contenedor arrancó con la imagen nueva y que
    `logs/update-agent.log` tiene el agente.
 
 ### Cuidado con `previous_tag`
@@ -159,7 +157,8 @@ tag:          v1.7.0
 previous_tag: <el tag que tiene realmente el server>
 ```
 
-Así el delta se calcula contra lo instalado y se aplica en caliente.
+Así el delta se calcula contra lo instalado. Después hacé el deploy manual con
+**cd-manual** usando ese mismo tag.
 
 ## Qué pasa dentro de un deploy en caliente
 
@@ -277,10 +276,14 @@ del tar, prepare/apply/verify/rollback, builder de releases y cliente de la API.
 ## Troubleshooting
 
 - **`E_RECREATE_REQUIRED` / “this release changed docker/**”**: el release trae
-  imagen nueva. Esperá el workflow `docker`, hacé Reinstall y reintentá con
-  `allow_image_current`.
+  imagen nueva. Esperá el workflow `docker`, hacé Reinstall y reintentá
+  **cd-manual** con `allow_image_current=true`.
 - **`E_BASE_MISMATCH`**: el server no está en el `previous_tag` del release.
   Reconstruí el release con `previous_tag=<tag instalado>` o hacé Reinstall.
+- **`E_STATE` / “no state available to verify”**: el agente aplicó un template
+  completo (`force_full`) y el contenedor se reinició; al arrancar perdió el
+  estado pendiente. Evitá `force_full` alineando el tag instalado con el
+  `previous_tag`; si pasa, Reinstall y volvé a correr el deploy.
 - **`directory is not managed: mods`**: el agente viejo rechazó un template
   completo. Usá un delta con el `previous_tag` correcto, o actualizá la imagen.
 - **`E_VERIFY`**: el resource no arrancó. Mirá `mods/deathmatch/logs/server.log`
@@ -290,8 +293,8 @@ del tar, prepare/apply/verify/rollback, builder de releases y cliente de la API.
 - **El deploy tarda ~5 minutos y falla**: son los dos timeouts de verificación
   (120s + rollback 120s). Con el health check actual no debería pasar: si la
   consola no responde, falla en ~20s.
-- **El job de deploy no corre**: `CD_ENABLED` no está en `true` o faltan los
-  secretos `PTERODACTYL_*`.
+- **El workflow de deploy no corre**: no hay deploy automático; ejecutá
+  **cd-manual** a mano. Si falla, revisá los secretos `PTERODACTYL_*`.
 - **“update agent is not running”**: el contenedor es anterior al agente.
   Reinstall una vez.
 - **No se puede escribir `.deploy`**: revisá permisos del volumen; el agente
@@ -301,18 +304,21 @@ del tar, prepare/apply/verify/rollback, builder de releases y cliente de la API.
 
 ```text
 Cambio de resource:
-  merge → tag vX.Y.Z → push tag → listo (hot, sin downtime)
+  merge → tag vX.Y.Z → push tag (solo assets)
+  → cd-manual deploy con tag=vX.Y.Z (hot, sin downtime)
 
 Cambio de gamemode o protegido:
-  merge → tag → push tag → power restart automático (segundos)
+  merge → tag → push tag → cd-manual deploy
+  → power restart (segundos)
 
 Cambio en docker/**:
   merge → tag → push tag → esperar workflow docker → Reinstall
   → cd-manual deploy con allow_image_current=true
 
 Solo settings.xml/acl.xml:
-  merge → tag → el CD los lista y NO los aplica; aplicalos a mano
+  merge → tag → el deploy los lista y NO los aplica; aplicalos a mano
 
 Server en un tag distinto al anterior:
   server-template (workflow_dispatch) con previous_tag=<tag instalado>
+  → cd-manual deploy con el mismo tag
 ```
