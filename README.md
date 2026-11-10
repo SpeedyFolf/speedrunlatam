@@ -67,20 +67,16 @@ El instalador descarga el template desde GitHub Releases y conserva:
 
 ## Actualizaciones
 
-Cada tag `v*`:
+Un tag `v*` solo publica los assets. El deploy es manual desde GitHub →
+Actions → **cd-manual** (`action=deploy`, `tag=<tag>`).
 
-1. GitHub Actions construye la imagen (solo si cambió `docker/**`) y publica
-   `server-template.tar.gz`, `server-update.tar.gz` y `update.json`.
-2. El tag **no despliega solo**. El deploy se corre a mano desde GitHub →
-   Actions → **cd-manual** (`action=deploy`, `tag=<tag>`).
-3. El agente valida el bundle, hace un snapshot de DB/ghosts/autologin y aplica
-   los archivos.
-4. El panel recarga los resources con comandos MTA (`stop`, `refresh`, `start`,
-   `restart`) sin reiniciar la instancia.
-5. Un `power restart` corto solo es necesario si cambia el binario o
-   `mtaserver.conf.template`.
-6. Reinstall solo hace falta si cambia `docker/**` o en el primer rollout del
-   agente.
+- Resources/gamemodes: hot/restart sin reiniciar la instancia.
+- Binario o `mtaserver.conf.template`: `power restart` corto.
+- `docker/**`: Reinstall de imagen.
+- Si el tag instalado no coincide con el `previous_tag` del release, el agente
+  hace full template + `power restart`; evitá ese caso.
+
+Guía completa: [docs/cd.md](docs/cd.md).
 
 No se debe editar el volumen de producción para cambios permanentes. Los cambios van en `server/` y se publican con un tag. La guía de CD está en
 [docs/cd.md](docs/cd.md).

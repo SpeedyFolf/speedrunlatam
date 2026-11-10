@@ -45,26 +45,16 @@ El install script:
 
 ## Actualizar
 
-El camino normal es en caliente. Al pushear un tag `v*`:
+Un tag `v*` solo publica los assets. El deploy es manual desde GitHub →
+Actions → **cd-manual** (`action=deploy`, `tag=<tag>`).
 
-1. GitHub Actions construye la imagen (solo si cambió `docker/**`),
-   `server-template.tar.gz`, `server-update.tar.gz` y `update.json`.
-2. El workflow **no despliega**. El deploy se corre a mano desde GitHub →
-   Actions → **cd-manual** (`action=deploy`, `tag=<tag>`).
-3. El agente del contenedor valida y aplica el delta, y el panel recarga los
-   resources con `stop`/`refresh`/`start`/`restart`.
-4. El job verifica y publica el resumen.
+- Resources y gamemodes: hot/restart sin reiniciar la instancia.
+- Binario o `mtaserver.conf.template`: `power restart` corto.
+- `docker/**`: Reinstall de imagen.
+- Si `current.json.tag` no coincide con el `previous_tag` del release, el agente
+  hace un full template + `power restart`; evitá ese caso.
 
-No hace falta Reinstall para cambios de resources. Tampoco para cambios de
-`mta-server64`, `x64/**` o `mtaserver.conf.template`: en esos casos el deploy
-hace un `power restart` corto y el entrypoint regenera `mtaserver.conf`.
-
-Sí hace falta Reinstall cuando cambia `docker/**` (imagen, entrypoint, servidor
-de descargas, ghosts_server) o en el primer rollout del agente. Después del
-Reinstall, corré **cd-manual** con `allow_image_current=true`.
-
-La configuración de la API key, secretos, variables y rollback está en
-[cd.md](cd.md).
+Guía completa, chequeos previos y rollback: [cd.md](cd.md).
 
 ### Primera actualización con agente
 
@@ -72,8 +62,7 @@ La configuración de la API key, secretos, variables y rollback está en
 2. Reinstall una vez para que el contenedor tenga `/opt/deploy_agent`.
 3. Crear los secretos `PTERODACTYL_URL`, `PTERODACTYL_API_KEY` y
    `PTERODACTYL_SERVER_ID`.
-4. Probar con un tag pre-release (`-rc1`) publicando los assets y después
-   corriendo **cd-manual** (`action=deploy`, `tag=<tag>`) antes del estable.
+4. Publicar un tag pre-release y deployarlo desde **cd-manual**.
 
 ### Backups
 
