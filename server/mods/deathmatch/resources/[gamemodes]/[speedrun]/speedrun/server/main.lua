@@ -1,4 +1,4 @@
--- Smoke test v1.6.2: deploy manual debe hacer refresh sin arrancar speedrun.
+-- Smoke test v1.6.3: deploy manual debe hacer refresh sin arrancar speedrun.
 -- Ronda del gamemode speedrun: carga, cuenta regresiva, en curso y resultados.
 -- La interfaz va por eventos sr:* hacia el cliente (client/hud.lua, results.lua, spectate.lua).
 -- Tras los resultados (12 s) se abre la votacion de la proxima mision (server/vote.lua).
