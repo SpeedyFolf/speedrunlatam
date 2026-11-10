@@ -54,6 +54,15 @@ function Missions.get(res)
     return registered[res]
 end
 
+-- Mision registrada por id (el id publico que usa el gamemode y sr_records).
+function Missions.getById(missionId)
+    if type(missionId) ~= "string" then return nil end
+    for _, def in pairs(registered) do
+        if def.id == missionId then return def end
+    end
+    return nil
+end
+
 function Missions.unregister(res)
     registered[res] = nil
     if lastRegistered == res then lastRegistered = nil end

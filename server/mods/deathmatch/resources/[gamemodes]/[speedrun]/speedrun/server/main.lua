@@ -33,6 +33,7 @@ local voteOnStart = false  -- llegada desde race: el primer onGamemodeMapStart v
 
 addEvent("sr:spectateNext", true)
 addEvent("sr:clientReady", true)
+addEvent("sr:requestRecords", true)
 
 local function now() return getTickCount() end
 
@@ -240,6 +241,17 @@ local function recordAccountName(player)
     return getAccountName(account)
 end
 
+-- Pais del jugador via ip2c (codigo ISO de 2 letras, ej. "ar"). nil si no
+-- esta disponible; el record se guarda igual sin bandera.
+local function resolveCountry(player)
+    if not isElement(player) then return nil end
+    local res = getResourceFromName("ip2c")
+    if not res or getResourceState(res) ~= "running" then return nil end
+    local ok, country = pcall(function() return exports.ip2c:getPlayerCountry(player) end)
+    if not ok or type(country) ~= "string" or country == "" or country == "ZZ" then return nil end
+    return string.lower(country)
+end
+
 ---------------------------------------------------------------------------
 -- Fin de ronda
 ---------------------------------------------------------------------------
@@ -277,7 +289,9 @@ local function endRound(reason, stopping)
         if r.finishedMs then
             local accountName = roundInfo.accounts[r.id]
             local best = accountName and getBest(missionId)
-            if accountName and saveIfBetter(missionId, accountName, r.finishedMs) then
+            local country = (roundInfo.countries and roundInfo.countries[r.id]) or resolveCountry(r.id)
+            if accountName and country then updateCountry(missionId, accountName, country) end
+            if accountName and saveIfBetter(missionId, accountName, r.finishedMs, country) then
                 local name = roundInfo.names[r.id] or nameOf(r.id)
                 local timeText = Results.formatTime(r.finishedMs)
                 if Results.recordKind(best and best.time_ms, r.finishedMs) == "mission" then
@@ -402,7 +416,8 @@ local function startRound(players, missionResource, def, isTest)
     cancelVote()
     awaitingMap = nil
     round = RoundLogic.new({ timeLimitMs = def.timeLimitMs, extraAfterFirstMs = def.extraAfterFirstMs })
-    roundInfo = { resource = missionResource, def = def, order = {}, names = {}, ended = false, accounts = {}, test = isTest and true or false }
+    roundInfo = { resource = missionResource, def = def, order = {}, names = {}, ended = false, accounts = {}, countries = {},
+                  test = isTest and true or false }
     Instances.setMission(missionResource, def)
     -- Los stats de cada copia son la base de partida nueva + los de la mision (player_state.lua).
     local overrides = 0
@@ -535,6 +550,7 @@ local function finishPlayer(player)
         if p.finishedMs ~= nil then position = position + 1 end
     end
     roundInfo.accounts[player] = recordAccountName(player)
+    roundInfo.countries[player] = resolveCountry(player)
     srLog("finish", nameOf(player), Results.formatTime(ms))
     sendTo(player, "sr:finished", ms, position)
     noticeAll(("%s terminó en %s (%dº)"):format(nameOf(player), Results.formatTime(ms), position))
@@ -591,6 +607,54 @@ function reportFailed(player, token, reasonKey)
     local reason = type(reasonKey) == "string" and reasonKey ~= "" and reasonKey:gsub("|", "/") or "mission"
     return handleFailure(player, reason)
 end
+
+-- Panel de records del cliente (F5 / /records). Sin argumento usa la mision
+-- de la ronda actual o la ultima registrada; si no hay ninguna, manda el
+-- resumen de todas las misiones con su mejor tiempo.
+addEventHandler("sr:requestRecords", resourceRoot, function(missionId)
+    if not isElement(client) then return end
+    local requested = type(missionId) == "string" and missionId ~= "" and missionId or nil
+    local def = requested and Missions.getById(requested) or nil
+    if not requested and roundInfo and roundInfo.def then
+        requested = roundInfo.def.id
+        def = roundInfo.def
+    end
+    if not requested then
+        local _, current = Missions.getCurrent()
+        if current then requested, def = current.id, current end
+    end
+    if not requested then
+        local summary = getMissionBests()
+        for _, row in ipairs(summary) do
+            local rowDef = Missions.getById(row.mission)
+            row.title = rowDef and rowDef.title or row.mission
+        end
+        triggerClientEvent(client, "sr:records", resourceRoot, { mode = "summary", rows = summary })
+        return
+    end
+    local rows = getTop(requested, 10)
+    -- Backfill de records viejos: si el que tiene el top esta online, resolver
+    -- su pais ahora y guardarlo.
+    for _, row in ipairs(rows) do
+        if type(row.account) == "string" and (row.country == nil or row.country == "") then
+            local account = getAccount(row.account)
+            local holder = account and getAccountPlayer(account)
+            local country = holder and resolveCountry(holder) or nil
+            if country then
+                updateCountry(requested, row.account, country)
+                row.country = country
+            end
+        end
+    end
+    local accountName = recordAccountName(client)
+    triggerClientEvent(client, "sr:records", resourceRoot, {
+        mode = "mission",
+        missionId = requested,
+        title = def and def.title or requested,
+        rows = rows,
+        personal = accountName and getPersonalBest(requested, accountName) or nil,
+    })
+end)
 
 ---------------------------------------------------------------------------
 -- Jugadores

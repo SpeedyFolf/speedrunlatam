@@ -1158,7 +1158,7 @@ beginBurgerReturn = function()
                     end
                     runStagedVehicleWarps({{ped = mission.ogloc, vehicle = leaderBike, seat = 1}}, function()
                         if not mission or mission.stage ~= "return_burger_shot" or not createReturnProtection() then return end
-                        barrier("scene", "burger_shot", passMission, {actors = {ogloc = mission.ogloc}})
+                        barrier("scene", "burger_shot", passMission, {actors = {ogloc = mission.ogloc}, skippable = false})
                     end)
                 end, 250, 1))
             end
@@ -1226,6 +1226,14 @@ local function validateMission()
         elementNear(mission.leader, OGL.burgerShot[1], OGL.burgerShot[2], OGL.burgerShot[3], 4) and
         elementNear(mission.ogloc, OGL.burgerShot[1], OGL.burgerShot[2], OGL.burgerShot[3], 4) then
         stopReturnFollow()
+        -- Frenar el vehiculo antes de bajarlos, igual que al llegar a la casa:
+        -- si no, la moto sigue rodando durante la escena final.
+        local vehicle = getPedOccupiedVehicle(mission.leader)
+        if isElement(vehicle) then
+            setElementVelocity(vehicle, 0, 0, 0)
+            setElementAngularVelocity(vehicle, 0, 0, 0)
+            setElementFrozen(vehicle, true)
+        end
         if isPedInVehicle(mission.leader) then removePedFromVehicle(mission.leader) end
         if isPedInVehicle(mission.ogloc) then removePedFromVehicle(mission.ogloc) end
         local walk = OGL.scenes.burgerShot.oglocWalk
@@ -1233,7 +1241,7 @@ local function validateMission()
         local px, py = getElementPosition(mission.leader)
         setElementRotation(mission.leader, 0, 0, headingTo(px, py, walk[1], walk[2]))
         setElementRotation(mission.ogloc, 0, 0, headingTo(walk[1], walk[2], px, py))
-        barrier("scene", "burger_shot", passMission, {actors = {ogloc = mission.ogloc}})
+        barrier("scene", "burger_shot", passMission, {actors = {ogloc = mission.ogloc}, skippable = false})
     end
 end
 

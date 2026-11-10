@@ -25,6 +25,7 @@
 
     <script src="client/hud.lua" type="client" />
     <script src="client/results.lua" type="client" />
+    <script src="client/records.lua" type="client" />
     <script src="client/spectate.lua" type="client" />
     <script src="client/native.lua" type="client" />
     <script src="client/driveby.lua" type="client" />

@@ -550,20 +550,25 @@ addEventHandler("ogl:scene", resourceRoot, function(token, id, name, leader, pay
     end
 
     -- El skip se acepta desde que llega la escena, incluso durante el fade.
+    -- Las escenas pueden pedir skippable = false (la final de OG Loc): en ese
+    -- caso no se cablea ninguna entrada de skip y solo termina sola (audio).
+    local skippable = payload.skippable ~= false
     local pendingSceneSkip = false
     local earlyKey, earlyClick
     local function removeEarlyInput()
         if earlyKey then removeEventHandler("onClientKey", root, earlyKey) earlyKey = nil end
         if earlyClick then removeEventHandler("onClientClick", root, earlyClick) earlyClick = nil end
     end
-    earlyKey = function(button, press)
-        if press and (button == "space" or button == "enter" or button == "f") then pendingSceneSkip = true end
+    if skippable then
+        earlyKey = function(button, press)
+            if press and (button == "space" or button == "enter" or button == "f") then pendingSceneSkip = true end
+        end
+        earlyClick = function(button, press)
+            if button == "left" and press == "down" then pendingSceneSkip = true end
+        end
+        addEventHandler("onClientKey", root, earlyKey)
+        addEventHandler("onClientClick", root, earlyClick)
     end
-    earlyClick = function(button, press)
-        if button == "left" and press == "down" then pendingSceneSkip = true end
-    end
-    addEventHandler("onClientKey", root, earlyKey)
-    addEventHandler("onClientClick", root, earlyClick)
 
     -- Escenas que arrancan desde juego visible: fundimos a negro antes de
     -- cambiar la camara/actores. `doorbell` y `freddy_dead` ya vienen de un
@@ -622,18 +627,20 @@ addEventHandler("ogl:scene", resourceRoot, function(token, id, name, leader, pay
                 setHudHidden(false)
                 reportBarrier(id, false, "audio de scene: " .. tostring(reason))
             end
-            onKey = function(button, press)
-                if not press or sceneDone then return end
-                if button == "space" or button == "enter" or button == "f" then finishScene() end
-            end
-            onClick = function(button, press)
-                if button == "left" and press == "down" then finishScene() end
-            end
-            addEventHandler("onClientKey", root, onKey)
-            addEventHandler("onClientClick", root, onClick)
-            if pendingSceneSkip then
-                pendingSceneSkip = false
-                return finishScene()
+            if skippable then
+                onKey = function(button, press)
+                    if not press or sceneDone then return end
+                    if button == "space" or button == "enter" or button == "f" then finishScene() end
+                end
+                onClick = function(button, press)
+                    if button == "left" and press == "down" then finishScene() end
+                end
+                addEventHandler("onClientKey", root, onKey)
+                addEventHandler("onClientClick", root, onClick)
+                if pendingSceneSkip then
+                    pendingSceneSkip = false
+                    return finishScene()
+                end
             end
             local audio = OGL.audio[sceneAudio[name]]
             if audio then
