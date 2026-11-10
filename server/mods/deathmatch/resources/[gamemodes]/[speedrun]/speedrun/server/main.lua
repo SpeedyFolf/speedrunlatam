@@ -390,8 +390,8 @@ local function go()
         if isActive(player) and Instances.has(player) then Instances.notifyGo(player, roundInfo.goTick) end
     end
     Ambient.activateAll()
-    tellRound("sr:go", roundInfo.goTick, 0)
-    for player in pairs(spectators) do sendTo(player, "sr:go", roundInfo.goTick, 0) end
+    tellRound("sr:go", roundInfo.goTick, 0, roundInfo.resource, roundInfo.def.respect or 5)
+    for player in pairs(spectators) do sendTo(player, "sr:go", roundInfo.goTick, 0, roundInfo.resource, roundInfo.def.respect or 5) end
     timers.tick = setTimer(tick, TICK_MS, 0)
 end
 
@@ -640,7 +640,7 @@ addEventHandler("sr:clientReady", resourceRoot, function()
     Ambient.resend(player)
     -- Reenvia el estado del reloj (sirve a quien esta en la ronda pero cargo tarde, y a espectadores).
     if round.state == "running" and roundInfo.goTick then
-        sendTo(player, "sr:go", roundInfo.goTick, now() - roundInfo.goTick)
+        sendTo(player, "sr:go", roundInfo.goTick, now() - roundInfo.goTick, roundInfo.resource, roundInfo.def.respect or 5)
     elseif round.state == "countdown" and roundInfo.countdownValue then
         sendTo(player, "sr:countdown", roundInfo.countdownValue)
     end

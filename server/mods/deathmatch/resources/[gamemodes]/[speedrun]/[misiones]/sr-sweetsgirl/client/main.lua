@@ -110,7 +110,6 @@ addEvent("sr5:passed", true)
 addEventHandler("sr5:passed", resourceRoot, function(token)
     if not isCurrent(token) then return end
     setAreas(nil)
-    if type(playMissionPassedTune) == "function" then pcall(playMissionPassedTune, 1) end
 end)
 
 addEvent("sr5:go", true)

@@ -16,4 +16,5 @@
     <export function="srCreateInstance" type="server" />
     <export function="srDestroyInstance" type="server" />
     <export function="srInstanceGo" type="server" />
+    <export function="srShowMissionBigText" type="client" />
 </meta>
