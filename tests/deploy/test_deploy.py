@@ -129,7 +129,6 @@ def options(**overrides) -> Options:
         allow_image_current=False,
         dry_run=False,
         preflight_console=False,
-        console_check=False,
     )
     values.update(overrides)
     return Options(**values)
@@ -196,7 +195,7 @@ class DeployOrchestrationTests(DeployTestCase):
         self.assertEqual(api.commands, ["restart joinquit"])
         self.assertEqual(api.power_signals, [])
 
-    def test_hot_deploy_checks_console(self) -> None:
+    def test_hot_deploy_skips_console_check(self) -> None:
         plan = {
             "mode": "hot",
             "requires_process_restart": False,
@@ -206,17 +205,13 @@ class DeployOrchestrationTests(DeployTestCase):
         }
         manifest = {"tag": "v1.1.0", "mode": "hot"}
         api = FakeApi(plan)
-        deployer = Deployer(
-            api,
-            manifest,
-            options(console_check=True, console_check_timeout=1),
-        )  # type: ignore[arg-type]
+        deployer = Deployer(api, manifest, options())  # type: ignore[arg-type]
         self.assertEqual(deployer.deploy(), 0)
-        self.assertEqual(api.commands[0], "say [deploy] console ok")
+        self.assertNotIn("say [deploy] console ok", api.commands)
         self.assertIn("restart joinquit", api.commands)
         self.assertEqual(api.power_signals, [])
 
-    def test_dead_console_fails_before_apply(self) -> None:
+    def test_console_state_does_not_block_deploy(self) -> None:
         plan = {
             "mode": "hot",
             "requires_process_restart": False,
@@ -227,15 +222,9 @@ class DeployOrchestrationTests(DeployTestCase):
         manifest = {"tag": "v1.1.0", "mode": "hot"}
         api = FakeApi(plan)
         api.console_ok = False
-        deployer = Deployer(
-            api,
-            manifest,
-            options(console_check=True, console_check_timeout=0),
-        )  # type: ignore[arg-type]
-        with self.assertRaises(DeployFailure) as ctx:
-            deployer.deploy()
-        self.assertIn("console input", str(ctx.exception))
-        self.assertNotIn("restart joinquit", api.commands)
+        deployer = Deployer(api, manifest, options())  # type: ignore[arg-type]
+        self.assertEqual(deployer.deploy(), 0)
+        self.assertIn("restart joinquit", api.commands)
         self.assertEqual(api.power_signals, [])
 
     def test_console_command_strips_non_ascii(self) -> None:

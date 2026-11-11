@@ -283,7 +283,6 @@ class Options:
     allow_image_current: bool
     dry_run: bool
     preflight_console: bool
-    console_check: bool = True
     console_check_timeout: int = 20
 
 
@@ -628,11 +627,6 @@ class Deployer:
         if plan.get("requires_container_recreate"):
             raise DeployFailure("agent says a container recreate is required", status)
 
-        # A process restart regenerates the console, so only hot deploys need a
-        # working console before we touch files.
-        if self.opts.console_check and not plan.get("requires_process_restart"):
-            self._check_console()
-
         self._announce()
 
         try:
@@ -741,12 +735,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--allow-image-current", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--preflight-console", action="store_true")
-    parser.add_argument(
-        "--skip-console-check",
-        dest="skip_console_check",
-        action="store_true",
-        help="skip the pre-apply console health check (hot deploys only)",
-    )
     return parser
 
 
@@ -789,7 +777,6 @@ def main(argv: list[str] | None = None) -> int:
         allow_image_current=args.allow_image_current,
         dry_run=args.dry_run,
         preflight_console=args.preflight_console,
-        console_check=not args.skip_console_check,
     )
 
     api = PterodactylClient(args.url, args.api_key, args.server)
