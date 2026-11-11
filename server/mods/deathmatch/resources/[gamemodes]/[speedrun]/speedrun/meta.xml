@@ -24,6 +24,7 @@
     <script src="server/main.lua" type="server" />
 
     <script src="client/hud.lua" type="client" />
+    <script src="client/ghosts.lua" type="client" />
     <script src="client/results.lua" type="client" />
     <script src="client/records.lua" type="client" />
     <script src="client/spectate.lua" type="client" />
@@ -39,4 +40,12 @@
     <export function="prepareActor" type="client" />
     <export function="loadPopulationStage" type="client" />
     <export function="setMissionHudHidden" type="client" />
+
+    <settings>
+        <setting name="*ghost_alpha" value="120"
+                 friendlyname="Ghost alpha"
+                 accept="0-255"
+                 group="Ghost"
+                 desc="Transparencia de los fantasmas de otros jugadores. 0 = invisible, 255 = opaco. Requiere reiniciar el resource." />
+    </settings>
 </meta>

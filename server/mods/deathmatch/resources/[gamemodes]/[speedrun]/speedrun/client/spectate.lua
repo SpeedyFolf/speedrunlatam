@@ -11,6 +11,8 @@ addEventHandler("sr:spectate", resourceRoot, function(newTarget)
         target = newTarget
         SR.spectating = true
         setCameraTarget(target)
+        -- Al pasar a espectar (abandono o fin) el reloj del HUD se apaga.
+        if SR.resetRound then SR.resetRound() end
     else
         target = nil
         SR.spectating = false
@@ -24,6 +26,9 @@ end
 
 bindKey("arrow_l", "down", function() requestNext(-1) end)
 bindKey("arrow_r", "down", function() requestNext(1) end)
+
+-- B: alternar entre jugar (timer desde 0) y espectar.
+bindKey("b", "down", function() triggerServerEvent("sr:toggleSpectate", resourceRoot) end)
 
 -- La camara puede soltarse si el objetivo sale del radio de streaming un momento: se reafirma.
 setTimer(function()

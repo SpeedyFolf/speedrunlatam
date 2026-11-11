@@ -34,6 +34,7 @@ local voteOnStart = false  -- llegada desde race: el primer onGamemodeMapStart v
 addEvent("sr:spectateNext", true)
 addEvent("sr:clientReady", true)
 addEvent("sr:requestRecords", true)
+addEvent("sr:toggleSpectate", true)
 
 local function now() return getTickCount() end
 
@@ -387,6 +388,71 @@ local function respawnAtStart(player)
     return true
 end
 
+-- B: abandonar la run y pasar a espectar a otro jugador activo.
+local function abortToSpectate(player)
+    round:quit(player, now())
+    killTimerSafe(playerTimers[player])
+    playerTimers[player] = nil
+    Instances.endInstance(player)
+    local target = nextTarget(nil, 1)
+    if target then
+        startSpectate(player, target)
+        sendTo(player, "sr:notice", "Abandonaste la run: estás espectando. Presioná B para volver a empezar.")
+    else
+        spawnInLobby(player)
+    end
+    srLog("abort", nameOf(player))
+end
+
+-- B: dejar de espectar y arrancar una run propia. Tiene su propio countdown
+-- (3-2-1) y larga con el reloj desde 0, igual que al arrancar la ronda.
+local function rejoinRun(player)
+    stopSpectate(player)
+    killTimerSafe(playerTimers[player])
+    playerTimers[player] = nil
+    if not round.players[player] then
+        round:addPlayer(player)
+        roundInfo.order[#roundInfo.order + 1] = player
+        roundInfo.names[player] = getPlayerName(player)
+    end
+    round:rejoin(player)
+    if not Instances.startInstance(player) then
+        dropPlayer(player)
+        return
+    end
+    setFrozen(player, true)
+    srLog("rejoin", nameOf(player), "countdown")
+    local remaining = COUNTDOWN_SECONDS
+    sendTo(player, "sr:countdown", remaining)
+    playerTimers[player] = setTimer(function()
+        if not roundRunning() or not isElement(player) then
+            if isElement(player) then Instances.endInstance(player); spawnInLobby(player) end
+            return
+        end
+        remaining = remaining - 1
+        if remaining > 0 then
+            sendTo(player, "sr:countdown", remaining)
+        else
+            playerTimers[player] = nil
+            round:startPlayer(player, now())
+            setFrozen(player, false)
+            Instances.notifyGo(player, now())
+            sendTo(player, "sr:go", now(), 0, getResourceName(roundInfo.resource), roundInfo.def.respect or 5)
+            srLog("rejoin_go", nameOf(player))
+        end
+    end, 1000, COUNTDOWN_SECONDS)
+end
+
+addEventHandler("sr:toggleSpectate", resourceRoot, function()
+    local player = client
+    if not isElement(player) or not roundRunning() or round.state ~= "running" then return end
+    if spectators[player] then
+        rejoinRun(player)
+    elseif round.players[player] and isActive(player) then
+        abortToSpectate(player)
+    end
+end)
+
 ---------------------------------------------------------------------------
 -- Inicio de ronda
 ---------------------------------------------------------------------------
@@ -657,6 +723,99 @@ addEventHandler("sr:requestRecords", resourceRoot, function(missionId)
 end)
 
 ---------------------------------------------------------------------------
+-- Fantasmas de otros jugadores (cross-dimension, proxies del cliente)
+---------------------------------------------------------------------------
+-- Cada jugador corre en su propia dimension, asi que MTA no puede mostrar los
+-- jugadores reales entre si. El server manda posiciones y el cliente dibuja
+-- proxies (vehiculo/ped) con alpha dentro de SU dimension.
+local GHOST_ALPHA_DEFAULT = 120
+local GHOST_UPDATE_MS = 100
+
+local ghostAlpha = GHOST_ALPHA_DEFAULT
+local ghostIds = {}
+local ghostNextId = 0
+
+local function applyGhostSettings()
+    ghostAlpha = math.max(0, math.min(255, tonumber(get("speedrun.ghost_alpha")) or GHOST_ALPHA_DEFAULT))
+end
+
+local function ghostIdOf(player)
+    local id = ghostIds[player]
+    if not id then
+        ghostNextId = ghostNextId + 1
+        id = ghostNextId
+        ghostIds[player] = id
+    end
+    return id
+end
+
+-- Solo se ve a quien esta jugando de verdad: en ronda, activo, copia aceptando,
+-- vivo y no congelado (las cutscenes/escenas congelan al jugador).
+local function ghostVisible(player)
+    if not roundRunning() or not round or round.state ~= "running" then return false end
+    if not isElement(player) or not isActive(player) then return false end
+    if not Instances.has(player) or not Instances.isAccepting(player) then return false end
+    if isPedDead(player) then return false end
+    if isElementFrozen(player) then return false end
+    return true
+end
+
+local function ghostEntry(player)
+    local vehicle = getPedOccupiedVehicle(player)
+    local skin = getElementModel(player)
+    local x, y, z, rx, ry, rz, model, speedElement
+    if vehicle then
+        x, y, z = getElementPosition(vehicle)
+        rx, ry, rz = getElementRotation(vehicle)
+        model = getElementModel(vehicle)
+        speedElement = vehicle
+    else
+        x, y, z = getElementPosition(player)
+        rx, ry, rz = getElementRotation(player)
+        model = skin
+        speedElement = player
+    end
+    local vx, vy, vz = getElementVelocity(speedElement)
+    return {
+        id = ghostIdOf(player),
+        name = getPlayerName(player),
+        onFoot = not vehicle,
+        model = model,
+        skin = skin,
+        seat = vehicle and getPedOccupiedVehicleSeat(player) or -1,
+        x = x, y = y, z = z,
+        rx = rx, ry = ry, rz = rz,
+        speed = math.sqrt(vx * vx + vy * vy + vz * vz),
+        interior = getElementInterior(player),
+    }
+end
+
+local function broadcastGhosts()
+    if not roundRunning() or not round or round.state ~= "running" or not roundInfo then return end
+    local entries = {}
+    for _, player in ipairs(roundInfo.order) do
+        if ghostVisible(player) then entries[#entries + 1] = ghostEntry(player) end
+    end
+    for _, receiver in ipairs(roundInfo.order) do
+        if isElement(receiver) then
+            local payload = {}
+            if ghostVisible(receiver) then
+                local selfId = ghostIdOf(receiver)
+                for _, entry in ipairs(entries) do
+                    if entry.id ~= selfId then payload[#payload + 1] = entry end
+                end
+            end
+            -- Lista vacia: limpia los fantasmas de quien esta en cutscene/muerto/termino.
+            triggerClientEvent(receiver, "sr:ghosts", resourceRoot, payload, ghostAlpha)
+        end
+    end
+end
+
+local function startGhostTimer()
+    setTimer(broadcastGhosts, GHOST_UPDATE_MS, 0)
+end
+
+---------------------------------------------------------------------------
 -- Jugadores
 ---------------------------------------------------------------------------
 addEventHandler("onPlayerWasted", root, function()
@@ -674,6 +833,7 @@ end)
 
 addEventHandler("onPlayerQuit", root, function()
     local player = source
+    ghostIds[player] = nil
     killTimerSafe(playerTimers[player])
     playerTimers[player] = nil
     spectators[player] = nil
@@ -800,6 +960,9 @@ addEventHandler("onResourceStart", resourceRoot, function()
     if flag ~= nil and flag ~= false then removeElementData(root, VOTE_ON_START_KEY) end
     voteOnStart = type(flag) == "number" and getTickCount() - flag >= 0 and getTickCount() - flag <= VOTE_ON_START_MAX_AGE_MS
     if flag ~= nil and flag ~= false then srLog("vote", "on_start_flag", "accepted=" .. tostring(voteOnStart)) end
+    applyGhostSettings()
+    startGhostTimer()
+    srLog("ghost", "alpha", ghostAlpha)
     local ds = getResourceFromName("defaultstats")
     if ds and getResourceState(ds) == "running" then
         stoppedDefaultStats = stopResource(ds) and true or false

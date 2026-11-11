@@ -16,7 +16,7 @@ end
 
 function RoundLogic:addPlayer(id)
     if not self.players[id] then
-        self.players[id] = {finishedMs = nil, failures = 0, dnf = false}
+        self.players[id] = {finishedMs = nil, failures = 0, dnf = false, startMs = nil}
     end
 end
 
@@ -27,6 +27,10 @@ end
 function RoundLogic:go(nowMs)
     self.state = "running"
     self.startMs = nowMs
+    -- El reloj es por jugador: todos los presentes arrancan en la largada.
+    for _, p in pairs(self.players) do
+        p.startMs = nowMs
+    end
 end
 
 function RoundLogic:fail(id, nowMs)
@@ -40,9 +44,29 @@ function RoundLogic:finish(id, nowMs)
     local p = self.players[id]
     if self.state ~= "running" or not p then return nil end
     if p.finishedMs ~= nil or p.dnf then return nil end
-    p.finishedMs = nowMs - self.startMs
+    p.finishedMs = nowMs - (p.startMs or self.startMs)
     if self.firstFinishMs == nil then self.firstFinishMs = nowMs end
     return p.finishedMs
+end
+
+-- Vuelve a meter en carrera a un jugador que abandono/termino: fallas en cero
+-- y run fresca. El reloj propio se setea recien en startPlayer (al GO).
+function RoundLogic:rejoin(id)
+    local p = self.players[id]
+    if not p then return false end
+    p.dnf = false
+    p.finishedMs = nil
+    p.failures = 0
+    p.startMs = nil
+    return true
+end
+
+-- Largada individual (re-entry): arranca el reloj del jugador en nowMs.
+function RoundLogic:startPlayer(id, nowMs)
+    local p = self.players[id]
+    if not p then return false end
+    p.startMs = nowMs
+    return true
 end
 
 function RoundLogic:quit(id, nowMs)
