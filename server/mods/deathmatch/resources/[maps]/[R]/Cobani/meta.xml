@@ -1,7 +1,7 @@
 <meta>
     <min_mta_version server="1.5.8-9.20957"></min_mta_version>
-    <info gamemodes="race" type="map" name="Cobani" author="alectoides" version="1.6"></info>
-    <map src="cobani.map" dimension="0"></map>
+    <info gamemodes="race" racetype="R" type="map" name="Cobani" author="alectoides" version="1.6"></info>
+    <map src="Cobani.map" dimension="0"></map>
     <settings>
         <setting name="#skins" value='[ &quot;cj&quot; ]'></setting>
         <setting name="#gamespeed" value="[ 1 ]"></setting>

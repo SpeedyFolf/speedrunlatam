@@ -263,7 +263,7 @@
       "description": "Contraseña de la cuenta MTA dedicada (deploy_bot) que usa el agente para autenticarse contra el HTTP interno y consultar el estado de los resources.",
       "env_variable": "DEPLOY_BOT_PASSWORD",
       "default_value": "",
-      "user_viewable": false,
+      "user_viewable": true,
       "user_editable": true,
       "rules": "nullable|string|max:255",
       "field_type": "text"

@@ -28,7 +28,8 @@ class _Handler(BaseHTTPRequestHandler):
         raw_body = self.rfile.read(length) if length else b"[]"
         args = json.loads(raw_body.decode("utf-8")) if raw_body else []
         if self.path.endswith("/resourceStates"):
-            payload = [json.dumps({"race": "running", "race_playerstats": "loaded"})]
+            # MTA's toJSON wraps the string-keyed table as [{...}].
+            payload = [json.dumps([{"race": "running", "race_playerstats": "loaded"}])]
         elif self.path.endswith("/stateOf"):
             states = {"race": "running"}
             payload = [states.get(args[0], "missing") if args else "missing"]

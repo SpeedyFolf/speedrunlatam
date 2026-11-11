@@ -62,15 +62,16 @@ class MtaApi:
 
     def resource_states(self) -> dict[str, str]:
         payload = self._call("deploy_api", "resourceStates")
-        if isinstance(payload, str):
-            try:
-                data = json.loads(payload)
-            except json.JSONDecodeError as exc:
-                raise MtaApiError(f"invalid resourceStates payload: {exc}") from exc
-        elif isinstance(payload, dict):
-            data = payload
-        else:
-            raise MtaApiError("resourceStates returned an unexpected value")
+        data = json.loads(payload) if isinstance(payload, str) else payload
+        # MTA's toJSON serializes a string-keyed table as a one-element array
+        # (``[ { "name": "state", ... } ]``); unwrap it.
+        if isinstance(data, list) and len(data) == 1 and isinstance(data[0], dict):
+            data = data[0]
+        if not isinstance(data, dict):
+            raise MtaApiError(
+                "resourceStates returned an unexpected value "
+                f"({type(data).__name__})"
+            )
         return {str(name): str(state) for name, state in data.items()}
 
     def resource_state(self, name: str) -> str:
