@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-import logging
-import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from .config import Config
-from .util import log_size, strip_ansi
-
-log = logging.getLogger(__name__)
+from .mta_api import MtaApi
+from .util import strip_ansi
 
 
 @dataclass
@@ -51,34 +48,15 @@ def _tail(path: Path, max_bytes: int = 1024 * 1024) -> str:
         return ""
 
 
-def running_resources(cfg: Config) -> set[str]:
-    """Return resources that are currently running according to server.log.
+def running_resources(api: MtaApi) -> set[str]:
+    """Return resources currently running, from the MTA HTTP API.
 
-    The deploy agent runs outside MTA, so it has no direct getResourceState().
-    MTA writes explicit start/stop lines for every resource; scanning the log
-    from oldest to newest and keeping the last state is enough for a hot deploy.
+    This is authoritative: it uses getResourceState() inside the server via the
+    deploy_api resource. If the API is unreachable it raises instead of guessing
+    from server.log.
     """
-    data = _tail(cfg.server_log, 32 * 1024 * 1024)
-    state: dict[str, bool] = {}
-    start_re = re.compile(
-        r"(?:(?:startResource|start):\s*Resource\s+'([^']+)'\s+(?:has\s+been\s+)?(?:started|restarted)"
-        r"|Resource\s+'([^']+)'\s+(?:has\s+been\s+)?(?:started|restarted))",
-        re.IGNORECASE,
-    )
-    stop_re = re.compile(
-        r"(?:stop:\s*Resource\s+'([^']+)'\s+stopping"
-        r"|Stopping\s+([A-Za-z0-9_.-]+)\s*$)",
-        re.IGNORECASE,
-    )
-    for line in data.splitlines():
-        match = start_re.search(line)
-        if match:
-            state[match.group(1) or match.group(2)] = True
-            continue
-        match = stop_re.search(line)
-        if match:
-            state[match.group(1) or match.group(2)] = False
-    return {name for name, running in state.items() if running}
+    states = api.resource_states()
+    return {name for name, state in states.items() if state == "running"}
 
 
 def wait_ready(cfg: Config, offset: int, timeout: int) -> bool:
@@ -102,70 +80,42 @@ def ready_after(cfg: Config, offset: int) -> bool:
     return cfg.ready_pattern.lower() in data.lower()
 
 
-def _name(name: str) -> str:
-    return rf"(?<![\w-]){re.escape(name)}(?![\w-])"
-
-
-def _success_re(name: str) -> re.Pattern[str]:
-    token = _name(name)
-    return re.compile(
-        rf"(?:Resource\s+['\"]?{token}['\"]?\s+(?:has\s+been\s+)?(?:started|restarted)"
-        rf"|Starting\s+(?:resource\s+)?['\"]?{token}['\"]?"
-        # A gamemode (e.g. "race") starts through onGamemodeStart and logs
-        # "Gamemode 'Race' started." / "Race resource starting"; it never emits
-        # the usual "startResource: race" line.
-        rf"|Gamemode\s+['\"]?{token}['\"]?\s+started"
-        rf"|{token}\s+resource\s+starting)",
-        re.IGNORECASE,
-    )
-
-
-def _failure_re(name: str) -> re.Pattern[str]:
-    token = _name(name)
-    return re.compile(
-        rf"(?:(?:failed\s+to\s+start|could\s+not\s+start|unable\s+to\s+start"
-        rf"|error\s+(?:starting|loading)).*{token}"
-        rf"|{token}.*(?:failed\s+to\s+start|could\s+not\s+start|unable\s+to\s+start))",
-        re.IGNORECASE,
-    )
-
-
 def verify_resources(
-    cfg: Config,
+    api: MtaApi,
     expected: list[str],
-    offset: int,
     timeout: int,
 ) -> VerifyResult:
+    """Verify the expected resources are running, using the MTA HTTP API.
+
+    Uses getResourceState() through the deploy_api resource, so the result is
+    authoritative.
+    """
     result = VerifyResult()
     if not expected:
         return result
 
     pending = set(expected)
     deadline = time.monotonic() + timeout
-    current = offset
-    buffer = ""
+    states: dict[str, str] = {}
 
-    while time.monotonic() < deadline:
-        data, current = _read_from(cfg.server_log, current)
-        if data:
-            buffer += data
-            # Keep the buffer bounded; only recent lines matter for matching.
-            if len(buffer) > 2 * 1024 * 1024:
-                buffer = buffer[-2 * 1024 * 1024 :]
-
+    while True:
+        states = api.resource_states()
         for name in list(pending):
-            if _failure_re(name).search(buffer):
-                result.failures.append(name)
-                pending.discard(name)
-                continue
-            if _success_re(name).search(buffer):
+            state = states.get(name, "missing")
+            if state == "running":
                 result.found.append(name)
                 pending.discard(name)
-
-        if not pending:
+            elif state in {"failed to load", "missing"}:
+                result.failures.append(name)
+                pending.discard(name)
+        if not pending or time.monotonic() >= deadline:
             break
         time.sleep(1)
 
     result.missing = sorted(pending)
-    result.excerpt = buffer[-4000:] if result.missing or result.failures else ""
+    if result.missing or result.failures:
+        affected = sorted(set(result.missing) | set(result.failures))
+        result.excerpt = "; ".join(
+            f"{name}={states.get(name, 'missing')}" for name in affected
+        )
     return result

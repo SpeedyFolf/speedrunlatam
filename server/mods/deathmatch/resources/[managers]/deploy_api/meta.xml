@@ -1,0 +1,13 @@
+<meta>
+    <info
+        author="Speedrun LATAM"
+        name="Deploy API"
+        description="Expone el estado de los resources para el agente de deploy (HTTP interno, por nombre)."
+        type="script"
+        version="1.0.0"
+    />
+    <script src="server.lua" type="server" />
+    <export function="resourceStates" http="true" />
+    <export function="stateOf" http="true" />
+    <export function="startByName" http="true" />
+</meta>

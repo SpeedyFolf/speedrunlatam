@@ -30,6 +30,8 @@ services:
       DEPLOY_ALLOWED_REPO: ${DEPLOY_ALLOWED_REPO:-ferecece/speedrunlatam}
       DEPLOY_BACKUP_KEEP: ${DEPLOY_BACKUP_KEEP:-3}
       DEPLOY_MAX_ASSET_MB: ${DEPLOY_MAX_ASSET_MB:-160}
+      # Dev only: allow duplicate serials for local multi-client testing.
+      MTA_CHECK_DUPLICATE_SERIALS: ${MTA_CHECK_DUPLICATE_SERIALS:-0}
     ports:
       - "${SERVER_PORT:-22003}:${SERVER_PORT:-22003}/udp"
       - "${SERVER_PORT:-22003}:${SERVER_PORT:-22003}/tcp"

@@ -16,6 +16,23 @@ JOIN = "mods/deathmatch/resources/[gameplay]/joinquit"
 RACE_FILE = f"{RACE}/server.lua"
 
 
+class FakeMta:
+    """Stand-in for MtaApi: returns a fixed resource-state map."""
+
+    def __init__(self, states: dict[str, str] | None = None):
+        self.states = dict(states or {})
+
+    def resource_states(self) -> dict[str, str]:
+        return dict(self.states)
+
+    def resource_state(self, name: str) -> str:
+        return self.states.get(name, "missing")
+
+    def start_resource(self, name: str) -> bool:
+        self.states[name] = "running"
+        return True
+
+
 class AgentFlowTests(DeployTestCase):
     def _resource(self, rel: str, body: str, kind: str = "script") -> None:
         directory = self.root / rel
@@ -106,7 +123,7 @@ class AgentFlowTests(DeployTestCase):
             asset=asset,
             files={RACE_FILE: sha256_bytes(new_body)},
         )
-        agent = Agent(cfg)
+        agent = Agent(cfg, mta=FakeMta({"race": "running"}))
         prepare = {
             "schema": 1,
             "id": "d1",
@@ -165,7 +182,7 @@ class AgentFlowTests(DeployTestCase):
             asset=asset,
             files={"mods/deathmatch/mtaserver.conf.template": sha256_bytes(template)},
         )
-        agent = Agent(cfg)
+        agent = Agent(cfg, mta=FakeMta({"race": "running"}))
         agent.handle_prepare(
             {
                 "schema": 1,
@@ -218,7 +235,7 @@ class AgentFlowTests(DeployTestCase):
             "template": None,
         }
         (cfg.download_dir / "update.json").write_text(json.dumps(manifest), encoding="utf-8")
-        agent = Agent(cfg)
+        agent = Agent(cfg, mta=FakeMta({"oldmod": "running"}))
         agent.handle_prepare(
             {
                 "schema": 1,
@@ -257,7 +274,7 @@ class AgentFlowTests(DeployTestCase):
             asset=asset,
             template=template,
         )
-        agent = Agent(cfg)
+        agent = Agent(cfg, mta=FakeMta({}))
         agent.handle_prepare(
             {
                 "schema": 1,
@@ -283,7 +300,7 @@ class AgentFlowTests(DeployTestCase):
             asset=asset,
             files={RACE_FILE: sha256_bytes(b"x")},
         )
-        agent = Agent(cfg)
+        agent = Agent(cfg, mta=FakeMta())
         with self.assertRaises(DeployError) as raised:
             agent.handle_prepare(
                 {
@@ -309,7 +326,7 @@ class AgentFlowTests(DeployTestCase):
             asset=asset,
             files={RACE_FILE: sha256_bytes(b"-- new\n")},
         )
-        agent = Agent(cfg)
+        agent = Agent(cfg, mta=FakeMta({"race": "running"}))
         agent.handle_prepare(
             {
                 "schema": 1,
@@ -353,7 +370,7 @@ class AgentFlowTests(DeployTestCase):
         (cfg.download_dir / "server-update.tar.gz").write_bytes(asset)
         (cfg.download_dir / "server-template.tar.gz").write_bytes(template)
         (cfg.download_dir / "update.json").write_text(json.dumps(manifest), encoding="utf-8")
-        agent = Agent(cfg)
+        agent = Agent(cfg, mta=FakeMta({}))
         agent.handle_prepare(
             {
                 "schema": 1,
@@ -368,6 +385,48 @@ class AgentFlowTests(DeployTestCase):
         self.assertEqual(status["phase"], "prepared")
         self.assertTrue(status["plan"]["requires_process_restart"])
         self.assertEqual(status["plan"]["mode"], "full")
+
+
+    def test_verify_starts_addons_from_meta(self) -> None:
+        cfg = self._cfg_with_tree()
+        (self.root / RACE / "meta.xml").write_text(
+            '<meta><info name="race" type="gamemode"/>'
+            '<setting name="#addons" value="race_playerstats,race_playerstatsgui" '
+            'accept="*"></setting></meta>',
+            encoding="utf-8",
+        )
+        new_body = b"-- new\n"
+        asset = self._tar("server-update.tar.gz", {RACE_FILE: new_body})
+        self._manifest(
+            cfg,
+            mode="hot",
+            changes={"modified": [RACE_FILE], "added": [], "deleted": []},
+            asset=asset,
+            files={RACE_FILE: sha256_bytes(new_body)},
+        )
+        fake = FakeMta(
+            {
+                "race": "running",
+                "race_playerstats": "loaded",
+                "race_playerstatsgui": "loaded",
+            }
+        )
+        agent = Agent(cfg, mta=fake)
+        agent.handle_prepare(
+            {
+                "schema": 1,
+                "id": "a1",
+                "action": "prepare",
+                "repo": "test/repo",
+                "tag": "v1.1.0",
+                "manifest_path": ".deploy/download/update.json",
+            }
+        )
+        agent.handle_apply({"id": "a1", "action": "apply"})
+        agent.handle_verify({"id": "a1", "action": "verify"})
+        self.assertEqual(agent.store.status()["phase"], "done")
+        self.assertEqual(fake.states.get("race_playerstats"), "running")
+        self.assertEqual(fake.states.get("race_playerstatsgui"), "running")
 
 
 if __name__ == "__main__":

@@ -7,12 +7,14 @@ import os
 import signal
 import sys
 import time
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
 from . import backup, release, resources, verify
 from .apply import apply_delta, apply_full
 from .config import Config
+from .mta_api import MtaApi, MtaApiError
 from .paths import normalize
 from .status import Store
 from .util import (
@@ -26,6 +28,8 @@ from .util import (
 log = logging.getLogger(__name__)
 
 ACTIONS = {"prepare", "apply", "verify", "rollback"}
+
+RACE_META = "mods/deathmatch/resources/[gamemodes]/[race]/race/meta.xml"
 
 
 def configure_logging(cfg: Config) -> None:
@@ -50,9 +54,10 @@ def configure_logging(cfg: Config) -> None:
 
 
 class Agent:
-    def __init__(self, cfg: Config):
+    def __init__(self, cfg: Config, mta: MtaApi | None = None):
         self.cfg = cfg
         self.store = Store(cfg)
+        self.mta = mta or MtaApi(cfg)
         self.boot_offset = 0
         self.boot_id: str | None = None
         self.resumed = False
@@ -448,7 +453,7 @@ class Agent:
                 manifest,
                 self.cfg.target,
                 staging,
-                running=verify.running_resources(self.cfg),
+                running=verify.running_resources(self.mta),
             )
 
         resources.validate_plan(plan)
@@ -607,6 +612,8 @@ class Agent:
         plan = state.get("plan") or {}
         restart = bool(plan.get("requires_process_restart") or state.get("force_full"))
         result = self._run_verify(state, restart=restart)
+        if result.ok:
+            self._ensure_addons()
         self._finish_verify(request_id, state, result)
 
     def _run_verify(self, state: dict[str, Any], restart: bool) -> verify.VerifyResult:
@@ -629,16 +636,8 @@ class Agent:
                     missing=expected,
                     excerpt="MTA did not report readiness",
                 )
-            if self.resumed:
-                offset = max(0, log_size(self.cfg.server_log) - 1024 * 1024)
-            else:
-                offset = self.boot_offset
-        else:
-            offset = int(state.get("verify_offset") or 0)
 
-        return verify.verify_resources(
-            self.cfg, expected, offset, self.cfg.verify_timeout
-        )
+        return verify.verify_resources(self.mta, expected, self.cfg.verify_timeout)
 
     def _finish_verify(
         self,
@@ -707,7 +706,56 @@ class Agent:
             plan=state.get("plan"),
         )
         result = self._run_verify(state, restart=True)
+        if result.ok:
+            self._ensure_addons()
         self._finish_verify(str(status.get("id") or state.get("id")), state, result)
+
+    # -- addons --------------------------------------------------------
+    def _required_addons(self) -> list[str]:
+        meta = self.cfg.target / RACE_META
+        if not meta.is_file():
+            return []
+        try:
+            tree = ET.parse(meta)
+        except (ET.ParseError, OSError):
+            return []
+        for setting in tree.getroot().iter("setting"):
+            if (setting.get("name") or "").strip() == "#addons":
+                value = setting.get("value") or ""
+                return [name.strip() for name in value.split(",") if name.strip()]
+        return []
+
+    def _ensure_addons(self) -> None:
+        """Start the race addons declared in the deployed meta (#addons).
+
+        The gamemode only starts the addons in the persisted race.addons
+        setting, which the CD deliberately does not overwrite. This makes the
+        deploy own the addons directly.
+        """
+        addons = self._required_addons()
+        if not addons:
+            return
+        try:
+            states = self.mta.resource_states()
+        except MtaApiError as exc:
+            log.warning("cannot read addon states: %s", exc)
+            return
+        for name in addons:
+            state = states.get(name, "missing")
+            if state == "missing":
+                log.warning("required addon %s is not available", name)
+                continue
+            if state == "running":
+                continue
+            try:
+                started = self.mta.start_resource(name)
+            except MtaApiError as exc:
+                log.warning("cannot start addon %s: %s", name, exc)
+                continue
+            if started:
+                log.info("started addon %s", name)
+            else:
+                log.warning("addon %s did not start", name)
 
     # -- rollback -------------------------------------------------------
     def handle_rollback(self, request: dict[str, Any]) -> None:

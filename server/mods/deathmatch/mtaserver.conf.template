@@ -1,5 +1,4 @@
 <config>
-
     <!-- This parameter specifies the name the server will be visible as in the ingame server browser
          and on Game-Monitor. It is a required parameter. -->
     <servername>{{SERVER_NAME}}</servername>
@@ -13,7 +12,6 @@
 
     <!-- A comma separated list of tags that describe the server (e.g. freeroam,roleplay). -->
     <rule name="tags" value="racing,fun,speedrun,latam" />
-
     <!-- The URL of the server's website. -->
     <rule name="website_url" value="" />
 
@@ -334,12 +332,6 @@
          Values: 0 - Off, 1 - Enabled.  Default - 0 -->
     <elementdata_whitelisted>0</elementdata_whitelisted>
 
-    <!-- This parameter determines that the server checks when the players connect that there are no other players with the same serial number. 
-         Note that this may break compatibility with virtual machines.
-         Not guarantees that the player cannot manipulate their serial.
-         Values: 0 - Off, 1 - Enabled.  Default - 1 -->
-    <check_duplicate_serials>1</check_duplicate_serials>
-
     <!-- These parameters specify the maximum amount of events that can be triggered by the client (via triggerServerEvent) within the given interval.
           Note: The interval is given in milliseconds
           Interval range: 50 to 5000. Default: 1000
@@ -370,6 +362,7 @@
     <resource src="reload" startup="1" protected="0"></resource>
     <resource src="resourcebrowser" startup="1" protected="1" default="true"></resource>
     <resource src="resourcemanager" startup="1" protected="1"></resource>
+    <resource src="deploy_api" startup="1" protected="0"></resource>
     <resource src="scoreboard" startup="1" protected="0"></resource>
     <resource src="spawnmanager" startup="1" protected="0"></resource>
     <resource src="webadmin" startup="1" protected="0"></resource>
@@ -388,7 +381,6 @@
     <resource src="player_poll" startup="1" protected="0"></resource>
     <resource src="autologin" startup="1" protected="0"></resource>
     <resource src="scobo-additions" startup="1" protected="0"></resource>
-    <resource src="hiddensentinel" startup="1" protected="0"></resource>
     <resource src="mapnameupdateassistant" startup="1" protected="0"></resource>
     <resource src="mapsearcher" startup="1" protected="0"></resource>
     <resource src="globalleaderboards" startup="1" protected="0"></resource>

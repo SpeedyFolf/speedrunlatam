@@ -58,6 +58,11 @@ class Config:
     verify_timeout: int
     ready_pattern: str
 
+    mta_http_url: str
+    bot_user: str
+    bot_password: str
+    mta_http_timeout: int
+
     logfile: Path
     request_path: Path
     status_path: Path
@@ -93,6 +98,12 @@ class Config:
             ready_timeout=env_int("DEPLOY_READY_TIMEOUT", 300),
             verify_timeout=env_int("DEPLOY_VERIFY_TIMEOUT", 120),
             ready_pattern=os.environ.get("DEPLOY_READY_PATTERN", DEFAULT_READY_PATTERN),
+            mta_http_url=os.environ.get(
+                "DEPLOY_BOT_URL", "http://127.0.0.1:22007"
+            ).rstrip("/"),
+            bot_user=os.environ.get("DEPLOY_BOT_USER", "deploy_bot").strip(),
+            bot_password=os.environ.get("DEPLOY_BOT_PASSWORD", "").strip(),
+            mta_http_timeout=env_int("DEPLOY_BOT_TIMEOUT", 10),
             logfile=logs_dir / "update-agent.log",
             request_path=state_dir / "request.json",
             status_path=state_dir / "status.json",

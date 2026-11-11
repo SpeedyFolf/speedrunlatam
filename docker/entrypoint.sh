@@ -52,7 +52,7 @@ if [ -f "$TEMPLATE" ]; then
     export NEON_AUTH NEON_REGISTRY NEON_REGISTRY_PUBLIC_HOST NEON_REGISTRY_TAGLINE
     export NEON_REGISTRY_DESCRIPTION NEON_REGISTRY_COUNTRIES NEON_REGISTRY_LANGUAGES
     export NEON_REGISTRY_WEBSITE NEON_REGISTRY_DISCORD NEON_REGISTRY_LOGO
-    export NEON_REGISTRY_BANNER NEON_REGISTRY_ACCENT
+    export NEON_REGISTRY_BANNER NEON_REGISTRY_ACCENT MTA_CHECK_DUPLICATE_SERIALS
     python3 - "$TEMPLATE" "$CONF" <<'PY'
 import os
 import sys
@@ -82,6 +82,18 @@ keys = [
 ]
 for key in keys:
     text = text.replace("{{" + key + "}}", escape(os.environ.get(key, "")))
+
+# Dev-only: allow duplicate serials when MTA_CHECK_DUPLICATE_SERIALS is set
+# (compose/console.sh). Production leaves it unset, so MTA keeps its default.
+check_serials = os.environ.get("MTA_CHECK_DUPLICATE_SERIALS", "").strip()
+if check_serials:
+    text = text.replace(
+        "<config>",
+        "<config>\n    <check_duplicate_serials>"
+        + escape(check_serials)
+        + "</check_duplicate_serials>",
+        1,
+    )
 
 open(target, "w", encoding="utf-8").write(text)
 PY

@@ -20,10 +20,12 @@
         <acl name="SuperModerator"/>
         <acl name="Admin"/>
         <acl name="RPC"/>
+        <object name="resource.speedrun"/>
         <object name="resource.admin"/>
         <object name="resource.admin2"/>
         <object name="resource.webadmin"/>
         <object name="resource.acpanel"/>
+        <object name="user.buenosnoches"/>
     </group>
     <group name="Console">
         <acl name="Moderator"/>
@@ -81,6 +83,11 @@
     <group name="autoGroup_sup">
         <acl name="autoACL_sup"/>
         <object name="resource.sup"/>
+    </group>
+    <group name="DeployBot">
+        <acl name="DeployBot"/>
+        <object name="resource.deploy_api"/>
+        <object name="user.deploy_bot"/>
     </group>
     <acl name="Default">
         <right name="general.ModifyOtherObjects" access="false"/>
@@ -951,5 +958,9 @@
     </acl>
     <acl name="autoACL_sup">
         <right name="function.set" access="false" who="" pending="true" date=""/>
+    </acl>
+    <acl name="DeployBot">
+        <right name="general.http" access="true"/>
+        <right name="function.startResource" access="true"/>
     </acl>
 </acl>
