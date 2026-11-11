@@ -56,3 +56,9 @@ end)
 addEventHandler("onClientResourceStop", resourceRoot, function()
     if SR.spectating then setCameraTarget(localPlayer) end
 end)
+
+-- Seguridad: aunque el ped este congelado en el cielo, cancelar cualquier dano
+-- mientras se especta (evita muertes por atropello si algo se desincroniza).
+addEventHandler("onClientPlayerDamage", localPlayer, function()
+    if SR.spectating then cancelEvent() end
+end)

@@ -29,6 +29,7 @@ local timers = {}          -- loading, countdown, tick
 local playerTimers = {}    -- [player] = timer de reinicio o de vuelta al lobby
 local stoppedDefaultStats = false
 local spectators = {}      -- [player] = jugador al que mira
+local spectatorPos = {}    -- [player] = { x, y, z, skyZ } posicion previa y punto en el cielo
 local voteOnStart = false  -- llegada desde race: el primer onGamemodeMapStart vota la mision
 
 addEvent("sr:spectateNext", true)
@@ -74,16 +75,23 @@ local function sendTo(player, eventName, ...)
     if isElement(player) then triggerClientEvent(player, eventName, resourceRoot, ...) end
 end
 
--- Deja de espectar: devuelve visibilidad, colisiones y control. No mueve al jugador.
+-- Deja de espectar: devuelve visibilidad, colisiones y control. Restaura la
+-- posicion porque el espectador estuvo congelado en el cielo.
 local function stopSpectate(player)
     if spectators[player] == nil then return end
     spectators[player] = nil
+    local saved = spectatorPos[player]
+    spectatorPos[player] = nil
     if not isElement(player) then return end
+    if saved then
+        setElementPosition(player, saved.x, saved.y, saved.z)
+    end
     setElementAlpha(player, 255)
     setElementCollisionsEnabled(player, true)
     setElementFrozen(player, false)
     toggleAllControls(player, true, true, false)
     setPlayerNametagShowing(player, true)
+    setElementHealth(player, 100)
     setCameraTarget(player, player)
     sendTo(player, "sr:spectate", nil)
 end
@@ -140,8 +148,14 @@ end
 local function followTarget(player, target)
     setElementDimension(player, getElementDimension(target))
     setElementInterior(player, getElementInterior(target))
-    local x, y, z = getElementPosition(target)
-    setElementPosition(player, x, y, z)
+    -- NO mover el ped a la posicion del objetivo: si va en vehiculo, lo
+    -- atropellaria (dano + sonido). Se lo mantiene congelado lejos (cielo) y
+    -- la camara sigue al objetivo por setCameraTarget en el cliente.
+    local saved = spectatorPos[player]
+    local x = saved and (saved.x - 10) or 0
+    local y = saved and (saved.y - 10) or 0
+    local zip = saved and saved.skyZ or 34567
+    setElementPosition(player, x, y, zip)
 end
 
 -- Mantiene al espectador junto a su objetivo; si el objetivo ya no juega, pasa al siguiente o al lobby.
@@ -179,11 +193,14 @@ local function startSpectate(player, target)
     -- Sin armas: el espectador esta en la dimension de la copia de otro jugador.
     takeAllWeapons(player)
     if fresh then
+        local x, y, z = getElementPosition(player)
+        spectatorPos[player] = { x = x, y = y, z = z, skyZ = 34567 + math.random(0, 4000) }
         setElementFrozen(player, true)
         toggleAllControls(player, false, true, false)
         setElementAlpha(player, 0)
         setElementCollisionsEnabled(player, false)
         setPlayerNametagShowing(player, false)
+        setElementHealth(player, 90)
         fadeCamera(player, true)
     end
     followTarget(player, target)
