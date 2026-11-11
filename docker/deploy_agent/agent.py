@@ -121,18 +121,34 @@ class Agent:
     def _reconcile_install(self) -> None:
         installed = self.store.installed()
         installed_tag = str(installed.get("tag") or "")
+        installed_at = installed.get("installed_at")
         current = self.store.current()
         current_tag = str(current.get("tag") or "")
+        current_installed_at = current.get("installed_at")
 
-        if installed_tag and installed_tag != "unknown" and installed_tag != current_tag:
-            log.info("reinstall marker moved deployment to %s", installed_tag)
+        # Un reinstall real reescribe installed.json con un installed_at nuevo.
+        # Un tag distinto por si solo NO es un reinstall: el template base
+        # (installed) suele quedar atras respecto del ultimo hot update
+        # (current), y tratarlo como reinstall reseteaba el tag a la base y
+        # forzaba un full deploy en cada intento.
+        reinstall_happened = bool(installed_tag and installed_tag != "unknown") and (
+            not current_tag
+            or (bool(installed_at) and installed_at != current_installed_at)
+        )
+
+        if reinstall_happened:
+            log.info(
+                "reinstall detected (installed %s at %s)",
+                installed_tag,
+                installed_at,
+            )
             self.store.write_current(
                 {
                     **current,
                     "tag": installed_tag,
                     "previous_tag": current_tag or None,
                     "source": "install",
-                    "installed_at": installed.get("installed_at"),
+                    "installed_at": installed_at,
                 }
             )
             status = self.store.status()
@@ -162,7 +178,7 @@ class Agent:
                     {
                         "tag": version_tag,
                         "source": "version.json",
-                        "installed_at": utc_now(),
+                        "installed_at": installed_at,
                     }
                 )
 
@@ -540,6 +556,9 @@ class Agent:
                 "backup": state.get("backup"),
                 "mode": "full" if state.get("force_full") else "hot",
                 "applied_at": utc_now(),
+                # Preservar installed_at para no confundir un hot update con un
+                # reinstall en el proximo arranque del agente.
+                "installed_at": self.store.current().get("installed_at"),
             }
         )
 
@@ -723,6 +742,7 @@ class Agent:
                 "backup": None,
                 "mode": "rollback",
                 "applied_at": utc_now(),
+                "installed_at": current.get("installed_at"),
             }
         )
         if previous_tag:
