@@ -162,7 +162,7 @@
 		<setting name="*voteredo_allowchange" value="true" group="Racevoting" accept="false,true"></setting>
 		<setting name="*voteredo_raceleaderonly" value="true" group="Racevoting" accept="false,true" desc="Set to true to only make the race leader be able to start a redo vote until someone finishes."></setting>
 
-		<setting name="#addons" value="race_toptimes,race_traffic_sensor" accept="*" desc="List of race addon resources to load automatically"></setting>
+		<setting name="#addons" value="race_toptimes,race_traffic_sensor,race_playerstatsgui,race_playerstats,race_afkkicker" accept="*" desc="List of race addon resources to load automatically"></setting>
 		<setting name="#statskey" value="name" accept="name,serial" group="none" desc="To identify players for stats."></setting>
 		<setting name="*admingroup" value="Admin,SuperModerator" friendlyname="Admin group list" group="_Advanced" accept="*" examples="Admin,Moderator,SuperModerator" desc="To issue certain commands, the player must belong to one of the groups listed."></setting>
 		<setting name="*classicchangez" value="false" friendlyname="Classic change Z" group="_Advanced" accept="false,true" desc="Set to true to move the player up when changing vehicles."></setting>
