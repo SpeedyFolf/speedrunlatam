@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import logging
-import os
 import shutil
-import tempfile
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -15,7 +13,7 @@ from .paths import (
     is_settings_or_acl,
     normalize,
 )
-from .util import DeployError, atomic_write_json, read_json, run, utc_now
+from .util import DeployError, atomic_write_json, copy_atomic, read_json, run, utc_now
 
 log = logging.getLogger(__name__)
 
@@ -26,28 +24,6 @@ def _is_within(path: Path, base: Path) -> bool:
         return True
     except ValueError:
         return False
-
-
-def _copy_atomic(source: Path, destination: Path) -> None:
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp_name = tempfile.mkstemp(
-        prefix=f".{destination.name}.", dir=str(destination.parent)
-    )
-    tmp = Path(tmp_name)
-    try:
-        with os.fdopen(fd, "wb") as handle:
-            with source.open("rb") as input_handle:
-                shutil.copyfileobj(input_handle, handle, length=1024 * 1024)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.chmod(tmp, source.stat().st_mode & 0o777)
-        os.replace(tmp, destination)
-    finally:
-        if tmp.exists():
-            try:
-                tmp.unlink()
-            except OSError:
-                pass
 
 
 def _remove_empty_parents(path: Path, target: Path) -> None:
@@ -99,7 +75,7 @@ def apply_delta(
             raise DeployError("E_APPLY", f"file missing from staged bundle: {rel}")
         if not _is_within(destination, cfg.target):
             raise DeployError("E_APPLY", f"destination escapes the server: {rel}")
-        _copy_atomic(source, destination)
+        copy_atomic(source, destination)
         result["written"].append(rel)
 
     for rel in deleted:

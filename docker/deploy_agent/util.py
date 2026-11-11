@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 from datetime import datetime, timezone
@@ -84,6 +85,34 @@ def atomic_write_json(path: Path, data: Any, mode: int | None = None) -> None:
         json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
         mode=mode,
     )
+
+
+def copy_atomic(source: Path, destination: Path) -> None:
+    """Copy a file atomically, replacing the destination by rename.
+
+    The rename means a running executable (for example ``mta-server64``) can be
+    replaced without hitting ``ETXTBSY`` ("Text file busy"): the live process
+    keeps the old inode and the new file lands for the next start.
+    """
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(
+        prefix=f".{destination.name}.", dir=str(destination.parent)
+    )
+    tmp = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            with source.open("rb") as input_handle:
+                shutil.copyfileobj(input_handle, handle, length=1024 * 1024)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(tmp, source.stat().st_mode & 0o777)
+        os.replace(tmp, destination)
+    finally:
+        if tmp.exists():
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
 
 
 def read_json(path: Path, default: Any = None) -> Any:

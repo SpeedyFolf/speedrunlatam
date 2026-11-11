@@ -13,6 +13,7 @@ from .paths import normalize
 from .util import (
     DeployError,
     atomic_write_json,
+    copy_atomic,
     read_json,
     sanitize_tag,
     sha256_file,
@@ -218,7 +219,7 @@ def rollback(cfg: Config, backup_dir: Path) -> list[dict[str, Any]]:
             if source.is_dir():
                 shutil.copytree(source, target, dirs_exist_ok=True)
             else:
-                shutil.copy2(source, target)
+                copy_atomic(source, target)
         else:
             if target.is_dir():
                 shutil.rmtree(target)

@@ -110,7 +110,12 @@ def _success_re(name: str) -> re.Pattern[str]:
     token = _name(name)
     return re.compile(
         rf"(?:Resource\s+['\"]?{token}['\"]?\s+(?:has\s+been\s+)?(?:started|restarted)"
-        rf"|Starting\s+(?:resource\s+)?['\"]?{token}['\"]?)",
+        rf"|Starting\s+(?:resource\s+)?['\"]?{token}['\"]?"
+        # A gamemode (e.g. "race") starts through onGamemodeStart and logs
+        # "Gamemode 'Race' started." / "Race resource starting"; it never emits
+        # the usual "startResource: race" line.
+        rf"|Gamemode\s+['\"]?{token}['\"]?\s+started"
+        rf"|{token}\s+resource\s+starting)",
         re.IGNORECASE,
     )
 
