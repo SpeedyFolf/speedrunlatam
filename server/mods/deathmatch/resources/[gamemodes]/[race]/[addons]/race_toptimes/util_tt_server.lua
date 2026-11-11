@@ -151,3 +151,55 @@ function getAdminNameForLog(player)
 	return name
 end
 
+
+---------------------------------------------------------------------------
+-- Paises (ip2c)
+---------------------------------------------------------------------------
+
+-- Codigo ISO de 2 letras en minusculas, o "" si ip2c no esta disponible.
+function getPlayerCountry(player)
+	local ip2c = getResourceFromName("ip2c")
+	if ip2c and getResourceState(ip2c) == "running" and isElement(player) then
+		local code = exports.ip2c:getPlayerCountry(player)
+		if type(code) == "string" and code ~= "" then
+			return string.lower(code)
+		end
+	end
+	return ""
+end
+
+-- Rellena el pais de los records existentes de este jugador que aun no lo
+-- tengan (backfill), en la DB y en la copia en memoria del mapa actual.
+function backfillPlayerCountry(player)
+	if not isElement(player) then return end
+	local country = getPlayerCountry(player)
+	if country == "" then return end
+
+	local serial = getPlayerSerial(player)
+	if not serial or serial == "" then return end
+
+	executeSQLQuery("UPDATE maptimes SET playerCountry=? WHERE (playerCountry IS NULL OR playerCountry='') AND playerSerial=?", country, serial)
+
+	local account = getPlayerAccount(player)
+	if account and not isGuestAccount(account) then
+		local accountName = getAccountName(account)
+		if accountName and accountName ~= "" then
+			executeSQLQuery("UPDATE maptimes SET playerCountry=? WHERE (playerCountry IS NULL OR playerCountry='') AND playerAccount=?", country, accountName)
+		end
+	end
+
+	local mgr = g_SToptimesManager
+	if mgr and mgr.mapTimes and mgr.mapTimes.dbTable and mgr.mapTimes.dbTable.rows then
+		local changed = false
+		for _, row in ipairs(mgr.mapTimes.dbTable.rows) do
+			if (row.playerCountry == nil or row.playerCountry == "") and row.playerSerial == serial then
+				row.playerCountry = country
+				changed = true
+			end
+		end
+		if changed then
+			mgr:updateTopText()
+		end
+	end
+end
+

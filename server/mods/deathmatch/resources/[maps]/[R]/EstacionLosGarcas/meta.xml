@@ -1,6 +1,6 @@
 <meta>
     <min_mta_version server="1.5.8-9.20957"></min_mta_version>
-    <info gamemodes="ctv,race" type="map" name="Estacion Los Garcas" author="alectoides" version="1.6"></info>
+    <info gamemodes="ctv,race" type="map" racetype="R" name="Estacion Los Garcas" author="alectoides" version="1.6"></info>
     <map src="EstacionLosGarcas.map" dimension="0"></map>
     <settings>
         <setting name="#skins" value='[ &quot;cj&quot; ]'></setting>

@@ -34,8 +34,9 @@ end
 
 local function screenScale()
 	local sw, sh = guiGetScreenSize()
-	local s = math.min(sh / 1080, sw / 1920)
-	s = math.max(0.8, math.min(1.6, s))
+	-- Escala por altura (legibilidad), no por el menor de ancho/alto.
+	local s = sh / 1080
+	s = math.max(0.9, math.min(2.2, s))
 	return sw, sh, s
 end
 
@@ -57,6 +58,19 @@ end
 local function isEmptyRow(row)
 	local name = cleanName(row.playerName)
 	return name == "" or name == "-- Empty --" or name == "--Empty--"
+end
+
+local function ip2cReady()
+	local res = getResourceFromName("ip2c")
+	return res and getResourceState(res) == "running"
+end
+
+-- Ruta a la bandera de ip2c, o nil si no hay/esta disponible.
+local function flagPath(country)
+	if type(country) ~= "string" or not ip2cReady() then return nil end
+	country = string.lower(country)
+	if not country:match("^%a%a$") or country == "zz" then return nil end
+	return ":ip2c/client/images/flags/" .. country .. ".png"
 end
 
 local function formatTime(text)
@@ -271,6 +285,7 @@ function CToptimes:doOnServerSentToptimes(data, serverRevision, playerPosition)
 			rows[i] = {
 				playerName = row.playerName,
 				timeText = formatMs(row.time),
+				country = row.country,
 			}
 		end
 	end
@@ -299,19 +314,19 @@ function CToptimes:draw()
 		return
 	end
 
-	local pad = ip(18, s)
-	local headerH = ip(36, s)
-	local rowH = ip(28, s)
-	local bottomPad = ip(8, s)
-	local w = ip(400, s)
-	local margin = ip(24, s)
+	local pad = ip(20, s)
+	local headerH = ip(44, s)
+	local rowH = ip(34, s)
+	local bottomPad = ip(10, s)
+	local w = ip(460, s)
+	local margin = ip(28, s)
 
 	local n = #self.rows
 	local bodyH
 	if self.listStatus ~= 'Full' then
-		bodyH = ip(42, s)
+		bodyH = ip(48, s)
 	elseif n == 0 then
-		bodyH = ip(30, s)
+		bodyH = ip(36, s)
 	else
 		bodyH = n * rowH
 	end
@@ -319,7 +334,7 @@ function CToptimes:draw()
 	local h = headerH + bodyH + bottomPad
 	local x = sw - margin - w + (1 - a) * ip(14, s)
 	-- Altura de la tarjeta de carrera (NeonUI.raceH en race/neon_ui_style.lua).
-	local raceHudH = 134
+	local raceHudH = 142
 	local y = sh - margin - ip(raceHudH, s) - ip(12, s) - h
 	if y < margin then
 		y = margin
@@ -336,13 +351,13 @@ function CToptimes:draw()
 
 	-- Cabecera compacta
 	dxDrawText('RECORDS', x + pad, y, x + w - pad, y + headerH,
-		color(UI.accent, a), px(1.0, s), 'default-bold',
+		color(UI.accent, a), px(1.15, s), 'default-bold',
 		'left', 'center', true, false, false)
 
 	if self.mapName ~= '' then
 		dxDrawText(self.mapName,
-			x + pad + ip(110, s), y, x + w - pad, y + headerH,
-			color(UI.dim, a), px(0.8, s), 'default-bold',
+			x + pad + ip(120, s), y, x + w - pad, y + headerH,
+			color(UI.dim, a), px(0.9, s), 'default-bold',
 			'right', 'center', true, false, false)
 	end
 
@@ -353,17 +368,20 @@ function CToptimes:draw()
 
 	if self.listStatus ~= 'Full' then
 		dxDrawText('CARGANDO...', x + pad, bodyY, x + w - pad, bodyY + bodyH,
-			color(UI.dim, a), px(0.85, s), 'default-bold',
+			color(UI.dim, a), px(0.95, s), 'default-bold',
 			'center', 'center', true, false, false)
 	elseif n == 0 then
 		dxDrawText('SIN TIEMPOS', x + pad, bodyY, x + w - pad, bodyY + bodyH,
-			color(UI.dim, a), px(0.85, s), 'default-bold',
+			color(UI.dim, a), px(0.95, s), 'default-bold',
 			'center', 'center', true, false, false)
 	else
-		local posW = ip(44, s)
-		local timeW = ip(92, s)
-		local nameX = x + pad + posW
-		local nameW = w - pad * 2 - posW - timeW
+		local posW = ip(50, s)
+		local flagW = ip(30, s)
+		local flagH = ip(18, s)
+		local nameGap = ip(10, s)
+		local timeW = ip(108, s)
+		local nameX = x + pad + posW + flagW + nameGap
+		local nameW = w - pad * 2 - posW - flagW - nameGap - timeW
 
 		for index, row in ipairs(self.rows) do
 			local rowY = bodyY + (index - 1) * rowH
@@ -386,18 +404,29 @@ function CToptimes:draw()
 
 			local posColor = (leader or mine) and UI.accent or UI.text
 			dxDrawText(index .. '.', x + pad, rowY, x + pad + posW, rowY + rowH,
-				color(posColor, a), px(0.9, s), 'default-bold',
+				color(posColor, a), px(1.0, s), 'default-bold',
 				'left', 'center', true, false, false)
+
+			if not empty then
+				local flagX = x + pad + posW
+				local flagY = rowY + (rowH - flagH) / 2
+				local flag = flagPath(row.country)
+				if flag then
+					dxDrawImage(flagX, flagY, flagW, flagH, flag)
+				else
+					dxDrawRectangle(flagX, flagY, flagW, flagH, color(UI.track, a))
+				end
+			end
 
 			dxDrawText(empty and '-' or cleanName(row.playerName),
 				nameX, rowY, nameX + nameW, rowY + rowH,
 				color(mine and UI.accent or (empty and UI.dim or UI.text), a),
-				px(0.92, s), 'default', 'left', 'center', true, false, false)
+				px(1.05, s), 'default', 'left', 'center', true, false, false)
 
 			dxDrawText(empty and '-' or formatTime(row.timeText),
 				x + pad, rowY, x + w - pad, rowY + rowH,
 				color((leader or mine) and UI.accent or (empty and UI.dim or UI.text), a),
-				px(0.92, s), 'default-bold', 'right', 'center', true, false, false)
+				px(1.05, s), 'default-bold', 'right', 'center', true, false, false)
 
 			dxDrawRectangle(x + pad, rowY + rowH - 1, w - pad * 2, 1,
 				color(UI.track, a), false)

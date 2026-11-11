@@ -96,7 +96,8 @@ Stat = {
 	TOPTIMES_SET = 1027,
 	MAX_STREAKS = 1028,
 	RACES_FINISHED2ND = 1032,
-	RACES_FINISHED3RD = 1033
+	RACES_FINISHED3RD = 1033,
+	EXPERIENCE_POINTS = 2010
 }
 
 
@@ -137,6 +138,41 @@ DefaultStats = {
 	[21] = 999
 }
 
+
+--
+-- EXPERIENCE POINTS (puntaje por terminar carreras)
+--
+-- Criterio:
+--   * Elegibilidad: se necesitan al menos 'minPlayers' participantes (jugadores
+--     que largaron la carrera), aunque alguno no termine. Asi un jugador que
+--     corre solo no puede farmear experiencia.
+--   * Solo el podio recibe puntos (1o y 2o). Del 3o en adelante: 0.
+--   * Bono extra segun la cantidad de jugadores que TERMINARON, con tope
+--     (mas dificil de farmear: hay que competir hasta el final).
+--   * Bono fijo extra si el jugador marco el WR del mapa (nuevo #1 en toptimes).
+--
+PointsConfig = {
+	minPlayers = 2,
+	basePoints = {
+		[1] = 3,
+		[2] = 2
+	},
+	wrBonus = 5,
+	-- Se recorre de mayor a menor; gana la primera regla que cumpla.
+	finisherBonus = {
+		{ minFinishers = 5, bonus = 2 },
+		{ minFinishers = 3, bonus = 1 }
+	}
+}
+
+function getFinisherBonus(finisherCount)
+	for _, rule in ipairs(PointsConfig.finisherBonus) do
+		if finisherCount >= rule.minFinishers then
+			return rule.bonus
+		end
+	end
+	return 0
+end
 
 function getDestroyedVehicleStatKey(modelId)
 	if not modelId then return nil end

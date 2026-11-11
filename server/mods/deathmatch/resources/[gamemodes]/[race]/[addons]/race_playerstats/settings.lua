@@ -55,7 +55,7 @@ SettingKeys = {
 	},
 	["playerKeyType"] = {
 		dataType = tostring,
-		defaultValue = "PlayerName"
+		defaultValue = "AccountName"
 	}
 }
 
@@ -73,10 +73,13 @@ local function cacheResourceSettings()
 	if Settings["playerKeyType"] == "AccountName" then
 		getPlayerKey = function(player)
 			local account = nil
-			if isElement(player) and getElementType(player) == "player" then
-				account = getPlayerAccount(player)
-			elseif type(player) == "userdata" then
-				account = player
+			if isElement(player) then
+				local elementType = getElementType(player)
+				if elementType == "player" then
+					account = getPlayerAccount(player)
+				elseif elementType == "account" then
+					account = player
+				end
 			end
 			if account and not isGuestAccount(account) then
 				return getAccountName(account)

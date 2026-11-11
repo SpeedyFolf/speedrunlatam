@@ -119,7 +119,7 @@ function SDatabaseTable:tryLoad()
 
     -- SELECT
     -- Build command
-	cmd = "SELECT MIN(time) as time,playerName,playerSerial,mapName,dateRecorded,playerAccount from maptimes WHERE mapName = ? GROUP BY "..groupKey.." ORDER BY time"
+	cmd = "SELECT MIN(time) as time,playerName,playerSerial,mapName,dateRecorded,playerAccount,playerCountry from maptimes WHERE mapName = ? GROUP BY "..groupKey.." ORDER BY time"
     local sqlResults = executeSQLQuery( cmd, self.name )
 
     if not sqlResults then

@@ -1,11 +1,37 @@
-<help title="Race Player Stats GUI" popup="yes">Commands:
----------------
-/stats - displays stats panel for current player
+<help title="Estadísticas" popup="yes">ESTADÍSTICAS Y PUNTOS (XP)
 
-/stats &lt;nick&gt; - displays stats panel for specified player
+Cómo abrirlo
+- F10: abre o cierra el panel.
+- /stats: muestra TUS estadísticas.
+- /stats &lt;nick&gt;: muestra las estadísticas de otro jugador.
 
+Top del servidor
+- Con el botón "TOP" del panel ves el ranking del servidor por experiencia (XP),
+  de mayor a menor, con la bandera del país y un indicador de si está en línea.
+- Se desplaza con la rueda del mouse. "VOLVER" te regresa a tus estadísticas.
 
-Binds:
----------------
-F10 - Toggle stats panel
+Cuenta
+- Necesitas tener tu cuenta iniciada para acumular experiencia.
+- Si terminas en el podio sin sesión iniciada, se te avisa: los puntos no se guardan.
+- El "tiempo jugado" es el total de TU CUENTA (se acumula entre sesiones),
+  no el de la sesión actual.
+
+Cómo se gana experiencia (XP)
+- Elegibilidad: se necesitan al menos 2 jugadores que hayan largado la carrera,
+  aunque alguno no termine. Si corres solo, no ganas puntos.
+- Puntos por puesto:
+  - 1º: 3 puntos
+  - 2º: 2 puntos
+  - 3º en adelante: 0 puntos
+- Bono por cantidad de jugadores que TERMINAN:
+  - 3 o 4 terminan: +1
+  - 5 o más terminan: +2
+- Bono extra: +5 si marcas el récord del mapa (WR).
+- Los puntos se suman a tu cuenta y se guardan automáticamente.
+
+Qué muestra el panel
+- Carreras: iniciadas, terminadas, victorias, 2º y 3º puestos, toptimes.
+- Jugador: tiempo jugado de la cuenta, muertes, daño recibido y gordura.
+- Logros: distancia recorrida en auto, moto, lancha, avión y bici.
+- Crímenes: vehículos destruidos.
 </help>

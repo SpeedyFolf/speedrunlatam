@@ -4,7 +4,7 @@ local j = 5;
 
 function helpTextExplain()
 	local a = 1;
-	outputChatBox("Press " .. HELP_KEY .. " to view information about server commands and resources.", source, 23, 198, 29)
+	outputChatBox("Presiona " .. HELP_KEY .. " para ver la información de comandos y recursos del servidor.", source, 23, 198, 29)
 end
 
 addEventHandler("onPlayerJoin", root, helpTextExplain)

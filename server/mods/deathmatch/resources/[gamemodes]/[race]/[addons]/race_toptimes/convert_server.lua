@@ -2,13 +2,34 @@ addEventHandler('onResourceStart', resourceRoot,
 	function()
 		createTableIfNotExist()
 		convertOldFormat()
+		for _, player in ipairs(getElementsByType("player")) do
+			backfillPlayerCountry(player)
+		end
 	end
 )
 
 function createTableIfNotExist()
     local cmd
-    cmd = 'CREATE TABLE IF NOT EXISTS maptimes (mapName STRING, playerName STRING, playerSerial STRING, time INTEGER, dateRecorded INTEGER, playerAccount STRING)'
+    cmd = 'CREATE TABLE IF NOT EXISTS maptimes (mapName STRING, playerName STRING, playerSerial STRING, time INTEGER, dateRecorded INTEGER, playerAccount STRING, playerCountry STRING)'
     executeSQLQuery( cmd )
+    ensureCountryColumn()
+end
+
+-- Migracion: agrega playerCountry a bases viejas (idempotente).
+function ensureCountryColumn()
+    local hasCountry = false
+    local info = executeSQLQuery("PRAGMA table_info(maptimes)")
+    if type(info) == "table" then
+        for _, col in ipairs(info) do
+            if col.name == "playerCountry" then
+                hasCountry = true
+                break
+            end
+        end
+    end
+    if not hasCountry then
+        pcall(executeSQLQuery, "ALTER TABLE maptimes ADD COLUMN playerCountry STRING")
+    end
 end
 
 function convertOldFormat()

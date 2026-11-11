@@ -108,7 +108,7 @@
 			friendlyname="Player key type"
 			group="Database"
 			accept="PlayerName | AccountName"
-			value="PlayerName"></setting>
+			value="AccountName"></setting>
 
 	</settings>
 </meta>

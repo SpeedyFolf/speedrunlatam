@@ -54,8 +54,8 @@ end
 function SMaptimes:postCreate()
 	local mapName = self.mapName
 	local statskey = self.statskey
-	local columns = { 		'mapName', 	'playerName', 	'playerSerial', 	'time', 	'dateRecorded',		'playerAccount' }
-	local columnTypes = { 	'TEXT', 	'TEXT', 		'TEXT', 			'INTEGER', 	'INTEGER',			'TEXT' }
+	local columns = { 		'mapName', 	'playerName', 	'playerSerial', 	'time', 	'dateRecorded',		'playerAccount',	'playerCountry' }
+	local columnTypes = { 	'TEXT', 	'TEXT', 		'TEXT', 			'INTEGER', 	'INTEGER',			'TEXT',				'TEXT' }
 	self.dbTable = SDatabaseTable:create( mapName, statskey, columns, columnTypes )
 end
 
@@ -75,6 +75,7 @@ function SMaptimes:validateDbTableRow( index )
 	row.time					= tonumber(row.time) or 0
 	row.dateRecorded			= tonumber(row.dateRecorded) or 0
 	row.playerAccount			= tostring(row.playerAccount) or 'playerAccount'
+	row.playerCountry			= type(row.playerCountry) == 'string' and row.playerCountry or ''
 end
 
 ---------------------------------------------------------------------------
@@ -85,6 +86,8 @@ end
 --
 ---------------------------------------------------------------------------
 function SMaptimes:load()
+	-- Garantiza que la tabla exista y tenga playerCountry antes del SELECT.
+	createTableIfNotExist()
 	self.dbTable:load()
 
 	-- Make sure each cell in the table contains a valid value - saves lots of checks later
@@ -110,12 +113,14 @@ function SMaptimes:getToptimes( howMany )
 							time			= self.dbTable.rows[i].time,
 							playerName		= self.dbTable.rows[i].playerName,
 							dateRecorded 	= self.dbTable.rows[i].dateRecorded,
+							country			= self.dbTable.rows[i].playerCountry,
 						}
 		else
 			result[i] = {
 							time			= 0,
 							playerName		= '-- Empty --',
 							dateRecorded 	= 0,
+							country			= '',
 						}
 		end
 	end
@@ -151,6 +156,7 @@ function SMaptimes:addPlayer( player )
 									time					= 0,
 									dateRecorded			= 0,
 									playerAccount			= getAccountName(getPlayerAccount(player)),
+									playerCountry			= getPlayerCountry(player),
 								} )
 
 	-- Make sure new row has valid values
@@ -256,7 +262,7 @@ function SMaptimes:getTextForPlayer( player )
 		return false
 	end
 
-	return self.dbTable.rows[i].time, self.dbTable.rows[i].playerName, self.dbTable.rows[i].dateRecorded
+	return self.dbTable.rows[i].time, self.dbTable.rows[i].playerName, self.dbTable.rows[i].dateRecorded, self.dbTable.rows[i].playerCountry
 
 end
 
@@ -288,6 +294,7 @@ function SMaptimes:setTimeForPlayer( player, time, dateRecorded )
 	row.playerName		= getPlayerNameColored(player)	 -- Refresh the name
 	row.time			= time
 	row.dateRecorded	= dateRecorded
+	row.playerCountry	= getPlayerCountry(player)
 
 
 	-- Put it back in at the correct position to maintain sort order

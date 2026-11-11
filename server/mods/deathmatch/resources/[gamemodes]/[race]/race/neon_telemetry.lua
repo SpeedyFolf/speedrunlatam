@@ -106,17 +106,17 @@ local function render()
 	local rowBottom = y + NeonUI.i(41)
 
 	dxDrawText("SALUD", x + pad, rowTop, x + w - pad, rowBottom,
-		NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.9), "default-bold",
+		NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(1.0), "default-bold",
 		"left", "center", true, false, false)
 
 	dxDrawText(math.floor(healthAnim * 100 + 0.5) .. "%",
 		x + pad + NeonUI.i(64), rowTop, x + w - pad, rowBottom,
-		NeonUI.tcol(NeonUI.colors.text, a), NeonUI.px(1.1), "default-bold",
+		NeonUI.tcol(NeonUI.colors.text, a), NeonUI.px(1.2), "default-bold",
 		"left", "center", true, false, false)
 
 	dxDrawText(math.floor(shownSpeed + 0.5) .. " KM/H",
 		x + pad, rowTop, x + w - pad, rowBottom,
-		NeonUI.tcol(NeonUI.colors.text, a), NeonUI.px(1.15), "default-bold",
+		NeonUI.tcol(NeonUI.colors.text, a), NeonUI.px(1.25), "default-bold",
 		"right", "center", true, false, false)
 
 	local barX = x + pad

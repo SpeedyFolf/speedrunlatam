@@ -127,12 +127,12 @@ local function render()
 
 	if mapName then
 		local tagText = "[" .. (mapType or "???") .. "] "
-		local tagScale = NeonUI.px(0.85)
+		local tagScale = NeonUI.px(0.95)
 		local tagW = dxGetTextWidth(tagText, tagScale, "default-bold")
 
 		local authorReserve = 0
 		if mapAuthor and mapAuthor ~= "" then
-			authorReserve = dxGetTextWidth(mapAuthor, NeonUI.px(0.75), "default-bold") + NeonUI.i(14)
+			authorReserve = dxGetTextWidth(mapAuthor, NeonUI.px(0.85), "default-bold") + NeonUI.i(14)
 		end
 
 		dxDrawText(tagText, x + pad, headerTop, x + pad + tagW + 2, headerTop + headerH,
@@ -144,7 +144,7 @@ local function render()
 
 		if mapAuthor and mapAuthor ~= "" then
 			dxDrawText(mapAuthor, x + pad, headerTop, x + w - pad, headerTop + headerH,
-				NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.75), "default-bold",
+				NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.85), "default-bold",
 				"right", "center", true, false, false)
 		end
 
@@ -170,14 +170,14 @@ local function render()
 	-- Etiquetas
 	if ranked then
 		dxDrawText("POSICION", rankX, labelTop, rankX + rankW, labelTop + labelH,
-			NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.85), "default-bold",
+			NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.95), "default-bold",
 			"left", "center", true, false, false)
 	end
 	dxDrawText("CHECKPOINTS", cpX, labelTop, cpX + cpW, labelTop + labelH,
-		NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.85), "default-bold",
+		NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.95), "default-bold",
 		"left", "center", true, false, false)
 	dxDrawText("TIEMPO", x + pad, labelTop, x + w - pad, labelTop + labelH,
-		NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.85), "default-bold",
+		NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.95), "default-bold",
 		"right", "center", true, false, false)
 
 	-- Posicion
@@ -191,11 +191,11 @@ local function render()
 		end
 		if glow > 0 then
 			dxDrawText(rankText, rankX, valueTop, rankX + rankW, valueTop + valueH,
-				NeonUI.tcol(NeonUI.colors.accent, a * glow), NeonUI.px(1.6),
+				NeonUI.tcol(NeonUI.colors.accent, a * glow), NeonUI.px(1.75),
 				"default-bold", "left", "center", true, false, false)
 		end
 		dxDrawText(rankText, rankX, valueTop, rankX + rankW, valueTop + valueH,
-			NeonUI.tcol(rankColor, a), NeonUI.px(1.45), "default-bold",
+			NeonUI.tcol(rankColor, a), NeonUI.px(1.6), "default-bold",
 			"left", "center", true, false, false)
 	end
 
@@ -204,18 +204,18 @@ local function render()
 	local cpColor = (total > 0 and checkpoint >= total)
 		and NeonUI.colors.accent or NeonUI.colors.text
 	dxDrawText(cpText, cpX, valueTop, cpX + cpW, valueTop + valueH,
-		NeonUI.tcol(cpColor, a), NeonUI.px(1.25), "default-bold",
+		NeonUI.tcol(cpColor, a), NeonUI.px(1.35), "default-bold",
 		"left", "center", true, false, false)
 
 	-- Tiempo
 	local timeColor = finished and NeonUI.colors.accent or NeonUI.colors.text
 	dxDrawText(NeonUI.time(data.elapsed), x + pad, valueTop, x + w - pad, valueTop + valueH,
-		NeonUI.tcol(timeColor, a), NeonUI.px(1.25), "default-bold",
+		NeonUI.tcol(timeColor, a), NeonUI.px(1.35), "default-bold",
 		"right", "center", true, false, false)
 
 	-- Tiempo restante del mapa (solo si hay duracion y la carrera sigue).
 	if remaining and not finished then
-		local remScale = NeonUI.px(1.0)
+		local remScale = NeonUI.px(1.1)
 		local remText = NeonUI.time(remaining)
 		local remW = dxGetTextWidth(remText, remScale, "default-bold")
 		local remTop = y + NeonUI.i(92)
@@ -225,7 +225,7 @@ local function render()
 			NeonUI.tcol(NeonUI.colors.text, a), remScale, "default-bold",
 			"right", "center", true, false, false)
 		dxDrawText("RESTANTE", x + pad, remTop, x + w - pad - remW - NeonUI.i(8), remTop + remH,
-			NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.8), "default-bold",
+			NeonUI.tcol(NeonUI.colors.dim, a), NeonUI.px(0.9), "default-bold",
 			"right", "center", true, false, false)
 	end
 

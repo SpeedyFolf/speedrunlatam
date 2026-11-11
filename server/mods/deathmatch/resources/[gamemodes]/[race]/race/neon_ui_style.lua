@@ -19,18 +19,20 @@ NeonUI.colors = {
 -- Escala base: 1.0 a 1080p, acotada para resoluciones extremas.
 function NeonUI.refresh()
 	local sw, sh = guiGetScreenSize()
-	local scale = math.min(sh / 1080, sw / 1920)
-	scale = math.max(0.8, math.min(1.6, scale))
+	-- Escala por altura (legibilidad), no por el menor de ancho/alto: asi crece
+	-- en 1080p+ y no se achica en 4:3 ni se agranda de mas en ultrawide.
+	local scale = sh / 1080
+	scale = math.max(0.9, math.min(2.2, scale))
 
 	NeonUI.screenW = sw
 	NeonUI.screenH = sh
 	NeonUI.scale = scale
-	NeonUI.margin = math.floor(24 * scale)
-	NeonUI.gap = math.floor(12 * scale)
-	NeonUI.pad = math.floor(18 * scale)
-	NeonUI.cardW = math.floor(420 * scale)
-	NeonUI.telemetryH = math.floor(74 * scale)
-	NeonUI.raceH = math.floor(134 * scale)
+	NeonUI.margin = math.floor(28 * scale)
+	NeonUI.gap = math.floor(14 * scale)
+	NeonUI.pad = math.floor(20 * scale)
+	NeonUI.cardW = math.floor(450 * scale)
+	NeonUI.telemetryH = math.floor(78 * scale)
+	NeonUI.raceH = math.floor(142 * scale)
 	NeonUI.voteYInit = false
 end
 

@@ -108,7 +108,8 @@ local function applyNeonTheme()
 	showTeams = true
 	useColors = true
 	drawSpeed = 5.5
-	scoreboardScale = 1
+	-- Escala por resolucion (legibilidad en 1080p+), con piso/techo.
+	scoreboardScale = math.max( 0.9, math.min( 2.0, SCREEN_Y / 1080 ) )
 	columnFont = "default-bold"
 	contentFont = "default-bold"
 	teamHeaderFont = "default-bold"
@@ -145,6 +146,14 @@ addEventHandler( "onClientResourceStart", resourceRoot,
 
 		-- Customization disabled:
 		-- colorPicker.constructor()
+	end
+)
+
+-- Recalcular la escala si cambia la resolucion (alt-tab, cambio de pantalla).
+addEventHandler( "onClientRestore", root,
+	function ()
+		SCREEN_X, SCREEN_Y = guiGetScreenSize()
+		applyNeonTheme()
 	end
 )
 

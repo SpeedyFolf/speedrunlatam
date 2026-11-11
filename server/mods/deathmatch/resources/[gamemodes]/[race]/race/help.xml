@@ -1,20 +1,18 @@
-<help title="Race" popup="yes">/new                  - Start a vote for a new random map
-/kill                 - Kill player (hold for 1 second on foot races)
-/kill immediately     - Kill player without delay (bypassing 1 second delay on foot races)
-/kill cancel          - Cancel delayed kill (on foot races)
-/togglenametagoutline - Toggle the player nametag outline on or off
-/cpblips              - Choose the number of checkpoint blips/icons to be displayed on the minimap, either 2 or 3. The default is 2. A third is distinguishable by virtue of it having a lower alpha/transparency value.
+<help title="Carrera" popup="yes">COMANDOS DE JUGADOR
+- /new: inicia una votación para cambiar a un mapa aleatorio.
+- /kill: te elimina y reapareces en el último checkpoint. En carreras a pie, mantén 1 segundo.
+- /kill immediately: igual que /kill, pero sin la espera de 1 segundo.
+- /kill cancel: cancela la eliminación demorada.
+- /togglenametagoutline: activa o desactiva el contorno del nombre de los jugadores.
+- /cpblips: elige cuántos íconos de checkpoint se ven en el minimapa (2 o 3). Por defecto, 2.
 
-Keys
-----
-Enter/Exit - Kill player (hold on foot races)
+TECLAS
+- Enter/Exit: te elimina para reaparecer en el último checkpoint. Mantén en carreras a pie.
 
-Admins
-------
-/config           - Configure Race addons
-/ghostmode        - Toggle collisions
-/checkmap mapname - Find a map
-/nextmap mapname  - Set the next map
-/random           - Change to a random map
-Change other settings in the Admin panel
+ADMINISTRADORES
+- /config: configura los addons del modo carrera.
+- /ghostmode: activa o desactiva las colisiones.
+- /checkmap &lt;mapa&gt;: busca un mapa.
+- /nextmap &lt;mapa&gt;: define el próximo mapa.
+- /random: cambia a un mapa aleatorio.
 </help>

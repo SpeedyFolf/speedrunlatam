@@ -3,8 +3,7 @@
 --
 
 function toboolean(value)
-	if tostring(result) == 'false' then return false end
-	return tostring(result) == 'true'
+	return tostring(value) == 'true'
 end
 
 

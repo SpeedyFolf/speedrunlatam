@@ -3,11 +3,39 @@ g_StatsReset = false
 local currentRacestate = ""
 local playersStarted = {}
 local playersFinished = {}
+local finishRanks = {}
+local beatWR = {}
+local pointsAwarded = false
+
+-- Sincroniza la experiencia al element data "XP" para la columna del scoreboard.
+local function syncExperienceElementData(player)
+	if not (isElement(player) and getElementType(player) == "player") then
+		return
+	end
+	local xp = GetPlayerStatValueInternal(player, Stat.EXPERIENCE_POINTS) or 0
+	setElementData(player, "XP", xp, true)
+end
 
 local function displayWelcomeMessage(player)
 	local welcomeMessage = tostring(Settings["welcomeMessage"] or "")
 	if welcomeMessage:len() > 0 then
 		chat(welcomeMessage, player)
+	end
+end
+
+-- Guarda el pais en la cuenta (para mostrarlo en el top aunque el jugador
+-- este offline). Se actualiza al loguear.
+local function syncCountryAccountData(player)
+	local account = getPlayerAccount(player)
+	if not account or isGuestAccount(account) then
+		return
+	end
+	local ip2c = getResourceFromName("ip2c")
+	if ip2c and getResourceState(ip2c) == "running" then
+		local code = exports.ip2c:getPlayerCountry(player)
+		if type(code) == "string" and code ~= "" then
+			setAccountData(account, "race_playerstats.country", string.lower(code))
+		end
 	end
 end
 
@@ -26,6 +54,8 @@ function handle_PlayerJoin(player)
 	PlayerData[playerName].Stats = LoadPlayerStats(player, false) or {}
 	BatchApplyPedStats(player, PlayerData[playerName].Stats)
 	setElementData(player, "playerId", GetPlayerId(player), false)
+	syncExperienceElementData(player)
+	syncCountryAccountData(player)
 	triggerEvent("onPlayerStatsLoad", player, PlayerData[playerName].Stats)
 end
 addEventHandler("onPlayerJoin", root,
@@ -95,6 +125,8 @@ addEventHandler("onPlayerLogout", root,
 	function(previousAccount)
 		if Settings["playerKeyType"] == "AccountName" then
 			handle_PlayerQuit(previousAccount)
+			-- Quita la columna XP del scoreboard al salir de la cuenta.
+			setElementData(source, "XP", nil, true)
 			triggerEvent("onPlayerAwardPoints", source, 0, "Logout")
 		end
 	end
@@ -142,11 +174,38 @@ end
 addEventHandler("onPlayerChangeNick", root, handle_PlayerChangeNick)
 
 
+-- Agrega la columna "XP" al scoreboard (si esta corriendo) y lo re-agrega
+-- cuando el scoreboard se reinicia.
+local function ensureExperienceScoreboardColumn()
+	local scoreboard = getResourceFromName("scoreboard")
+	if scoreboard and getResourceState(scoreboard) == "running" then
+		exports.scoreboard:addScoreboardColumn("XP")
+	end
+end
+
 addEventHandler("onResourceStart", resourceRoot,
 	function()
+		ensureExperienceScoreboardColumn()
 		local players = getElementsByType("player")
 		for _,player in ipairs(players) do
 			handle_PlayerJoin(player)
+		end
+	end
+)
+
+addEventHandler("onResourceStart", root,
+	function(resource)
+		if getResourceName(resource) == "scoreboard" then
+			ensureExperienceScoreboardColumn()
+		end
+	end
+)
+
+-- Mantiene sincronizado el element data "XP" cuando cambia la experiencia.
+addEventHandler("onPlayerStatsUpdate", root,
+	function(playerName, key, value, previousValue)
+		if key == Stat.EXPERIENCE_POINTS and isElement(source) and getElementType(source) == "player" then
+			setElementData(source, "XP", value or 0, true)
 		end
 	end
 )
@@ -168,6 +227,9 @@ addEventHandler("onMapStarting", root,
 		g_StatsReset = false
 		playersStarted = {}
 		playersFinished = {}
+		finishRanks = {}
+		beatWR = {}
+		pointsAwarded = false
 		local players = getElementsByType("player")
 		for _,player in ipairs(players) do
 			local key = getPlayerKey(player)
@@ -209,9 +271,69 @@ addEventHandler("onNotifyPlayerReady", root,
 )
 
 
+-- Otorga experiencia a los finishers del podio cuando termina el mapa.
+-- Elegibilidad: al menos 'minPlayers' participantes (aunque alguno no termine).
+-- Bono: segun cuantos TERMINARON.
+local function awardExperiencePoints()
+	if pointsAwarded then return end
+	pointsAwarded = true
+
+	-- Participantes reales: los que estuvieron listos para largar (deduplicado).
+	local participantCount = 0
+	local seen = {}
+	for _, player in ipairs(playersStarted) do
+		if isElement(player) and not seen[player] then
+			seen[player] = true
+			participantCount = participantCount + 1
+		end
+	end
+
+	-- Contamos a todos los que terminaron (aunque se hayan desconectado)
+	-- para el tamano del campo, pero solo premiamos a los conectados.
+	local finisherCount = 0
+	local awardable = {}
+	for player, rank in pairs(finishRanks) do
+		finisherCount = finisherCount + 1
+		if isElement(player) and getElementType(player) == "player" then
+			awardable[#awardable + 1] = { player = player, rank = rank }
+		end
+	end
+
+	-- Anti-farm: si corrio solo (menos de 2 participantes), no hay puntos.
+	if participantCount < PointsConfig.minPlayers then
+		alert("Experience: %u participante(s), minimo %u. Sin puntos.", participantCount, PointsConfig.minPlayers)
+		return
+	end
+
+	local bonus = getFinisherBonus(finisherCount)
+	for _, entry in ipairs(awardable) do
+		local base = PointsConfig.basePoints[entry.rank]
+		if base then
+			local wrBonus = beatWR[entry.player] and PointsConfig.wrBonus or 0
+			local points = base + bonus + wrBonus
+			local playerKey = getPlayerKey(entry.player)
+			local loggedIn = playerKey ~= nil
+			alert("Experience: %s rank=%u participants=%u finishers=%u bonus=%u wr=%u -> +%u (cuenta=%s)", tostring(playerKey), entry.rank, participantCount, finisherCount, bonus, wrBonus, points, tostring(loggedIn))
+			if not isElement(entry.player) then
+				-- jugador desconectado, no hay a quien avisar
+			elseif loggedIn then
+				IncrementPlayerStatInternal(entry.player, Stat.EXPERIENCE_POINTS, points)
+				local wrText = wrBonus > 0 and string.format(" (+%u WR)", wrBonus) or ""
+				outputChatBox(string.format("#33FF66[Puntos] #FFFFFFGanaste %u de experiencia por terminar %uº%s.", points, entry.rank, wrText), entry.player, 255, 255, 255, true)
+			else
+				-- Invitado: no se guarda, solo se avisa.
+				outputChatBox(string.format("#FFB154[Puntos] #FFFFFFTerminaste %uº y ganaste %u puntos, pero no tienes sesión iniciada: no se guardarán.", entry.rank, points), entry.player, 255, 255, 255, true)
+			end
+		end
+	end
+end
+
+
 -- tell everyone to save their stats when a map ends
 addEventHandler("onGamemodeMapStop", root,
 	function()
+		awardExperiencePoints()
+
 		local players = getElementsByType("player")
 		for _,player in ipairs(players) do
 			local playerName = getPlayerKey(player)
@@ -255,8 +377,8 @@ addEventHandler("onVehicleEnter", root,
 addEventHandler("onVehicleDamage", root,
 	function(damage)
 	    local player = getVehicleOccupant(source, 0)
-	    -- Check there is a player in the vehicle
-	    if player then
+	    -- getVehicleOccupant puede devolver un ped (NPC de trafico), no solo players.
+	    if player and getElementType(player) == "player" then
 	    	IncrementPlayerStatInternal(player, Stat.DAMAGE_TAKEN, math.floor(damage))
 	    end
 	end
@@ -311,6 +433,7 @@ addEvent("onPlayerFinishDD")
 addEventHandler("onPlayerFinishDD", root,
 	function(rank)
 		playersFinished[source] = true
+		finishRanks[source] = rank
 		-- rank 1 triggers onPlayerWinDD
 		IncrementPlayerStatInternal(source, Stat.RACES_FINISHED, 1)
 		if rank == 2 then
@@ -326,6 +449,7 @@ addEvent("onPlayerWinDD")
 addEventHandler("onPlayerWinDD", root,
 	function()
 		playersFinished[source] = true
+		finishRanks[source] = 1
 		IncrementPlayerStatInternal(source, Stat.RACES_FINISHED, 1)
 		IncrementPlayerStatInternal(source, Stat.RACES_WON, 1)
 		triggerEvent("onPlayerRaceWin", source)
@@ -337,6 +461,7 @@ addEvent("onPlayerFinish")
 addEventHandler("onPlayerFinish", root,
 	function(rank, time)
 		playersFinished[source] = true
+		finishRanks[source] = rank
 		IncrementPlayerStatInternal(source, Stat.RACES_FINISHED, 1)
 		if rank == 1 then
 			IncrementPlayerStatInternal(source, Stat.RACES_WON, 1)
@@ -355,6 +480,8 @@ addEventHandler("onPlayerToptimeImprovement", root,
 	function(newPos, newTime, oldPos, oldTime)
 		if newPos == 1 then
 			IncrementPlayerStatInternal(source, Stat.TOPTIMES_SET, 1)
+			-- Nuevo #1 del mapa (WR): bono de XP al final del mapa.
+			beatWR[source] = true
 		end
 	end
 )
@@ -373,13 +500,16 @@ addEvent("onPlayerRaceWin")
 addEvent("onRequestPlayerStats", true)
 addEventHandler("onRequestPlayerStats", root,
 	function(playerName)
+		local targetPlayer = source
 		if not playerName then
 			playerName = getPlayerKey(source)
 		else
 			local player = findPlayer(playerName)
 			if player then
 				playerName = getPlayerKey(player)
+				targetPlayer = player
 			else
+				targetPlayer = nil
 				if not PlayerData[playerName] then
 					PlayerData[playerName] = {
 						Stats = LoadPlayerStats(playerName, true)
@@ -391,7 +521,9 @@ addEventHandler("onRequestPlayerStats", root,
 		if not PlayerData[playerName] then return end
 
 		if table.count(PlayerData[playerName].Stats) > 0 then
-			triggerClientEvent(source, "onClientUpdateStats", source, playerName, PlayerData[playerName].Stats)
+			-- Mostramos el nick, aunque la clave interna sea la cuenta.
+			local displayName = isElement(targetPlayer) and getPlayerName(targetPlayer) or playerName
+			triggerClientEvent(source, "onClientUpdateStats", source, displayName, PlayerData[playerName].Stats)
 		end
 	end
 )

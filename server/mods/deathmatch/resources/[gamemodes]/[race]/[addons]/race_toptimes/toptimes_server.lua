@@ -41,6 +41,15 @@ addEventHandler('onPlayerQuit', root,
 	end
 )
 
+-- Rellena el pais de records viejos cuando el jugador vuelve a estar online.
+addEventHandler('onPlayerJoin', root,
+	function()
+		if backfillPlayerCountry then
+			backfillPlayerCountry(source)
+		end
+	end
+)
+
 addEventHandler('onResourceStart', resourceRoot,
 	function()
 		local raceInfo = getRaceInfo()
@@ -244,9 +253,9 @@ function SToptimesManager:onServiceQueueTimer()
 		local playerPosition = self.mapTimes:getIndexForPlayer( player )
 
 		if playerPosition then --player has a time in the DB, inject the stats to the last entry
-			local time, playerName, dateRecorded = self.mapTimes:getTextForPlayer( player )
+			local time, playerName, dateRecorded, country = self.mapTimes:getTextForPlayer( player )
 			if playerPosition > #self.toptimesDataForMap then --if player rank is lower than the number of times on the board, replace last value
-				self.toptimesDataForMap[#self.toptimesDataForMap] = {time	= time, playerName	= playerName, dateRecorded = dateRecorded }
+				self.toptimesDataForMap[#self.toptimesDataForMap] = {time	= time, playerName	= playerName, dateRecorded = dateRecorded, country = country }
 			end
 		end
 
