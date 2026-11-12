@@ -82,7 +82,7 @@ function GhostPlaybackC:loadGhost(ghostResourceName, mapName)
 		-- Create the ped & vehicle
 		for _, v in ipairs( self.recording ) do
 			if v.ty == "st" then
-				if g_GameOptions.validatespawn then
+				if g_GameOptions and g_GameOptions.validatespawn then
 					-- Check start is near a spawnpoint
 					local bestDist = math.huge
 					for _,spawnpoint in ipairs(getElementsByType("spawnpoint")) do
@@ -157,7 +157,7 @@ function GhostPlaybackC:loadGhost_Legacy(ghostResourceName, mapName)
 		-- Create the ped & vehicle
 		for _, v in ipairs( self.recording ) do
 			if v.ty == "st" then
-				if g_GameOptions.validatespawn then
+				if g_GameOptions and g_GameOptions.validatespawn then
 					-- Check start is near a spawnpoint
 					local bestDist = math.huge
 					for _,spawnpoint in ipairs(getElementsByType("spawnpoint")) do
@@ -339,7 +339,7 @@ end
 
 -- Check the best time is after the last recorded item time, but not too far afterwards
 function isBesttimeValidForRecording( recording, bestTime )
-	if not g_GameOptions.validatetime then return true end
+	if not (g_GameOptions and g_GameOptions.validatetime) then return true end
 	local terror = getRecordingBesttimeError( recording, bestTime )
 	return terror >= -2000 and terror < 2000
 end
@@ -364,7 +364,7 @@ end
 
 -- Check the best time is not (much) less than the map toptime
 function isBesttimeValidForMap( map, bestTime )
-	if not g_GameOptions.validatetime then return true end
+	if not (g_GameOptions and g_GameOptions.validatetime) then return true end
 	local terror = getMapBesttimeError( map, bestTime )
 	outputDebug ( "isBesttimeValidForMap dif:" .. tostring(terror) )
 	return terror >= -1000

@@ -7,9 +7,13 @@ addEvent( "disableGhostsForThisMap", true )
 
 NO_GHOST = false
 ghostsCreated = 0
-ghostsAmount  = 12 -- default value
+ghostsAmount  = 13 -- default value: top, PB, and 10 extra ghosts
 
 function GhostPlayback:create( recording, ped, vehicle, racer, time, playbackID )
+	if type(recording) ~= "table" or #recording == 0 or type(ped) ~= "table" or type(vehicle) ~= "table" then
+		return false
+	end
+
 	local result = {
 		ped = nil,
 		vehicle = nil,
@@ -27,8 +31,23 @@ function GhostPlayback:create( recording, ped, vehicle, racer, time, playbackID 
 	-- Move this client side so the server doesn't create unused ghost drivers for every player for every player
 	result.ped = createPed( ped.p, ped.x, ped.y, ped.z )
 	result.vehicle = createVehicle( vehicle.m, vehicle.x, vehicle.y, vehicle.z, vehicle.rx, vehicle.ry, vehicle.rz )
+	if not isElement(result.ped) or not isElement(result.vehicle) then
+		if isElement(result.ped) then destroyElement(result.ped) end
+		if isElement(result.vehicle) then destroyElement(result.vehicle) end
+		return false
+	end
+
+	local playerInterior = getElementInterior(localPlayer)
+	local playerDimension = getElementDimension(localPlayer)
+	setElementInterior(result.ped, playerInterior)
+	setElementInterior(result.vehicle, playerInterior)
+	setElementDimension(result.ped, playerDimension)
+	setElementDimension(result.vehicle, playerDimension)
+
 	result.blip = createBlipAttachedTo( result.ped, 0, 1, 150, 150, 150, 50 )
-	setElementParent( result.blip, result.ped )
+	if isElement(result.blip) then
+		setElementParent( result.blip, result.ped )
+	end
 	warpPedIntoVehicle( result.ped, result.vehicle )
 
 	setElementCollisionsEnabled( result.ped, false )
@@ -42,7 +61,37 @@ function GhostPlayback:create( recording, ped, vehicle, racer, time, playbackID 
 	return setmetatable( result, self )
 end
 
+local function syncGhostWorld()
+	if not playbacks then
+		return
+	end
+
+	local interior = getElementInterior(localPlayer)
+	local dimension = getElementDimension(localPlayer)
+	for _, ghost in pairs(playbacks) do
+		if isElement(ghost.ped) and isElement(ghost.vehicle) then
+			if getElementInterior(ghost.ped) ~= interior then
+				setElementInterior(ghost.ped, interior)
+			end
+			if getElementInterior(ghost.vehicle) ~= interior then
+				setElementInterior(ghost.vehicle, interior)
+			end
+			if getElementDimension(ghost.ped) ~= dimension then
+				setElementDimension(ghost.ped, dimension)
+			end
+			if getElementDimension(ghost.vehicle) ~= dimension then
+				setElementDimension(ghost.vehicle, dimension)
+			end
+		end
+	end
+end
+addEventHandler("onClientElementInteriorChange", localPlayer, syncGhostWorld)
+addEventHandler("onClientElementDimensionChange", localPlayer, syncGhostWorld)
+
 function GhostPlayback:destroy( finished )
+	if self.destroyed then return end
+	self.destroyed = true
+
 	self:stopPlayback( finished )
 	if self.checkForCountdownEnd_HANDLER then removeEventHandler( "onClientRender", root, self.checkForCountdownEnd_HANDLER ) self.checkForCountdownEnd_HANDLER = nil end
 	if self.updateGhostState_HANDLER then removeEventHandler( "onClientRender", root, self.updateGhostState_HANDLER ) self.updateGhostState_HANDLER = nil end
@@ -81,6 +130,11 @@ function GhostPlayback:checkForCountdownEnd()
 	if (NO_GHOST == true) then
 		NO_GHOST = false
 		self:destroy()
+		return
+	end
+	if not isElement(self.ped) or not isElement(self.vehicle) then
+		self:destroy()
+		return
 	end
 	local vehicle = getPedOccupiedVehicle( localPlayer )
 	if vehicle then
@@ -138,6 +192,11 @@ function GhostPlayback:startPlayback()
 			playbacks["PB"]:destroy()
 			playbacks["PB"] = nil
 		end
+	elseif ghostsAmount == 2 then -- only PB
+		if playbacks["Top"] then
+			playbacks["Top"]:destroy()
+			playbacks["Top"] = nil
+		end
 	end
 
 	-- Destroy extra ghosts if they are to much
@@ -148,7 +207,7 @@ function GhostPlayback:startPlayback()
 	end
 
 	-- Destroy extra ghosts
-	local extraGhostsAllowed = ghostsAmount-2
+	local extraGhostsAllowed = ghostsAmount-3
 	if extraGhostsAllowed < 0 then extraGhostsAllowed = 0 end
 
 	for i = 1, 30 do
@@ -159,7 +218,7 @@ function GhostPlayback:startPlayback()
 		end
 	end
 
-	if ghostsAmount == 0 then return end
+	if ghostsAmount == 0 or self.destroyed then return end
 
 	-- Start Playback
 	self.startTick = getTickCount()
@@ -176,6 +235,7 @@ function GhostPlayback:stopPlayback( finished )
 	if finished then
 		self.ghostFinishTimer = setTimer(
 			function()
+				if not isElement(self.vehicle) or not isElement(self.ped) then return end
 				local blip = getBlipAttachedTo( self.ped )
 				if blip then
 					setBlipColor( blip, 0, 0, 0, 0 )
@@ -198,13 +258,21 @@ function GhostPlayback:getNextIndexOfType( reqType, start, dir )
 end
 
 function GhostPlayback:updateGhostState()
+	if not isElement(self.ped) or not isElement(self.vehicle) then
+		self:destroy()
+		if playbacks and playbacks[self.playbackID] == self then
+			playbacks[self.playbackID] = nil
+		end
+		return
+	end
+
 	if not self.currentIndex then
 		Interpolator.Reset(self.playbackID)
 	end
 	self.currentIndex = self.currentIndex or 1
 	local ticks = getTickCount() - self.startTick
 	setElementHealth( self.ped, 100 ) -- we don't want the ped to die
-	while (self.recording[self.currentIndex] and self.recording[self.currentIndex].t < ticks) do
+	while (self.recording[self.currentIndex] and type(self.recording[self.currentIndex].t) == "number" and self.recording[self.currentIndex].t < ticks) do
 		local theType = self.recording[self.currentIndex].ty
 		-- if theType == "st" then
 		--	-- Skip
@@ -215,7 +283,7 @@ function GhostPlayback:updateGhostState()
 			-- Interpolate with next position depending on current time
 			local idx = self:getNextIndexOfType( "po", self.currentIndex + 1, 1 )
 			local period = nil
-			if idx then
+			if idx and type(self.recording[idx].t) == "number" then
 				local other = self.recording[idx]
 				local alpha = math.unlerp( self.recording[self.currentIndex].t, other.t, ticks )
 				period = other.t - ticks
@@ -283,6 +351,12 @@ end
 
 addEventHandler( "onClientGhostDataReceive", root,
 	function( recording, time, racer, ped, vehicle, playbackID )
+		recording = type(recording) == "string" and fromJSON(recording) or recording
+		if type(recording) ~= "table" or #recording == 0 or type(ped) ~= "table" or type(vehicle) ~= "table"
+			or type(time) ~= "number" or type(racer) ~= "string" then
+			return
+		end
+
 		if not playbackID then playbackID = "Top" end
 
 		if not playbacks then playbacks = {} end
@@ -318,10 +392,11 @@ addEventHandler( "onClientGhostDataReceive", root,
 		-- 	return
 		-- end
 
-		recording = fromJSON(recording)
-
-		playbacks[playbackID] = GhostPlayback:create( recording, ped, vehicle, racer, time, playbackID )
-		playbacks[playbackID]:preparePlayback()
+		local ghost = GhostPlayback:create( recording, ped, vehicle, racer, time, playbackID )
+		if ghost then
+			playbacks[playbackID] = ghost
+			ghost:preparePlayback()
+		end
 	end
 )
 
@@ -359,9 +434,11 @@ addEventHandler("updateRaceGhostsAmount", root, function(amount)
 	elseif ghostsAmount == 1 then
 		text = "(only top ghost)"
 	elseif ghostsAmount == 2 then
-		text = "(only top and PB ghosts)"
-	elseif ghostsAmount > 2 then
-		text = "(top, PB and " ..(ghostsAmount-2).. " extra ghosts)"
+		text = "(only PB ghost)"
+	elseif ghostsAmount == 3 then
+		text = "(top and PB ghosts)"
+	elseif ghostsAmount > 3 then
+		text = "(top, PB and " ..(ghostsAmount-3).. " extra ghosts)"
 	end
 
 	outputChatBox("Number of race ghosts set to " ..ghostsAmount.. " " ..text)
@@ -397,6 +474,7 @@ function Interpolator.SetPoints( playbackID, from, to )
 end
 
 function Interpolator.Update( playbackID, ticks, vehicle )
+	if not isElement(vehicle) then return end
 	if not last[playbackID] then last[playbackID] = { } end
 	if not last[playbackID].from or not last[playbackID].to then return end
 	local z,rX,rY,rZ
@@ -418,6 +496,7 @@ ErrorCompensator = {}
 error2 = {}
 
 function ErrorCompensator.handleNewPosition( playbackID, vehicle, x, y, z, period )
+	if not isElement(vehicle) then return end
 	if not error2[playbackID] then error2[playbackID] = { timeEnd = 0 } end
 
 	local vx, vy, vz = getElementPosition( vehicle )
@@ -446,6 +525,7 @@ end
 
 -- Apply a portion of the error
 function ErrorCompensator.updatePosition( playbackID, vehicle )
+	if not isElement(vehicle) then return end
 	if not error2[playbackID] then error2[playbackID] = { timeEnd = 0 } end
 
 	if error2[playbackID].timeEnd == 0 then return end

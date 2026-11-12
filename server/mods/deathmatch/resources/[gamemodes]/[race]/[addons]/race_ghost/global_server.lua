@@ -28,6 +28,33 @@ function outputDebug( ... )
 	end
 end
 
+function areRaceGhostsDisabledForMap(mapName)
+	if type(mapName) ~= "string" then
+		return false
+	end
+
+	local value = get("*" .. mapName .. ".disableraceghosts")
+	if type(value) == "boolean" then
+		return value
+	end
+	if type(value) ~= "string" then
+		return false
+	end
+
+	value = value:gsub("&quot;", '"')
+	local decoded = fromJSON(value)
+	if type(decoded) == "table" then
+		value = decoded[1]
+	elseif decoded ~= nil then
+		value = decoded
+	end
+
+	if type(value) == "boolean" then
+		return value
+	end
+	return type(value) == "string" and value:lower():match("^%s*true%s*$") ~= nil
+end
+
 -- Until xmlCopyFile works
 function copyFile( fileName, newName )
 	local newFile = fileCreate( newName )

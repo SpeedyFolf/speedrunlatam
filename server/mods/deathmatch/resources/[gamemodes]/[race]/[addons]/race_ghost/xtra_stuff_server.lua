@@ -87,12 +87,12 @@ function setGhostsAmount(source, command, amount)
 	-- Fail checks
 	if command ~= "ghosts" then return end
 	if isGuestAccount(getPlayerAccount(source)) then return end
-	if not amount then return outputChatBox("Usage: /ghosts [amount]. Maximum is 12 ghosts.", source) end
+	if not amount then return outputChatBox("Usage: /ghosts [amount]. Maximum is 13 ghosts.", source) end
 	if tonumber(amount) == nil then return end
 
 	-- Check for valid value
 	amount = tonumber(amount)
-	if amount > 12 then amount = 12
+	if amount > 13 then amount = 13
 	elseif amount < 0 then amount = 0 end
 
 	-- Save settings
@@ -103,7 +103,7 @@ addCommandHandler("ghosts", setGhostsAmount)
 
 addEventHandler("onPlayerLogin", root, function()
 	local ghostsAmount = tonumber(getAccountData(getPlayerAccount(source), "race_ghost.amount"))
-	if ghostsAmount == nil then ghostsAmount = 12 end -- set default value
+	if ghostsAmount == nil then ghostsAmount = 13 end -- set default value
 
 	triggerClientEvent(source, "updateRaceGhostsAmount", source, ghostsAmount)
 end )

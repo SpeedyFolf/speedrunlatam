@@ -256,7 +256,7 @@ addEventHandler( "onMapStarting", root,
 
 		local mapName = exports.mapmanager:getRunningGamemodeMap()
 
-		if (get("*" .. getResourceName( mapName ) .. ".disableraceghosts")) then
+		if areRaceGhostsDisabledForMap(getResourceName(mapName)) then
 			triggerClientEvent( "disableGhostsForThisMap", root )
 			return
 		end

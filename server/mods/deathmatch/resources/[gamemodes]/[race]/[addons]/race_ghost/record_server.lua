@@ -39,7 +39,7 @@ addEventHandler( "onGhostDataReceive", root,
 			iprint("[Race Ghost S] Received a new TOP ghost. Data: ", bestTime, racer, mapName, top, pb)
 		end
 
-		if (get("*"..mapName..".disableraceghosts")) then
+		if areRaceGhostsDisabledForMap(mapName) then
 			outputDebugServer( "Received a ghost recording on a map with ghosts disabled. Tossing..." )
 			return
 		end

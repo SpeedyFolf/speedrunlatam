@@ -3,9 +3,12 @@
 USO
 - /ghosts &lt;número&gt;: cuántos fantasmas cargar.
   - 0: desactivado
-  - 1: solo el mejor tiempo (top)
-  - 2: top + tu mejor tiempo personal (PB)
-  - 3: top + PB + 1 extra (12 = top + PB + 10 extras)
+  - 1: solo el mejor tiempo del mapa (top)
+  - 2: solo tu mejor tiempo personal (PB)
+  - 3: top + PB
+  - 4: top + PB + 1 extra
+  - ...
+  - 13: top + PB + 10 extras
 
 NOTAS
 - Los fantasmas de tus PB se guardan en tu equipo, no en el servidor.
