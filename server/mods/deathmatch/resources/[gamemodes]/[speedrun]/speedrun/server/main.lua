@@ -780,12 +780,15 @@ end
 local function ghostEntry(player)
     local vehicle = getPedOccupiedVehicle(player)
     local skin = getElementModel(player)
-    local x, y, z, rx, ry, rz, model, speedElement
+    local x, y, z, rx, ry, rz, model, speedElement, colors
     if vehicle then
         x, y, z = getElementPosition(vehicle)
         rx, ry, rz = getElementRotation(vehicle)
         model = getElementModel(vehicle)
         speedElement = vehicle
+        -- Color real del vehiculo (RGB de las 4 capas) para que el fantasma
+        -- se vea igual que el auto del jugador.
+        colors = { getVehicleColor(vehicle, true) }
     else
         x, y, z = getElementPosition(player)
         rx, ry, rz = getElementRotation(player)
@@ -804,6 +807,7 @@ local function ghostEntry(player)
         rx = rx, ry = ry, rz = rz,
         speed = math.sqrt(vx * vx + vy * vy + vz * vz),
         interior = getElementInterior(player),
+        colors = colors,
     }
 end
 

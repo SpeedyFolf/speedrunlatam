@@ -34,13 +34,17 @@ local function createGhostElement(entry, kind)
     local interior = tonumber(entry.interior) or 0
     local element, driver
     if kind == "ped" then
-        -- No se congela (un ped congelado no anima) y va sin animacion: como
-        -- las colisiones estan apagadas, en cada frame se le resetea posicion y
-        -- velocidad para que no caiga (ver onClientPreRender).
+        -- Congelado: un ped client-side sin congelar sigue teniendo colision y
+        -- los autos lo empujan. Congelado + colisiones off queda inmovil; igual
+        -- lo reposicionamos cada frame via setElementPosition (ver onClientPreRender).
         element = createPed(skin, entry.x, entry.y, entry.z, tonumber(entry.rz) or 0)
+        if element then setElementFrozen(element, true) end
     else
         element = createVehicle(model, entry.x, entry.y, entry.z)
         if element then
+            if type(entry.colors) == "table" and #entry.colors >= 12 then
+                setVehicleColor(element, unpack(entry.colors))
+            end
             -- Conductor fantasma sentado en el vehiculo, para que no quede un
             -- vehiculo vacio flotando.
             driver = createPed(skin, entry.x, entry.y, entry.z, tonumber(entry.rz) or 0)
@@ -147,8 +151,8 @@ addEventHandler("onClientPreRender", root, function()
             g.rz = lerpAngle(g.rz, g.trz, k)
             setElementPosition(g.element, g.x, g.y, g.z, false)
             setElementRotation(g.element, 0, 0, g.rz)
-            -- El ped no esta congelado y no tiene colisiones: sin esto la
-            -- gravedad lo va hundiendo entre frames.
+            -- El ped fantasma va congelado; igual anulamos velocidad por si algo
+            -- lo empuja (colisiones off).
             if g.kind == "ped" then setElementVelocity(g.element, 0, 0, 0) end
         end
     end
